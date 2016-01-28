@@ -22,7 +22,6 @@ class Boot extends Loggable{
     FoBo.InitParam.ToolKit = FoBo.AngularJS141
     FoBo.init()
 
-    // where to search snippet
     LiftRules.addToPackages("code")
 
     //Show the spinny image when an Ajax call starts
