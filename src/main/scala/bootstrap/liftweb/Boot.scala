@@ -10,8 +10,6 @@ import common._
 import http._
 import sitemap._
 import Loc._
-import net.liftweb.http.js.jquery._
-import scala.concurrent.ExecutionContext
 import scala.xml._
 import code.lib.session.SessionState
 
