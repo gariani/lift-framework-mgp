@@ -5,7 +5,6 @@ import net.liftmodules.FoBo
 import net.liftweb._
 import net.liftweb.http.auth.{HttpBasicAuthentication, userRoles, AuthRole}
 import util._
-import Helpers._
 import common._
 import http._
 import sitemap._
