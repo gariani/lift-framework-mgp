@@ -1,9 +1,8 @@
 package code.dao
 
 import code.model.Usuario
-import code.lib.Settings
-import net.liftweb.common.Full
 import com.roundeights.hasher.Implicits._
+import net.liftweb.common._
 
 class UsuarioDAO {
 
@@ -22,4 +21,13 @@ class UsuarioDAO {
   def findAll() = {
     Usuario.findAll()
   }
+
+  def findUser(email: String): Option[Usuario] = {
+    Usuario.findUser(email)
+  }
+
+  def save(usuario: Option[Usuario]) = {
+    Usuario.save(usuario)
+  }
+
 }

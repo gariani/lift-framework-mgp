@@ -3,6 +3,7 @@ package model
 
 import code.lib.Settings
 import scalikejdbc._
+import net.liftweb.common._
 
 case class Usuario(usuario_id: Int, nome: String, email: String, cargo: Option[String] = None,
                    observacao: Option[String] = None, telefone: Option[Long] = None, id_perfil: Option[Int] = None,id_papel: Option[Int] = None,
@@ -42,7 +43,18 @@ object Usuario extends SQLSyntaxSupport[Usuario] with Settings {
     select(u.result.usuario_id, u.result.email, u.result.senha).from(Usuario as u).where.eq(u.email,email).and.eq(u.senha, senha)
   }.map(rs => (u.resultName.email.toString(), u.resultName.senha.toString())).single().apply()
 
-  def findAll()(implicit session: DBSession = autoSession): List[Usuario] = withSQL
-    { select.from(Usuario as u) }.map(Usuario(u)).list().apply()
+  def findAll()(implicit session: DBSession = autoSession): List[Usuario] = withSQL {
+    select.from(Usuario as u)
+  }.map(Usuario(u)).list().apply()
+
+  def findUser(email: String)(implicit session: DBSession = autoSession): Option[Usuario] = withSQL {
+      select.from(Usuario as u).where.eq(u.email, email)
+    }.map(Usuario(u)).single().apply()
+
+  def save(usuario: Option[Usuario])(implicit session:DBSession = autoSession) = withSQL {
+    update(Usuario).set(
+      Usuario.column.nome -> usuario.get.nome
+    ).where.eq(Usuario.column.email, usuario.get.email)
+  }
 
 }

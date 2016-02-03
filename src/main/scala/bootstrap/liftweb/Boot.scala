@@ -47,15 +47,14 @@ class Boot extends Loggable{
 object Site {
 
   val login = Menu("Login") / "index"
-  val home = Menu("Home") / "sistema" / "index" >> If( () => SessionState.estaLogado, RedirectResponse("/"))
-  val usuario = Menu(Loc("usuario",
-                     Link(List("sistema"), true, "/sistema/usuario/index"),
-                     S.loc("usuario", Text("Perfil")),
-                     LocGroup("usuario"))) //>> If( () => SessionState.estaLogado, RedirectResponse("/"))
+  val home = Menu.i("Home") / "sistema" / "index" //>> If( () => SessionState.estaLogado, RedirectResponse("/"))
+  //val teste = Menu(Loc("Static", Link(List("static"), true, "/static/index"), S.loc("StaticContent" , scala.xml.Text("Static Content")),LocGroup("lg2","topRight"))) //>> If( () => SessionState.estaLogado, RedirectResponse("/"))
+  val perfil = Menu("Perfil") / "sistema"/ "usuario" / "perfil" //>> If( () => SessionState.estaLogado, RedirectResponse("/"))
 
   def siteMap = SiteMap (
     login,
     home,
-    usuario
+    perfil >> LocGroup("perfil")
+    //teste >> LocGroup("teste")
   )
 }

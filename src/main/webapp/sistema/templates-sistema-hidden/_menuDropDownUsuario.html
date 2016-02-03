@@ -1,26 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body data-lift-content-id="menuDropDownUsuario">
-
-<li id="menuDropDownUsuario" class="dropdown">
+<li class="dropdown">
     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
         <i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
     </a>
 
     <ul class="dropdown-menu dropdown-user">
-        <li><a class="lift:Menu.builder?group=perfil">Perfil</a>
+        <li><i class="fa fa-gear fa-fw lift:Menu.builder?group=perfil"></i>
         </li>
-        <li><a href="usuario/index"><i class="fa fa-gear fa-fw"></i>Configuração</a>
+        <li class="lift:Menu.builder?group=teste"><i class="fa fa-gear fa-fw"></i>
         </li>
         <li class="divider"></li>
         <li><a class="lift:LoginForm" href="#"> <span class="logout">Sair</span></a>
         </li>
     </ul>
 </li>
-
-</body>
-</html>

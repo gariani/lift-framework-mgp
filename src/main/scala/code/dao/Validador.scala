@@ -1,6 +1,4 @@
-package code.model
-
-import code.dao.UsuarioDAO
+package code.dao
 
 /**
   * Created by daniel on 05/01/16.

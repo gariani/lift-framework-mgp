@@ -1,6 +1,6 @@
 package code.snippet
 
-import code.model.{Validador}
+import code.dao.Validador
 import net.liftweb.common.{Empty, Full}
 import net.liftweb.http._
 import scala.xml.{NodeSeq, Text}
@@ -48,9 +48,11 @@ class LoginForm extends StatefulSnippet {
             S.redirectTo("/sistema/index")
           }
           case _ => S.error("senha", <div class="alert alert-danger">Email ou senha inválidos!</div>)
+            Noop;
         }
       }
       case _ => S.error("email", <div class="alert alert-danger">Email não cadastrado</div>)
+        Noop;
     }
   }
 

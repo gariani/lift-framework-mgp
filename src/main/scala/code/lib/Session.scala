@@ -7,7 +7,7 @@ object loggedInUserName extends SessionVar[Box[String]](Empty)
 
 object SessionState {
 
-  def gravarSessao(usuario: String): Unit ={
+  def gravarSessao(usuario: String) = {
     loggedInUserName.set(Full(usuario))
   }
 
@@ -17,5 +17,9 @@ object SessionState {
 
   def limparSessao = {
     loggedInUserName.set(Empty)
+  }
+
+  def getLogin: String = {
+    loggedInUserName.is.getOrElse("-1")
   }
 }

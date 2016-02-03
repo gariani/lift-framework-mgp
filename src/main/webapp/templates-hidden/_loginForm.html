@@ -1,11 +1,4 @@
-<!DOCTYPE html>
-<html>
-
-<head></head>
-
-<body data-lift-content-id="login">
-
-<div id="login" data-lift="LoginForm">
+<div data-lift="LoginForm">
     <div class="row">
         <div class="col-md-4 col-md-offset-4">
             <div class="login-panel panel panel-default">
@@ -17,11 +10,14 @@
                         <fieldset>
                             <span class="lift:Msg?id=email&errorClass=error">error</span>
                             <span class="lift:Msg?id=senha&errorClass=error">error</span>
+
                             <div class="form-group">
-                                <input class="form-control" placeholder="nome@dominio.com" name="email" id="email" type="email" required autofocus>
+                                <input class="form-control" placeholder="nome@dominio.com" name="email" id="email"
+                                       type="email" required autofocus>
                             </div>
                             <div class="form-group">
-                                <input class="form-control" placeholder="senha" name="senha" type="password" id="senha" value="">
+                                <input class="form-control" placeholder="senha" name="senha" type="password" id="senha"
+                                       value="">
                             </div>
                             <input type="submit" class="btn btn-lg btn-success btn-block" value="Login">
                         </fieldset>
@@ -31,8 +27,4 @@
         </div>
     </div>
 </div>
-
-</body>
-
-</html>
 
