@@ -10,7 +10,7 @@ object DataSource {
 
   private var url: String = "jdbc:mysql://localhost:3306/mgp"
   private var user: String = "root"
-  private var password: String = ""
+  private var password: String = "root"
 
   private[this] val dataSource: DataSource = {
     val ds = new HikariConfig()

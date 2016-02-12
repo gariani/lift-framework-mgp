@@ -25,6 +25,7 @@ import SHtml._
   */
 class PerfilUsuario  extends StatefulSnippet {
 
+  private var u: Usuario = _
   private var id: String = "1"
   private var nome: String = "daniel"
   private var email: String = "teste@teste.com.br"
@@ -37,6 +38,7 @@ class PerfilUsuario  extends StatefulSnippet {
     var usuarioDAO = new UsuarioDAO
     usuario = usuarioDAO.findUser(SessionState.getLogin).head
 
+    id = usuario.usuario_id.get.toString
     nome = usuario.nome
     email = usuario.email
 
@@ -52,13 +54,11 @@ class PerfilUsuario  extends StatefulSnippet {
   }
 
   def dispatch = {
-    case "render" => render
-  }
-
   def render = {
+
     carregarDados
 
-    "name=id" #> SHtml.text(id, id = _) &
+    "name=id" #> SHtml.text(u.usuario_id.get.toString =  _) &
       "name=nome" #> SHtml.text(nome, nome = _) &
       "name=email" #> SHtml.text(email, email = _) &
       "name=cargo" #> SHtml.text(cargo, cargo = _) &
@@ -67,10 +67,13 @@ class PerfilUsuario  extends StatefulSnippet {
   }
 
   private def alterar() = {
-    //var us: Usuario = new Usuario
-    var usuarioDAO = new UsuarioDAO
-    //usuarioDAO.save(usuario)
 
+    var usuarioDAO = new UsuarioDAO
+    val u: Usuario = new Usuario(Some(id.toInt), nome, email, Some(cargo), Some(observacao), None, None, None,
+      None, None, None, None)
+
+    usuarioDAO.save(u)
+    Noop
   }
 
 

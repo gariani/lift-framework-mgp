@@ -26,7 +26,7 @@ class UsuarioDAO {
     Usuario.findUser(email)
   }
 
-  def save(usuario: Option[Usuario]) = {
+  def save(usuario: Usuario) = {
     Usuario.save(usuario)
   }
 
