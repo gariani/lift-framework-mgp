@@ -13,9 +13,13 @@ class UsuarioDAO {
     }
   }
 
-  def findByLogin(email: String, senha: String): Option[(String, String)] = {
-    val s = senha.sha256.toString()
-    Usuario.findByLogin(email, s)
+  def findByLogin(email: Option[String], senha: Option[String]): Boolean = {
+    val s = senha.get.sha256.toString()
+    val e = email.getOrElse("-1")
+    Usuario.findByLogin(e, s) match {
+      case Some(l) => true
+      case None => false
+    }
   }
 
   def findAll() = {

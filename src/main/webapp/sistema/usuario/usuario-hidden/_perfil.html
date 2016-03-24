@@ -7,27 +7,31 @@
             <!-- /.col-lg-12 -->
         </div>
         <!-- /.row -->
-        <div class="row">
-            <div class="col-lg-9 col-md-6">
-                <form class="lift:form.ajax">
-                    <div data-lift="PerfilUsuario">
-                        <label>Id</label><br><input type="text" id="id" name="id">
+        <div class="row"  ng-app="UsuarioApp" ng-controller="UsuarioController">
+            <div class="col-lg-4 col-md-4">
+                <form method="get">
+                    <fieldset>
+                        <label>Nome</label><br><input class="form-control" type="text" id="nome" name="nome">
                         <br>
-                        <label>Nome</label><br><input type="text" id="nome" name="nome">
+                        <label>E-mail</label>
+                        <div class="form-group input-group input_email">
+                            <span class="input-group-addon">@</span>
+                            <input class="form-control" type="email" id="email" name="email">
+                        </div>
                         <br>
-                        <label>Email</label><br><input type="text" id="email" name="email">
+                        <label>Cargo</label><br><input class="form-control" type="text" id="cargo" ng-model="cargo" name="cargo">
                         <br>
-                        <label>Cargo</label><br><input type="text" id="cargo" name="cargo">
+                        <label>Telefone</label><br><input class="form-control" type="text" id="telefone" ng-model="telefone"
+                                                          name="telefone">
                         <br>
-                        <label>Observacao</label><br><input type="text" id="observacao" name="observacao">
+                        <label>Observacao</label><br><textarea class="form-control" id="observacao" ng-model="observacao"
+                                                            name="observacao"></textarea>
                         <br>
-                        <input name="adicionar" type="submit" value="Adicionar">
-                    </div>
+                        <button type="submit" class="btn btn-default">Adicionar</button>
+                    </fieldset>
                 </form>
-                <div id="resultado"></div>
             </div>
         </div>
-
     </div>
     <!-- /#page-wrapper -->
 </div>

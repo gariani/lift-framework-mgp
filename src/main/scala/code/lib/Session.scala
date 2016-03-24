@@ -7,8 +7,8 @@ object loggedInUserName extends SessionVar[Box[String]](Empty)
 
 object SessionState {
 
-  def gravarSessao(usuario: String) = {
-    loggedInUserName.set(Full(usuario))
+  def gravarSessao(usuario: Option[String]) = {
+    loggedInUserName.set(usuario)
   }
 
   def estaLogado: Boolean = {

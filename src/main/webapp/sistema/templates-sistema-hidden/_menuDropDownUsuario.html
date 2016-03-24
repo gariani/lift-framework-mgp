@@ -4,12 +4,8 @@
     </a>
 
     <ul class="dropdown-menu dropdown-user">
-        <li><i class="fa fa-gear fa-fw lift:Menu.builder?group=perfil"></i>
-        </li>
-        <li class="lift:Menu.builder?group=teste"><i class="fa fa-gear fa-fw"></i>
-        </li>
+        <li><a ng-click="onClickPerfil()"><i class="fa fa-gear fa-fw"></i>Perfil</a></li>
         <li class="divider"></li>
-        <li><a class="lift:LoginForm" href="#"> <span class="logout">Sair</span></a>
-        </li>
+        <li><a ng-click="doLogout()"><i class="fa fa-sign-out fa-fw"></i>Sair</a></li>
     </ul>
 </li>

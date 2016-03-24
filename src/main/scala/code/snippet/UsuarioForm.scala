@@ -23,7 +23,6 @@ class UsuarioForm extends StatefulSnippet {
     val lista = usuarioDao.findAll()
 
     ".linha *" #> lista.map( x =>
-      ".id *" #> x.usuario_id &
       ".nome *" #> x.nome &
       ".email *" #> x.email &
       ".cargo *" #> x.cargo &
