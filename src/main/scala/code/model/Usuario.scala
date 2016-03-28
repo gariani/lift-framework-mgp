@@ -6,15 +6,13 @@ import scalikejdbc._
 import net.liftweb.common._
 
 case class Usuario(id_usuario: Int, email: String, nome: String, cargo: Option[String] = None,
-                   observacao: Option[String] = None, telefone: Long, id_perfil: Option[Int] = None,id_papel: Option[Int] = None,
-                   id_ambiente: Option[Int] = None, id_planejamento: Option[Int] = None, permissao: Option[String] = None, senha: Option[String] = None)
+                   observacao: Option[String] = None, telefone: Long, senha: Option[String] = None)
 
 object Usuario extends SQLSyntaxSupport[Usuario] with Settings {
 
   override val tableName = "usuario"
 
-  override val columns = Seq("id_usuario", "email", "nome", "cargo", "observacao", "telefone", "id_papel", "id_ambiente",
-    "id_perfil", "id_planejamento", "permissao", "senha")
+  override val columns = Seq("id_usuario", "email", "nome", "cargo", "observacao", "telefone", "senha")
 
   def apply(u: SyntaxProvider[Usuario])(rs: WrappedResultSet): Usuario = apply(u.resultName)(rs)
 
@@ -25,11 +23,6 @@ object Usuario extends SQLSyntaxSupport[Usuario] with Settings {
     cargo = rs.stringOpt(u.cargo),
     observacao = rs.stringOpt(u.observacao),
     telefone = rs.get(u.telefone),
-    id_papel = rs.intOpt(u.id_papel),
-    id_ambiente = rs.intOpt(u.id_ambiente),
-    id_perfil = rs.intOpt(u.id_perfil),
-    id_planejamento = rs.intOpt(u.id_planejamento),
-    permissao = rs.stringOpt(u.permissao),
     senha = rs.stringOpt(u.senha)
   )
 
@@ -43,7 +36,7 @@ object Usuario extends SQLSyntaxSupport[Usuario] with Settings {
     select(u.email).from(Usuario as u).where.eq(u.email, email).and.eq(u.senha, senha)
   }.map(_.string(u.email)).single().apply()
 
-  def findAll()(implicit session: DBSession = autoSession): List[Usuario] = withSQL {
+  def findAllUsuarios()(implicit session: DBSession = autoSession): List[Usuario] = withSQL {
     select.from(Usuario as u)
   }.map(Usuario(u)).list().apply()
 

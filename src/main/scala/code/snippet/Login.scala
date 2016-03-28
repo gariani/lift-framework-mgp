@@ -37,7 +37,6 @@ class Login extends StatefulSnippet {
           S.error("dados", <div class="alert alert-danger">Email ou senha inválidos!
                            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
                            </div>)
-          Noop
         }
       }
   }
@@ -47,9 +46,4 @@ class Login extends StatefulSnippet {
     "senha=senha" #> SHtml.text(senha.get, (String) => senha) &
     "type=submit" #> SHtml.onSubmitUnit(process)
 
-
-  def doLogout(s: String): JsCmd = {
-    SessionState.limparSessao
-    S.redirectTo("/")
-  }
 }

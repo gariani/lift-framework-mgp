@@ -1,20 +1,21 @@
 package bootstrap.liftweb
 
-import code.rest.MyRest
+import code.lib.session.SessionState
+import code.rest.PerfilUsuarioRest
+import net.liftmodules.extras.{LiftExtras, Gravatar}
 import net.liftweb._
 import common._
 import http._
 import net.liftweb.sitemap._
 import Loc._
-
-/*object DbxToken extends
-  SessionVar[Option[omniauth.AuthInfo]](None)*/
+import net.liftweb.util.NamedPF
+import scala.xml.Text
 
 class Boot extends Loggable {
 
   def boot {
-    //omniauth.Omniauth.init
-    //LiftRules.dispatch.append(MyRest)
+
+    LiftRules.dispatch.append(PerfilUsuarioRest)
 
     LiftRules.addToPackages("code")
 
@@ -31,46 +32,40 @@ class Boot extends Loggable {
 
     LiftRules.htmlProperties.default.set((r: Req) => new Html5Properties(r.userAgent))
 
-   /* DbxToken.get.map{auth =>
-      val client = new DbxClient(
-        new DbxRequestConfig(
-          "Teste",
-          S.locale.toString),
-        auth.token)
-    }
+    // Init Extras
+    LiftExtras.init()
+    LiftRules.addToPackages("net.liftmodules.extras")
+    LiftExtras.errorTitle.default.set(Full(<em>Error!</em>))
+    LiftExtras.warningTitle.default.set(Full(Text("Warning!")))
+    LiftExtras.noticeTitle.default.set(Full(Text("Info!")))
+    LiftExtras.successTitle.default.set(Full(Text("Success!")))
+    LiftExtras.artifactName.default.set("extras-example-0.4.0")
 
-    val getDbxToken = EarlyResponse(() => {
-      omniauth.Omniauth.currentAuth.map { a =>
-        DbxToken(Full(a))
-      }
-      S.redirectTo("/")
-    })*/
-
-    def siteMap = List (
-      Menu("Login") / "index",
-      Menu.i("Home") / "sistema" / "index",
-      Menu("Perfil") / "sistema"/ "usuario" / "perfil"
-      /*Menu(Loc(
-        "Gmail Authenticated",
-        List("/sistema/index"),
-        S.?("dropbox"),
-        getDbxToken))*/
-
-    )// ++ omniauth.Omniauth.sitemap
+    Gravatar.defaultImage.default.set("wavatar")
 
     LiftRules.setSiteMap(Site.siteMap)
+
+    LiftRules.uriNotFound.prepend(NamedPF("404handler"){
+      case (req,failure) =>
+        NotFoundAsTemplate(ParsePath(List("404"),"html",false,false))
+    })
+
   }
 }
 
 object Site {
 
   val login = Menu("Login") / "index"
-  val home = Menu.i("Home") / "sistema" / "index" //>> If( () => SessionState.estaLogado, RedirectResponse("/"))
-  val perfil = Menu("Perfil") / "sistema"/ "usuario" / "perfil" //>> If( () => SessionState.estaLogado, RedirectResponse("/"))
+  val home = Menu.i("Home") / "sistema" / "index" >> If( () => SessionState.estaLogado, RedirectResponse("/"))
+  val perfil = Menu("Perfil") / "sistema"/ "usuario" / "perfil" >> If( () => SessionState.estaLogado, RedirectResponse("/"))
+  val projeto = Menu("Projeto") / "sistema"/ "projeto" / "index" >> If( () => SessionState.estaLogado, RedirectResponse("/"))
+  val cliente = Menu("Projeto") / "sistema"/ "cliente" / "index" >> If( () => SessionState.estaLogado, RedirectResponse("/"))
 
   def siteMap = SiteMap (
     login,
     home,
-    perfil
+    perfil,
+    projeto,
+    cliente
   )
 }

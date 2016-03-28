@@ -29,23 +29,30 @@ class PerfilUsuario  extends StatefulSnippet {
 
   def carregarDados = {
 
+    Thread.sleep(2000)
+
     var usuarioDAO = new UsuarioDAO
-    var usuario: Option[Usuario] = None
-    usuario = usuarioDAO.findUser(SessionState.getLogin).headOption
 
-    id_usuario = usuario.get.id_usuario
-    nome = usuario.get.nome
-    email = usuario.get.email
-    telefone = usuario.get.telefone
+    usuarioDAO.findUser(SessionState.getLogin).headOption match {
+      case Some(u) => {
 
-    cargo = usuario.get.cargo match {
-      case Some(c) => c.toString
-      case None => ""
-    }
+        id_usuario = u.id_usuario
+        nome = u.nome
+        email = u.email
+        telefone = u.telefone
 
-    observacao = usuario.get.observacao match {
-      case Some(o) => o.toString
-      case None => ""
+        cargo = u.cargo match {
+          case Some(c) => c.toString
+          case None => ""
+        }
+
+        observacao = u.observacao match {
+          case Some(o) => o.toString
+          case None => ""
+        }
+
+      }
+      case None => <div>Perfil não disponível</div>
     }
 
   }
@@ -58,8 +65,8 @@ class PerfilUsuario  extends StatefulSnippet {
       "name=email" #> (SHtml.text(email, email = _)) &
       "name=telefone" #> SHtml.text(telefone.toString, s => Helpers.asLong(s).foreach( i => telefone = i)) &
       "name=cargo" #> SHtml.text(cargo, cargo = _) &
-      "name=observacao" #> SHtml.text(observacao, observacao = _) &
-      "type=submit" #> ajaxSubmit("Alterar", () => alterar)
+      "name=observacao" #> SHtml.textarea(observacao, observacao = _) &
+      "type=submit" #> ajaxSubmit("Atualizar", () => atualizar)
   }
 
   def mensagemErro(msg: String): NodeSeq = {
@@ -73,7 +80,7 @@ class PerfilUsuario  extends StatefulSnippet {
   }
 
 
-  def alterar: JsCmd = {
+  def atualizar: JsCmd = {
 
     S.clearCurrentNotices
 
@@ -94,13 +101,9 @@ class PerfilUsuario  extends StatefulSnippet {
   }
 
   def salvar() = {
-
     var usuarioDAO = new UsuarioDAO
-    val u: Usuario = new Usuario(id_usuario, email, nome, Some(cargo), Some(observacao), telefone, None, None,
-      None, None, None, None)
-
+    val u: Usuario = new Usuario(id_usuario, email, nome, Some(cargo), Some(observacao), telefone, None)
     usuarioDAO.save(u)
-
   }
 
 

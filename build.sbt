@@ -36,7 +36,8 @@ libraryDependencies ++= {
     "org.eclipse.jetty.orbit"  % "javax.servlet"          % "3.0.0.v201112011016" % "container,test" artifacts Artifact("javax.servlet", "jar", "jar"),
     "ch.qos.logback"           % "logback-classic"        % "1.1.3",
     "org.specs2"              %% "specs2-core"            % "3.6.4"               % "test",
-    "com.timesprint"           % "hasher_2.10"            % "0.3.0"
+    "com.timesprint"           % "hasher_2.10"            % "0.3.0",
+    "net.liftmodules"         %% "extras_2-6"             % "0.4"
   )
 }
 
