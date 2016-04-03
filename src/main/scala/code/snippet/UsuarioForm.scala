@@ -9,9 +9,9 @@ import net.liftweb.util.Helpers
 import scala.xml.NodeSeq
 
 
-class UsuarioForm extends /*StatefulSnippet*/ {
+class UsuarioForm extends StatefulSnippet {
 
-/*  private var imprimir: String = ""
+  private var imprimir: String = ""
 
   def dispatch = {
     case "listaUsuario" => listaUsuario
@@ -20,17 +20,14 @@ class UsuarioForm extends /*StatefulSnippet*/ {
   def listaUsuario = {
 
     var usuarioDao = new UsuarioDAO
-    val lista = usuarioDao.findAll()
 
-    ".linha *" #> lista.map( x =>
+    val lista = usuarioDao.findAllUsuarios()
+      ".linha *" #> lista.map( x =>
       ".nome *" #> x.nome &
       ".email *" #> x.email &
       ".cargo *" #> x.cargo &
       ".observacao *" #> x.observacao &
-      ".telefone *" #> x.telefone &
-      ".permissao *" #> x.permissao &
-      ".id_perfil *" #> x.id_perfil)
-
+      ".telefone *" #> x.telefone)
   }
-*/
+
 }

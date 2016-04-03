@@ -14,8 +14,6 @@ class MenuDropDownUsuario extends StatefulSnippet {
 
   def dispatch = {case "render" => render}
 
-  object currentExpense extends RequestVar[Box[Usuario]](Empty)
-
-  def render = ".perfil" #> SHtml.link("/sistema/usuario/perfil", () => currentExpense, <i class="perfil fa fa-gear fa-fw"> Perfil</i>) &
+  def render = ".perfil" #> SHtml.link("/sistema/usuario/perfil/perfil", () => Empty, <i class="perfil fa fa-gear fa-fw"> Perfil</i>) &
                ".sair"   #> SHtml.link("/", () => SessionState.limparSessao, <i class="fa fa-sign-out fa-fw"> Sair</i>)
 }

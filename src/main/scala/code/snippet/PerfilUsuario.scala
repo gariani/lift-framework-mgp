@@ -9,6 +9,7 @@ import net.liftweb.http._
 import net.liftweb.http.SHtml.ajaxSubmit
 import net.liftweb.http.js.{JsCmds, JsCmd}
 import net.liftweb.util.{Helpers}
+import org.joda.time.DateTime
 import scala.xml.{NodeSeq}
 import net.liftweb._
 import util.Helpers._
@@ -19,7 +20,7 @@ import util.Helpers._
   */
 class PerfilUsuario  extends StatefulSnippet {
 
-  private var id_usuario: Int = 0
+  private var id_usuario: Long = 0
   private var nome: String = ""
   private var email: String = ""
   private var cargo: String = ""
@@ -29,23 +30,20 @@ class PerfilUsuario  extends StatefulSnippet {
 
   def carregarDados = {
 
-    Thread.sleep(2000)
-
     var usuarioDAO = new UsuarioDAO
 
-    usuarioDAO.findUser(SessionState.getLogin).headOption match {
-      case Some(u) => {
+    val usuario = usuarioDAO.findByEmail(SessionState.getLogin)
 
+    usuario match {
+      case Some(u) => {
         id_usuario = u.id_usuario
         nome = u.nome
         email = u.email
         telefone = u.telefone
-
         cargo = u.cargo match {
           case Some(c) => c.toString
           case None => ""
         }
-
         observacao = u.observacao match {
           case Some(o) => o.toString
           case None => ""
@@ -101,9 +99,9 @@ class PerfilUsuario  extends StatefulSnippet {
   }
 
   def salvar() = {
-    var usuarioDAO = new UsuarioDAO
-    val u: Usuario = new Usuario(id_usuario, email, nome, Some(cargo), Some(observacao), telefone, None)
-    usuarioDAO.save(u)
+    var u = new Usuario(id_usuario, email, nome, Some(cargo), Some(observacao), telefone, "", DateTime.now, Some(DateTime.now) )
+    Usuario.save(u)
+
   }
 
 

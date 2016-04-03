@@ -1,5 +1,0 @@
-omniauth.dropboxkey=4dkzeh5awp36qb9
-omniauth.dropboxsecret=q17b5slz0xteu3c
-omniauth.baseurl=http://localhost:8080/
-omniauth.sucessurl=/sistema/index
-omniauth.failurl=/teste
