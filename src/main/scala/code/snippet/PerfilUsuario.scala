@@ -99,8 +99,8 @@ class PerfilUsuario  extends StatefulSnippet {
   }
 
   def salvar() = {
-    var u = new Usuario(id_usuario, email, nome, Some(cargo), Some(observacao), telefone, "", DateTime.now, Some(DateTime.now) )
-    Usuario.save(u)
+    //var u = new ListaUsuario(id_usuario, email, nome, Some(cargo), Some(observacao), telefone, "", DateTime.now, Some(DateTime.now) )
+    //Usuario.save(u)
 
   }
 

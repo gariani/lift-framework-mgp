@@ -1,21 +1,15 @@
 package bootstrap.liftweb
 
-import code.lib.session.SessionState
 import code.rest.PerfilUsuarioRest
-import net.liftmodules.{FoBo, FoBoBs}
+import net.liftmodules.{FoBo}
 import net.liftmodules.extras.{LiftExtras, Gravatar}
 import net.liftweb._
-import net._
 import common._
 import http._
-import net.liftweb.sitemap._
-import Loc._
-import net.liftweb.util.{Helpers, NamedPF}
+import net.liftweb.util.{NamedPF}
 import scala.xml.Text
 import sitemap._
 import Loc._
-import util._
-import Helpers._
 
 class Boot extends Loggable {
 
@@ -69,14 +63,14 @@ object Site {
   val home = Menu.i("Home") / "sistema" / "index"
   val login = Menu("Login") / "index"
   val tarefas = Menu("Tarefas") / "sistema"/ "tarefa" / "tarefa"
-  val perfil = Menu(Loc("perfil", Link(List("sistema", "usuario", "perfil", "Perfil"), true, "/sistema/usuario/perfil/perfil"), S.loc("perfil", Text(""))))
+  val perfil = Menu(Loc("perfil", Link(List("sistema", "usuario", "perfil", "perfil"), true, "/sistema/usuario/perfil/perfil"), S.loc("perfil", Text(""))))
   val projeto = Menu("Projeto") / "sistema"/ "projeto" / "index"
 
   var admin = Menu("Administrador") / "sistema" / "cliente" / "administrador" submenus(
       Menu.i("Usuários") / "sistema" / "usuario" / "configuracao" / "configuracao_usuario",
       Menu.i("Cliente->Projeto") / "sistema" / "cliente" / "cliente",
       Menu.i("Equipes") / "sistema" / "equipe" / "equipe",
-      Menu.i("Tipos de Tarefas") / "sistema" / "tipo_tarefa" / "tipo_tarefa",
+      Menu.i("Tipos de Tarefas") / "sistema" / "tarefa" / "tipo_tarefa" / "tipo_tarefa",
       Menu.i("Status de Tarefa") / "sistema" / "status_tarefa" / "status_tarefa"
     )
 
