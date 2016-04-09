@@ -44,21 +44,31 @@ object TipoTarefa extends SQLSyntaxSupport[TipoTarefa] with Settings {
 
   def findByIdTipoTarefa(idTipoTarefa: Long)(implicit session: DBSession = autoSession): Option[TipoTarefa] = {
     withSQL{
-      select.from(TipoTarefa as tt)
+      select.from(TipoTarefa as tt).orderBy(tt.idTipoTarefa)
     }.map(TipoTarefa(tt)).single().apply()
   }
 
   def findAll()(implicit session: DBSession = autoSession): List[TipoTarefa] = withSQL {
-      select.from(TipoTarefa as tt)
+      select.from(TipoTarefa as tt).orderBy(tt.idTipoTarefa)
   }.map(TipoTarefa(tt)).list().apply()
 
-  def create(idTipoTarefa: Long, nomeTipoTarefa: String, createdAt: DateTime, deletedAt: Option[DateTime]): Unit ={
-    val idTipoTarefa = withSQL {
+  def create(nomeTipoTarefa: String, estimativa: Option[Time], createdAt: DateTime)(implicit session: DBSession = autoSession): TipoTarefa ={
+
+    val id = withSQL {
       insert.into(TipoTarefa).namedValues(
         column.nomeTipoTarefa -> nomeTipoTarefa,
+        column.estimativa -> estimativa,
         column.createdAt -> createdAt
       )
-    }
+    }.updateAndReturnGeneratedKey.apply()
+
+    TipoTarefa(
+      idTipoTarefa = id,
+      nomeTipoTarefa = nomeTipoTarefa,
+      estimativa = estimativa,
+      createdAt = createdAt
+    )
+
   }
 
   def save(tipoTarefa: TipoTarefa)(implicit session: DBSession = autoSession): TipoTarefa = {
@@ -71,7 +81,7 @@ object TipoTarefa extends SQLSyntaxSupport[TipoTarefa] with Settings {
   }
 
   def destroy(idTipoTarefa: Long)(implicit session: DBSession = autoSession): Unit = withSQL {
-    update(TipoTarefa).set(column.deletedAt -> DateTime.now).where.eq(column.idTipoTarefa, idTipoTarefa)
-  }
+    delete.from(TipoTarefa).where.eq(column.idTipoTarefa, idTipoTarefa)
+  }.update.apply()
 
 }

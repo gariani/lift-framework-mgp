@@ -3,6 +3,7 @@ package code.snippet
 import java.sql.Time
 
 import code.dao.TipoTarefaDAO
+import code.model.TipoTarefa
 import net.liftweb.http.js.JsCmds
 import net.liftweb.http.{StatefulSnippet, SHtml}
 import net.liftweb.util.{Helpers}
@@ -31,6 +32,7 @@ class TipoTarefa extends StatefulSnippet {
     val lista = tipoTarefaDao.findAll()
 
       ".listaTipoTarefa *" #> lista.map( tt =>
+            ".id *" #> tt.idTipoTarefa &
             ".descricao *" #> tt.nomeTipoTarefa &
             ".estimativa *" #> tt.estimativa.toString &
             ".foraUso *" #> tt.estimativa.toString &
@@ -39,12 +41,13 @@ class TipoTarefa extends StatefulSnippet {
   }
 
   def editar(idTipoTarefa: Long) = {
-    println("editar")
 
   }
 
   def deletar(idTipoTarefa: Long) = {
-    println("deletar")
+    var tipoTarefaDAO = new TipoTarefaDAO
+    tipoTarefaDAO.delete(idTipoTarefa)
+    JsCmds.Noop
   }
 
 }

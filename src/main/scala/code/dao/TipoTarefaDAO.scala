@@ -8,8 +8,13 @@ class TipoTarefaDAO {
     TipoTarefa.findAll()
   }
 
-  def save(usuario: Usuario) = {
-    Usuario.save(usuario)
+  def save(tipoTarefa: TipoTarefa) = {
+    TipoTarefa.save(tipoTarefa)
+  }
+
+  def delete(idTipoTarefa: Long) =
+  {
+    TipoTarefa.destroy(idTipoTarefa)
   }
 
 }
