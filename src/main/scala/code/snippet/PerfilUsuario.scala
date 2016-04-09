@@ -36,7 +36,7 @@ class PerfilUsuario  extends StatefulSnippet {
 
     usuario match {
       case Some(u) => {
-        id_usuario = u.id_usuario
+        id_usuario = u.idUsuario
         nome = u.nome
         email = u.email
         telefone = u.telefone

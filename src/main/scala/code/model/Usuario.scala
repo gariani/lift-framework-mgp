@@ -4,7 +4,7 @@ import code.lib.Settings
 import org.joda.time.DateTime
 import scalikejdbc._
 
-case class Usuario(id_usuario: Long,
+case class Usuario(idUsuario: Long,
                    email: String,
                    nome: String,
                    cargo: Option[String] = None,
@@ -16,7 +16,7 @@ case class Usuario(id_usuario: Long,
 {
   def save()(implicit session: DBSession = Usuario.autoSession): Usuario = Usuario.save(this)(session)
 
-  def destroy()(implicit session: DBSession = Usuario.autoSession): Unit = Usuario.destroy(id_usuario)(session)
+  def destroy()(implicit session: DBSession = Usuario.autoSession): Unit = Usuario.destroy(idUsuario)(session)
 
   private val (u) = (Usuario.u)
 }
@@ -28,9 +28,8 @@ object Usuario extends SQLSyntaxSupport[Usuario] with Settings {
   override val columns = Seq("id_usuario", "email", "nome", "cargo", "observacao", "telefone", "senha", "created_at", "deleted_at")
 
   def apply(u: SyntaxProvider[Usuario])(rs: WrappedResultSet): Usuario = apply(u.resultName)(rs)
-
   def apply(u: ResultName[Usuario])(rs: WrappedResultSet): Usuario = new Usuario(
-    id_usuario = rs.get(u.id_usuario),
+    idUsuario = rs.get(u.idUsuario),
     email = rs.get(u.email),
     nome = rs.get(u.nome),
     cargo = rs.stringOpt(u.cargo),
@@ -67,7 +66,7 @@ object Usuario extends SQLSyntaxSupport[Usuario] with Settings {
         Usuario.column.senha -> usuario.senha,
         Usuario.column.telefone -> usuario.telefone,
         Usuario.column.createdAt -> usuario.createdAt
-      ).where.eq(Usuario.column.id_usuario, usuario.id_usuario).and.isNull(column.deletedAt)
+      ).where.eq(Usuario.column.idUsuario, usuario.idUsuario).and.isNull(column.deletedAt)
     }
     usuario
   }
@@ -88,7 +87,7 @@ object Usuario extends SQLSyntaxSupport[Usuario] with Settings {
     }.updateAndReturnGeneratedKey.apply()
 
     Usuario(
-      id_usuario = id,
+      idUsuario = id,
       email = email,
       nome = nome,
       cargo = cargo,
@@ -99,7 +98,7 @@ object Usuario extends SQLSyntaxSupport[Usuario] with Settings {
     )
   }
 
-  def destroy(id_usuario: Long)(implicit session: DBSession = autoSession): Unit = withSQL {
-    update(Usuario).set(column.deletedAt -> DateTime.now).where.eq(column.id_usuario, id_usuario)
+  def destroy(idUsuario: Long)(implicit session: DBSession = autoSession): Unit = withSQL {
+    update(Usuario).set(column.deletedAt -> DateTime.now).where.eq(column.idUsuario, idUsuario)
   }
 }

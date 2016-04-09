@@ -1,6 +1,9 @@
 package code.model
 
 
+import java.sql.Time
+
+import code.lib.Settings
 import org.joda.time.DateTime
 import scalikejdbc._
 
@@ -10,6 +13,7 @@ import scalikejdbc._
 
 case class TipoTarefa(idTipoTarefa: Long,
                       nomeTipoTarefa: String,
+                      estimativa: Option[Time],
                       createdAt: DateTime,
                       deletedAt: Option[DateTime] = None){
 
@@ -21,17 +25,17 @@ case class TipoTarefa(idTipoTarefa: Long,
 
 }
 
-object TipoTarefa extends SQLSyntaxSupport[TipoTarefa] {
+object TipoTarefa extends SQLSyntaxSupport[TipoTarefa] with Settings {
 
   override val tableName = "tipo_tarefa"
 
-  override val columns = Seq("id_tipo_tarefa", "nome_tipo_tarefa", "created_at", "deleted_at")
+  override val columns = Seq("id_tipo_tarefa", "nome_tipo_tarefa", "estimativa", "created_at", "deleted_at")
 
   def apply(tt: SyntaxProvider[TipoTarefa])(rs: WrappedResultSet): TipoTarefa = apply(tt.resultName)(rs)
-
-  def apply(tt: SyntaxProvider[TipoTarefa])(rs: WrappedResultSet): TipoTarefa = new TipoTarefa(
+  def apply(tt: ResultName[TipoTarefa])(rs: WrappedResultSet): TipoTarefa = new TipoTarefa(
     idTipoTarefa = rs.get(tt.idTipoTarefa),
     nomeTipoTarefa = rs.get(tt.nomeTipoTarefa),
+    estimativa = rs.timeOpt(tt.estimativa),
     createdAt = rs.get(tt.createdAt),
     deletedAt = rs.jodaDateTimeOpt(tt.deletedAt)
   )
@@ -43,6 +47,10 @@ object TipoTarefa extends SQLSyntaxSupport[TipoTarefa] {
       select.from(TipoTarefa as tt)
     }.map(TipoTarefa(tt)).single().apply()
   }
+
+  def findAll()(implicit session: DBSession = autoSession): List[TipoTarefa] = withSQL {
+      select.from(TipoTarefa as tt)
+  }.map(TipoTarefa(tt)).list().apply()
 
   def create(idTipoTarefa: Long, nomeTipoTarefa: String, createdAt: DateTime, deletedAt: Option[DateTime]): Unit ={
     val idTipoTarefa = withSQL {

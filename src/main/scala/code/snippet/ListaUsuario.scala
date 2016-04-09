@@ -24,10 +24,10 @@ class ListaUsuario extends StatefulSnippet {
 
   def render = {
     "#listaUsuario" #> listaUsuario &
-      "#adicionar [onClick]" #> SHtml.onEvent(testFunction)
+      "#adicionar [onClick]" #> SHtml.onEvent(ocultar)
   }
 
-  def testFunction(s: String): JsCmd = {
+  def ocultar(s: String): JsCmd = {
       if (novoUsuarioVisivel.get.get) {
         novoUsuarioVisivel.set(Full(false))
         JsCmds.JsShowId("btnAdicionarNovo")
@@ -45,14 +45,15 @@ class ListaUsuario extends StatefulSnippet {
     var usuarioDao = new UsuarioDAO
 
     val lista = usuarioDao.findAllUsuarios()
-      ".linha *" #> lista.map( x =>
-      ".nome *" #> x.nome &
-      ".email *" #> x.email &
-      ".cargo *" #> x.cargo &
-      ".observacao *" #> x.observacao &
-      ".telefone *" #> x.telefone &
-      "#editar [onclick]" #> SHtml.ajaxInvoke(() => editar(x.email)) &
-      "#deletar [onclick]" #> SHtml.ajaxInvoke(() => deletar(x.email)))
+
+    ".linha *" #> lista.map( u =>
+      ".nome *" #> u.nome &
+      ".email *" #> u.email &
+      ".cargo *" #> u.cargo &
+      ".observacao *" #> u.observacao &
+      ".telefone *" #> u.telefone &
+      "#editar [onclick]" #> SHtml.ajaxInvoke(() => editar(u.email)) &
+      "#deletar [onclick]" #> SHtml.ajaxInvoke(() => deletar(u.email)))
   }
 
   def adicionar() = {

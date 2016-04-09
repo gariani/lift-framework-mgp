@@ -8,17 +8,34 @@
         </div>
         <!-- /.row -->
         <!--<div data-lift="lazy-load?template=/sistema/usuario/usuario-hidden/empty">-->
-        <div class="lift:Projeto">
-            <div class="row">
-                <div class="col-lg-4 col-md-4">
-                    <form method="post">
-                        <fieldset>
-                        </fieldset>
-                    </form>
-                </div>
+        <div class="lift:TipoTarefa">
+            <div class="panel panel-default">
+                <table id="descricaoTipoTarefa" class="table" width="100%" cellpadding="0" cellspacing="0">
+                    <caption></caption>
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Descrição</th>
+                        <th>Estimativa</th>
+                        <th>Fora Uso</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr class="listaTipoTarefa">
+                        <td class="descricao"></td>
+                        <td class="estimativa"></td>
+                        <td class="foraUso"></td>
+                        <td><a id="editar" class="btn btn-info" href="#">
+                            <i class="fa fa-pencil-square-o"></i> Editar</a></td>
+                        <td><a id="deletar" class="btn btn-danger" href="#">
+                            <i class="fa fa-trash-o fa-lg"></i> Delete</a></td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
-        <!--</div>-->
-    </data-lift="lazy-loge-wrapper -->
+    </div>
+    <!--</data-lift="lazy-loge-wrapper -->
 </div>
 <!-- /#wrapper -->
