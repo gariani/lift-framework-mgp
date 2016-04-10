@@ -1,6 +1,5 @@
 package bootstrap.liftweb
 
-import code.rest.PerfilUsuarioRest
 import net.liftmodules.{FoBo}
 import net.liftmodules.extras.{LiftExtras, Gravatar}
 import net.liftweb._
@@ -14,8 +13,6 @@ import Loc._
 class Boot extends Loggable {
 
   def boot {
-
-    LiftRules.dispatch.append(PerfilUsuarioRest)
 
     LiftRules.addToPackages("code")
 
@@ -70,7 +67,9 @@ object Site {
       Menu.i("Usuários") / "sistema" / "usuario" / "configuracao" / "configuracao_usuario",
       Menu.i("Cliente->Projeto") / "sistema" / "cliente" / "cliente",
       Menu.i("Equipes") / "sistema" / "equipe" / "equipe",
-      Menu.i("Tipos de Tarefas") / "sistema" / "tarefa" / "tipo_tarefa" / "tipo_tarefa",
+      Menu.i("Tipos de Tarefas") / "sistema" / "tarefa" / "tipo_tarefa" / "tipo_tarefa" submenus (
+        Menu.i("Editar Tipo de Tarefas") / "sistema" / "tarefa" / "tipo_tarefa" / "editar" >> Hidden
+        ),
       Menu.i("Status de Tarefa") / "sistema" / "status_tarefa" / "status_tarefa"
     )
 

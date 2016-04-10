@@ -4,17 +4,21 @@ import java.sql.Time
 
 import code.dao.TipoTarefaDAO
 import code.model.TipoTarefa
+import net.liftweb.common.{Full, Empty, Box}
 import net.liftweb.http.js.JsCmds
-import net.liftweb.http.{StatefulSnippet, SHtml}
-import net.liftweb.util.{Helpers}
-import scala.xml.{NodeSeq}
+import net.liftweb.http.{RequestVar, StatefulSnippet, SHtml}
 import net.liftweb._
 import util.Helpers._
+import scala.xml.Text
+import xml.Group
 
 /**
   * Created by daniel on 03/04/16.
   */
-class TipoTarefa extends StatefulSnippet {
+
+object tipoTarefaSelecioada extends RequestVar[Option[TipoTarefa]](Empty)
+
+class STipoTarefa extends StatefulSnippet {
 
   private var descricao: Option[String] = None
   private var estimativa: Option[String] =  None
@@ -36,12 +40,8 @@ class TipoTarefa extends StatefulSnippet {
             ".descricao *" #> tt.nomeTipoTarefa &
             ".estimativa *" #> tt.estimativa.toString &
             ".foraUso *" #> tt.estimativa.toString &
-            "#editar [onclick]" #> SHtml.ajaxInvoke(() => editar(tt.idTipoTarefa)) &
-            "#deletar [onclick]" #> SHtml.ajaxInvoke(() => deletar(tt.idTipoTarefa)))
-  }
-
-  def editar(idTipoTarefa: Long) = {
-
+            "#editar" #> link("/sistema/tarefa/tipo_tarefa/editar", () => tipoTarefaSelecioada.set(Some(tt)), <i class="fa fa-pencil-square-o"></i>) &
+            "#deletar [onclick]" #> SHtml.ajaxButton("Detele", () => deletar(tt.idTipoTarefa)))
   }
 
   def deletar(idTipoTarefa: Long) = {
@@ -49,5 +49,6 @@ class TipoTarefa extends StatefulSnippet {
     tipoTarefaDAO.delete(idTipoTarefa)
     JsCmds.Noop
   }
+
 
 }

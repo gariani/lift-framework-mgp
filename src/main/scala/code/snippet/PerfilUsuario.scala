@@ -59,8 +59,8 @@ class PerfilUsuario  extends StatefulSnippet {
 
   def render = {
       carregarDados
-      "name=nome" #> (SHtml.text(nome, nome = _)) &
-      "name=email" #> (SHtml.text(email, email = _)) &
+      "name=nome" #> SHtml.text(nome, nome = _) &
+      "name=email" #> SHtml.text(email, email = _) &
       "name=telefone" #> SHtml.text(telefone.toString, s => Helpers.asLong(s).foreach( i => telefone = i)) &
       "name=cargo" #> SHtml.text(cargo, cargo = _) &
       "name=observacao" #> SHtml.textarea(observacao, observacao = _) &
