@@ -9,32 +9,44 @@
         <!-- /.row -->
         <!--<div data-lift="lazy-load?template=/sistema/usuario/usuario-hidden/empty">-->
         <div class="lift:EditarTipoTarefa">
-                <form method="post">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <label for="descricao">* Descrição</label><br><input class="form-control" type="text" id="descricao" name="descricao">
-                        </div>
-                        <div class="col-md-5">
-                            <label> Estimativa</label>
-                            <div>
-                                <span class="form-control" id="hora" name="hora"></span>
-                                <span style="float:left;" class="form-control" id="min" name="min"></span>
+            <form id="tipoTarefa" class="lift:form.ajax">
+                <fieldset data-role="controlgroup">
+                    <div class="lift:EditarTipoTarefa">
+                        <div class="row">
+                            <div class="col-lg-3">
+                                <label for="descricao">* Descrição</label><br><input class="form-control" type="text"
+                                                                                     id="descricao" name="descricao">
+                            </div>
+                            <div class="col-lg-3">
+                                <label> Estimativa</label>
+                                <table>
+                                    <tr>
+                                        <th><span class="form-control" data-inline="true" id="hora" name="hora"></span>
+                                        </th>
+                                        <th><span class="form-control" data-inline="true" id="min" name="min"></span>
+                                        </th>
+                                    </tr>
+                                </table>
                             </div>
                             <br>
                         </div>
-                    </div>
-                    <br>
-                    <div class="row">
-                        <div class="col-md-3">
-                            <button type="submit" name="adicionarNovo" class="btn btn-primary"><span class="glyphicon glyphicon-ok"></span> Salvar</button>
-                            <td><a id="cancelar" class="btn btn-info" href="#"><i class="fa fa-trash-o fa-lg"></i></a></td>
+                        <br>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <button type="submit" name="adicionarNovo" class="btn btn-primary"><i
+                                        class="glyphicon glyphicon-ok"></i> Salvar
+                                </button>
+                                <td><a id="cancelar" class="btn btn-info" href="#"><i
+                                        class="fa fa-trash-o fa-lg"></i></a></td>
+                            </div>
                         </div>
                     </div>
-                </form>
-            </div>
+                </fieldset>
+            </form>
         </div>
-        <!--</div>-->
     </div>
-    <!-- /#page-wrapper -->
+    <!--</div>-->
+</div>
+<!-- /#page-wrapper -->
 </div>
 <!-- /#wrapper -->

@@ -46,6 +46,8 @@ class Boot extends Loggable {
 
     LiftRules.setSiteMap(Site.siteMap)
 
+    LiftRules.noticesToJsCmd
+
     LiftRules.uriNotFound.prepend(NamedPF("404handler"){
       case (req,failure) =>
         NotFoundAsTemplate(ParsePath(List("404"),"html",false,false))

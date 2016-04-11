@@ -74,10 +74,21 @@ object TipoTarefa extends SQLSyntaxSupport[TipoTarefa] with Settings {
   def save(tipoTarefa: TipoTarefa)(implicit session: DBSession = autoSession): TipoTarefa = {
     withSQL {
       update(TipoTarefa).set(
-        TipoTarefa.column.nomeTipoTarefa -> tipoTarefa.nomeTipoTarefa
+        TipoTarefa.column.nomeTipoTarefa -> tipoTarefa.nomeTipoTarefa,
+        TipoTarefa.column.estimativa -> tipoTarefa.estimativa
       ).where.eq(TipoTarefa.column.idTipoTarefa, tipoTarefa.idTipoTarefa).and.isNull(column.deletedAt)
-    }
+    }.update.apply()
     tipoTarefa
+  }
+
+  def ativarDesativarTipoTarefa(idTipoTarefa: Long, deletedAt: Option[DateTime])(implicit session: DBSession = autoSession): Long = {
+    withSQL {
+      update(TipoTarefa).set(
+        TipoTarefa.column.deletedAt -> deletedAt
+      ).where.eq(TipoTarefa.column.idTipoTarefa, idTipoTarefa)
+    }.update.apply()
+
+    idTipoTarefa
   }
 
   def destroy(idTipoTarefa: Long)(implicit session: DBSession = autoSession): Unit = withSQL {
