@@ -14,6 +14,7 @@ import scalikejdbc._
 case class TipoTarefa(idTipoTarefa: Long,
                       nomeTipoTarefa: String,
                       estimativa: Option[Time],
+                      foraUso: Boolean,
                       createdAt: DateTime,
                       deletedAt: Option[DateTime] = None){
 
@@ -29,13 +30,14 @@ object TipoTarefa extends SQLSyntaxSupport[TipoTarefa] with Settings {
 
   override val tableName = "tipo_tarefa"
 
-  override val columns = Seq("id_tipo_tarefa", "nome_tipo_tarefa", "estimativa", "created_at", "deleted_at")
+  override val columns = Seq("id_tipo_tarefa", "nome_tipo_tarefa", "estimativa", "fora_uso", "created_at", "deleted_at")
 
   def apply(tt: SyntaxProvider[TipoTarefa])(rs: WrappedResultSet): TipoTarefa = apply(tt.resultName)(rs)
   def apply(tt: ResultName[TipoTarefa])(rs: WrappedResultSet): TipoTarefa = new TipoTarefa(
     idTipoTarefa = rs.get(tt.idTipoTarefa),
     nomeTipoTarefa = rs.get(tt.nomeTipoTarefa),
     estimativa = rs.timeOpt(tt.estimativa),
+    foraUso = rs.get(tt.foraUso),
     createdAt = rs.get(tt.createdAt),
     deletedAt = rs.jodaDateTimeOpt(tt.deletedAt)
   )
@@ -52,12 +54,13 @@ object TipoTarefa extends SQLSyntaxSupport[TipoTarefa] with Settings {
       select.from(TipoTarefa as tt).orderBy(tt.idTipoTarefa)
   }.map(TipoTarefa(tt)).list().apply()
 
-  def create(nomeTipoTarefa: String, estimativa: Option[Time], createdAt: DateTime)(implicit session: DBSession = autoSession): TipoTarefa ={
+  def create(nomeTipoTarefa: String, estimativa: Option[Time], foraUso: Boolean, createdAt: DateTime)(implicit session: DBSession = autoSession): TipoTarefa ={
 
     val id = withSQL {
       insert.into(TipoTarefa).namedValues(
         column.nomeTipoTarefa -> nomeTipoTarefa,
         column.estimativa -> estimativa,
+        column.foraUso -> foraUso,
         column.createdAt -> createdAt
       )
     }.updateAndReturnGeneratedKey.apply()
@@ -66,6 +69,7 @@ object TipoTarefa extends SQLSyntaxSupport[TipoTarefa] with Settings {
       idTipoTarefa = id,
       nomeTipoTarefa = nomeTipoTarefa,
       estimativa = estimativa,
+      foraUso = foraUso,
       createdAt = createdAt
     )
 
@@ -75,20 +79,27 @@ object TipoTarefa extends SQLSyntaxSupport[TipoTarefa] with Settings {
     withSQL {
       update(TipoTarefa).set(
         TipoTarefa.column.nomeTipoTarefa -> tipoTarefa.nomeTipoTarefa,
-        TipoTarefa.column.estimativa -> tipoTarefa.estimativa
+        TipoTarefa.column.estimativa -> tipoTarefa.estimativa,
+        TipoTarefa.column.foraUso -> tipoTarefa.foraUso
       ).where.eq(TipoTarefa.column.idTipoTarefa, tipoTarefa.idTipoTarefa).and.isNull(column.deletedAt)
     }.update.apply()
     tipoTarefa
   }
 
-  def ativarDesativarTipoTarefa(idTipoTarefa: Long, deletedAt: Option[DateTime])(implicit session: DBSession = autoSession): Long = {
+  def foraUsoTipoTarefa(idTipoTarefa: Long, foraUso: Boolean)(implicit session: DBSession = autoSession): Boolean = {
     withSQL {
       update(TipoTarefa).set(
-        TipoTarefa.column.deletedAt -> deletedAt
+        TipoTarefa.column.foraUso -> foraUso
       ).where.eq(TipoTarefa.column.idTipoTarefa, idTipoTarefa)
     }.update.apply()
+    !foraUso
+  }
 
-    idTipoTarefa
+  def getForaUso(idTipoTarefa: Long)(implicit session: DBSession = autoSession): Option[Boolean]  = {
+    withSQL {
+      select(tt.foraUso).from(TipoTarefa as tt).where.eq(tt.idTipoTarefa, idTipoTarefa)
+    }.map( rs => (rs.boolean("fora_uso"))).single().apply()
+
   }
 
   def destroy(idTipoTarefa: Long)(implicit session: DBSession = autoSession): Unit = withSQL {

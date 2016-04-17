@@ -48,9 +48,9 @@ class Boot extends Loggable {
 
     LiftRules.noticesToJsCmd
 
-    LiftRules.uriNotFound.prepend(NamedPF("404handler"){
-      case (req,failure) =>
-        NotFoundAsTemplate(ParsePath(List("404"),"html",false,false))
+    LiftRules.uriNotFound.prepend(NamedPF("404handler") {
+      case (req, failure) =>
+        NotFoundAsTemplate(ParsePath(List("404"), "html", false, false))
     })
 
   }
@@ -61,26 +61,28 @@ object Site {
 
   val home = Menu.i("Home") / "sistema" / "index"
   val login = Menu("Login") / "index"
-  val tarefas = Menu("Tarefas") / "sistema"/ "tarefa" / "tarefa"
+  val tarefas = Menu("Tarefas") / "sistema" / "tarefa" / "tarefa"
   val perfil = Menu(Loc("perfil", Link(List("sistema", "usuario", "perfil", "perfil"), true, "/sistema/usuario/perfil/perfil"), S.loc("perfil", Text(""))))
-  val projeto = Menu("Projeto") / "sistema"/ "projeto" / "index"
+  val projeto = Menu("Projeto") / "sistema" / "projeto" / "index"
 
   var admin = Menu("Administrador") / "sistema" / "cliente" / "administrador" submenus(
-      Menu.i("Usuários") / "sistema" / "usuario" / "configuracao" / "configuracao_usuario",
-      Menu.i("Cliente->Projeto") / "sistema" / "cliente" / "cliente",
-      Menu.i("Equipes") / "sistema" / "equipe" / "equipe",
-      Menu.i("Tipos de Tarefas") / "sistema" / "tarefa" / "tipo_tarefa" / "tipo_tarefa" submenus (
-        Menu.i("Editar Tipo de Tarefas") / "sistema" / "tarefa" / "tipo_tarefa" / "editar" >> Hidden
-        ),
-      Menu.i("Status de Tarefa") / "sistema" / "status_tarefa" / "status_tarefa"
+    Menu.i("Usuários") / "sistema" / "usuario" / "configuracao" / "configuracao_usuario" submenus (
+      Menu.i("Cadastrar usuários") / "sistema" / "usuario" / "configuracao" / "cadastrar_usuario" >> Hidden
+      ),
+    Menu.i("Cliente->Projeto") / "sistema" / "cliente" / "cliente",
+    Menu.i("Equipes") / "sistema" / "equipe" / "equipe",
+    Menu.i("Tipos de Tarefas") / "sistema" / "tarefa" / "tipo_tarefa" / "tipo_tarefa" submenus (
+      Menu.i("Editar Tipo de Tarefas") / "sistema" / "tarefa" / "tipo_tarefa" / "editar" >> Hidden
+      ),
+    Menu.i("Status de Tarefa") / "sistema" / "status_tarefa" / "status_tarefa"
     )
 
-  def siteMap = SiteMap (
-    home,    //>> If( () => SessionState.estaLogado, RedirectResponse("/")),
+  def siteMap = SiteMap(
+    home, //>> If( () => SessionState.estaLogado, RedirectResponse("/")),
     login,
     tarefas, // If( () => SessionState.estaLogado, RedirectResponse("/")),
-    perfil,  //>> If( () => SessionState.estaLogado, RedirectResponse("/")),
+    perfil, //>> If( () => SessionState.estaLogado, RedirectResponse("/")),
     projeto, // >> If( () => SessionState.estaLogado, RedirectResponse("/")),
-    admin   //>> If( () => SessionState.estaLogado, RedirectResponse("/"))
+    admin //>> If( () => SessionState.estaLogado, RedirectResponse("/"))
   )
 }

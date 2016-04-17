@@ -24,6 +24,7 @@ class EditarTipoTarefa extends StatefulSnippet with Logger {
   private var idTipoTarefa: Long = 0
   private var descricao: String = ""
   private var estimativa: Box[Time] = Empty
+  private var foraUso: Boolean = false;
   private var estimativaHora: String = "0"
   private var estimativaMin: String = "0"
   private lazy val internvaloMinuto = intervaloMin
@@ -79,6 +80,7 @@ class EditarTipoTarefa extends StatefulSnippet with Logger {
       val tipoTarefa = new TipoTarefa(idTipoTarefa,
         descricao,
         estimativa,
+        foraUso,
         DateTime.now,
         None)
 

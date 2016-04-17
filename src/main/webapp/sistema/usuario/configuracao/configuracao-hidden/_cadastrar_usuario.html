@@ -1,16 +1,38 @@
-<div id="cadastrarNovo">
-    <form role="form" method="post">
-        <label>* Nome</label><br><input class="form-control" type="text" id="nome" name="nome">
-        <br>
-        <label>* E-mail</label>
-        <div class="form-group input-group input_email">
-            <span class="input-group-addon">@</span>
-            <input class="form-control" type="email" id="email" name="email">
+<div id="wrapper">
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header"> Cadastrar novo usuário</h1>
+            </div>
+            <!-- /.col-lg-12 -->
         </div>
-        <br>
-        <label>* Senha</label><br><input class="form-control" type="password" id="senha" name="senha">
-        <br>
-        <button type="button" name="adicionarNovo" class="btn btn-primary"><span class="glyphicon glyphicon-ok"></span> Cadastrar</button>
-        <button type="button" name="close" class="btn btn-default" data-dismiss="modal">Fechar</button>
-    </form>
+        <!-- /.row -->
+        <!--<div data-lift="lazy-load?template=/sistema/usuario/usuario-hidden/empty">-->
+        <div class="lift:PerfilUsuario">
+            <div class="row">
+                <div class="col-lg-4 col-md-4">
+                    <form method="post">
+                        <fieldset>
+                            <label>* Nome</label><br><input class="form-control" type="text" id="nome" name="nome">
+                            <br>
+                            <label>* E-mail</label>
+                            <div class="form-group input-group input_email">
+                                <span class="input-group-addon">@</span>
+                                <input class="form-control" type="email" id="email" name="email">
+                            </div>
+                            <br>
+                            <label>* Senha</label><br><input class="form-control" type="password" id="senha"
+                                                             name="senha">
+                            <br>
+                            <button type="button" name="adicionarNovo" class="btn btn-primary"><span
+                                    class="glyphicon glyphicon-ok"></span> Cadastrar
+                            </button>
+                            <button type="button" name="close" class="btn btn-default" data-dismiss="modal">Fechar
+                            </button>
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

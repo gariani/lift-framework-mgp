@@ -50,7 +50,7 @@ class PerfilUsuario  extends StatefulSnippet {
         }
 
       }
-      case None => <div>Perfil não disponível</div>
+      case None => JsCmds.Noop
     }
 
   }
