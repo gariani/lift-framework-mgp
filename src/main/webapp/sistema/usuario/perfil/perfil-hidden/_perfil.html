@@ -10,9 +10,9 @@
         <!--<div data-lift="lazy-load?template=/sistema/usuario/usuario-hidden/empty">-->
         <div class="lift:PerfilUsuario">
             <div class="row">
-                <div class="col-lg-4 col-md-4">
-                    <form method="post">
-                        <fieldset>
+                <form method="post">
+                    <fieldset>
+                        <div class="col-lg-4">
                             <label>* Nome</label><br><input class="form-control" type="text" id="nome" name="nome">
                             <br>
                             <label>* E-mail</label>
@@ -31,9 +31,22 @@
                                       id="observacao" name="observacao"></textarea>
                             <br>
                             <button type="submit" class="btn btn-default"></button>
-                        </fieldset>
-                    </form>
-                </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <label> Cargo</label><br><input class="form-control" type="text" id="cargo" name="cargo">
+                            <table>
+                                <tr>
+                                    <td><label> Na empresa desde: </label></td>
+                                    <td><span id="desde_mes">t12312este</span></td>
+                                    <td><span id="desde_ano">t12312este</span></td>
+                                </tr>
+                            </table>
+                            <label> Sexo</label><br><span id="sexo">sexo</span>
+                            <label> Data de nascimento</label><br><span id="nasc_dia"></span><span id="nasc_mes"></span><span id="nasc_ano"></span>
+                            <label> Estado Civil</label><br><span id="civil">
+                        </div>
+                    </fieldset>
+                </form>
             </div>
         </div>
     </div>

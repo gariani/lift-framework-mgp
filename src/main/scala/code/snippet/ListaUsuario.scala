@@ -36,9 +36,6 @@ class ListaUsuario extends StatefulSnippet {
       ".id *" #> adicionarIdUsuario(u.idUsuario) &
       ".nome *" #> u.nome &
         ".email *" #> u.email &
-        ".cargo *" #> u.cargo &
-        ".observacao *" #> u.observacao &
-        ".telefone *" #> u.telefone &
         "#editar [onclick]" #> SHtml.ajaxInvoke(() => editar(u.email)) &
         "#deletar [onclick]" #> SHtml.ajaxInvoke(() => deletar(u.email)))
   }
