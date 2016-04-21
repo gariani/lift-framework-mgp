@@ -31,19 +31,14 @@ class EditarTipoTarefa extends StatefulSnippet with Logger {
   private lazy val internvaloHora = intervaloHora
 
   private def intervaloHora = {
-    (0 to 23).toList.map(i => (formataNum(i), formataNum(i)))
+    (0 to 23).toList.map(i => (Util.formataNum(i), Util.formataNum(i)))
   }
 
   private def intervaloMin = {
-    (0 to 59).toList.map(i => (formataNum(i), formataNum(i)))
+    (0 to 59).toList.map(i => (Util.formataNum(i), Util.formataNum(i)))
   }
 
-  private def formataNum(i: Int): String = {
-    i.toString.length match {
-      case 1 => "0" + i.toString
-      case _ => i.toString
-    }
-  }
+
 
   //inicia os valores vindo de STipoTarefa
   setValores
@@ -60,6 +55,7 @@ class EditarTipoTarefa extends StatefulSnippet with Logger {
       "type=submit" #> SHtml.ajaxOnSubmit(salvar) &
       "#cancelar" #> link("/sistema/tarefa/tipo_tarefa/tipo_tarefa", () => JsCmds.Noop, Text("Cancelar"))
   }
+
 
   private def salvar() = {
 

@@ -1,16 +1,11 @@
 package code.snippet
 
-import net.liftweb.common.Empty
-import net.liftweb.http.{StatefulSnippet, SHtml}
-import net.liftweb.util.Helpers._
-
-
 import scala.xml.NodeSeq
 
 /**
   * Created by daniel on 12/01/16.
   */
-object Util  {
+object Util {
 
   def mensagemErro(msg: String): NodeSeq = {
     <div class="alert alert-danger alert-dismissible" role="alert">
@@ -21,5 +16,14 @@ object Util  {
       </button>{msg}
     </div>
   }
+
+  def formataNum(i: Int): String = {
+    i.toString.length match {
+      case 1 => "0" + i.toString
+      case _ => i.toString
+    }
+  }
+
+
 
 }
