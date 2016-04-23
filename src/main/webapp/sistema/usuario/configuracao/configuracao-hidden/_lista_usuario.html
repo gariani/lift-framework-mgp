@@ -6,38 +6,45 @@
                     <h1 class="page-header"> Usuários</h1>
                 </div>
                 <div class="col-md-12">
-
                     <div data-lift="ListaUsuario">
+                        <div class="row">
+                            <button type="button" id="adicionaNovoUsuario" name="adicionaNovoUsuario"
+                                    class="btn btn-ok">
+                            </button>
+                            <span id="formNovoUsuario"></span>
+                        </div>
+                        <div class="row">
 
-                        <span id="adicinarNovo"></span>
-
-                        <br>
-                        <br>
-                        <div class="panel panel-default">
-                            <div class="panel-heading">Lista de usuários cadastrados</div>
-                            <table id="listaUsuario" class="table" width="100%" cellpadding="0" cellspacing="0">
-                                <caption></caption>
-                                <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Nome</th>
-                                    <th>Email</th>
-                                    <th></th>
-                                    <th></th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr class="linha">
-                                    <td class="id">#</td>
-                                    <td class="nome">#</td>
-                                    <td class="email">#</td>
-                                    <td><a id="editar" class="btn btn-info" href="#">
-                                        <i class="fa fa-pencil-square-o"></i> Editar</a></td>
-                                    <td><a id="deletar" class="btn btn-danger" href="#">
-                                        <i class="fa fa-trash-o fa-lg"></i> Delete</a></td>
-                                </tr>
-                                </tbody>
-                            </table>
+                            <!--<div class="lift:embed?what=/sistema/usuario/configuracao/configuracao-hidden/_cadastrar_usuario"></div>-->
+                            <br/>
+                            <br/>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">Lista de usuários cadastrados</div>
+                                <table id="listaUsuario" class="table" width="100%" cellpadding="0"
+                                       cellspacing="0">
+                                    <caption></caption>
+                                    <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Nome</th>
+                                        <th>Email</th>
+                                        <th></th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr class="linha">
+                                        <td class="id">#</td>
+                                        <td class="nome">#</td>
+                                        <td class="email">#</td>
+                                        <td><a id="editar" class="btn btn-info" href="#">
+                                            <i class="fa fa-pencil-square-o"></i> Editar</a></td>
+                                        <td><a id="deletar" class="btn btn-danger" href="#">
+                                            <i class="fa fa-trash-o fa-lg"></i> Delete</a></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>

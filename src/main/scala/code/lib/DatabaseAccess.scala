@@ -16,9 +16,11 @@ object DataSource {
     val ds = new HikariConfig()
     ds.setDriverClassName("com.mysql.jdbc.Driver")
     ds.setJdbcUrl(url)
-    ds.setMaximumPoolSize(10);
+    ds.setPoolName("mggPool")
+    ds.setMaximumPoolSize(7)
     ds.addDataSourceProperty("user", user)
     ds.addDataSourceProperty("password", password)
+    ds.setConnectionTimeout(1000)
     new HikariDataSource(ds)
   }
 

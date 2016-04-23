@@ -1,13 +1,14 @@
 package code.snippet
 
-import net.liftweb.http.{StatefulSnippet, SHtml}
+import net.liftweb.http.{SHtml, StatefulSnippet}
 import net.liftweb.util
 import util.Helpers._
 
 /**
-  * Created by daniel on 03/04/16.
+  * Created by daniel on 27/03/16.
   */
-class Tarefa extends StatefulSnippet {
+
+class SCliente extends StatefulSnippet {
 
   private var nome: String = ""
 

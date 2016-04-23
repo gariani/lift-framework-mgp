@@ -1,5 +1,8 @@
 package bootstrap.liftweb
 
+import code.lib.session.SessionState
+import net.liftmodules.validate.Validate
+import net.liftmodules.validate.options.Bs3Options
 import net.liftmodules.{FoBo}
 import net.liftmodules.extras.{LiftExtras, Gravatar}
 import net.liftweb._
@@ -28,6 +31,8 @@ class Boot extends Loggable {
     LiftRules.early.append(_.setCharacterEncoding("UTF-8"))
 
     LiftRules.htmlProperties.default.set((r: Req) => new Html5Properties(r.userAgent))
+
+    Validate.options.default.set(Bs3Options())
 
     // Init Extras
     LiftExtras.init()

@@ -8,67 +8,63 @@
         </div>
         <!-- /.row -->
         <!--<div data-lift="lazy-load?template=/sistema/usuario/usuario-hidden/empty">-->
-        <div class="lift:PerfilUsuario">
-            <div class="row">
-                <form method="post">
-                    <fieldset>
-                        <div class="col-lg-4">
-                            <label>* Nome</label><br><input class="form-control" type="text" id="nome" name="nome">
-                            <br>
+        <div class="lift:SPerfilUsuario">
+            <div id="perfil"></div>
+            <form data-lift="form.ajax" method="post">
+                <fieldset>
+                    <div class="row">
+                        <div class="col-md-3 form-group">
+                            <label>* Nome</label>
+                            <input class="form-control" type="text" id="nome" name="nome">
                             <label>* E-mail</label>
                             <div class="form-group input-group input_email">
                                 <span class="input-group-addon">@</span>
                                 <input class="form-control" type="email" id="email" name="email">
                             </div>
-                            <br>
-                            <label>Cargo</label><br><input class="form-control" type="text" id="cargo" name="cargo">
-                            <br>
-                            <label>Telefone</label><br><input class="form-control" type="text" id="telefone"
-                                                              name="telefone">
-                            <br>
+                            <label>Cargo</label>
+                            <input class="form-control" type="text" id="cargo" name="cargo">
+                            <label>Telefone</label>
+                            <input maxlength="13" class="form-control" type="text" id="telefone" name="telefone">
                             <label id="lObs">Observacao</label>
-                            <textarea for="lObs" style="height: 100px;" class="form-control"
-                                      id="observacao" name="observacao"></textarea>
-                            <br>
-                            <button type="submit" class="btn btn-default"></button>
+                        <textarea for="lObs" style="height: 100px;" class="form-control"
+                                  id="observacao" name="observacao"></textarea>
                         </div>
-                        <div class="col-lg-4">
-                            <table>
-                                <tr>
-                                    <td><label> Na empresa desde: </label></td>
-                                    <td><span class="form-control" data-inline="true" id="desde_mes"
-                                              name="desde_mes"></span></td>
-                                    <td><span class="form-control" data-inline="true" id="desde_ano"
-                                              name="desde_ano"></span></td>
-                                </tr>
-                            </table>
-                            <br>
-                            <table>
-                                <tr>
-                                    <td><label> Sexo</label></td>
-                                    <td><span class="form-control" id="sexo">sexo</span></td>
-                                </tr>
-                            </table>
-                            <br>
-                            <table>
-                                <tr>
-                                    <td><label> Data de nascimento</label></td>
-                                    <td><span class="form-control" id="nasc_dia"></span></td>
-                                    <td><span class="form-control" id="nasc_mes"></span></td>
-                                    <td><span class="form-control" id="nasc_ano"></span></td>
-                                </tr>
-                            </table>
-                            <br>
-                            <table>
-                                <tr>
-                                    <td><label> Estado Civil</label></td>
-                                    <td><span class="form-control" id="civil"></span></td>
-                                </tr>
-                            </table>
+                        <div class="col-md-6">
+                            <div>
+                                <label id="desde"> Na empresa desde </label>
+                                <div class="input-group">
+                                    <span for="desde" class="form-control" id="desde_mes" name="desde_mes"></span>
+                                    <span for="desde" class="form-control" id="desde_ano" name="desde_ano"></span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label> Sexo</label>
+                                <div class="input-group">
+                                    <span class="form-control" id="sexo"></span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label> Data de nascimento</label>
+                                <div class="input-group">
+                                    <span class="form-control" id="nasc_dia"></span>
+                                    <span class="form-control" id="nasc_mes"></span>
+                                    <span class="form-control" id="nasc_ano"></span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label> Estado Civil</label>
+                                <div class="input-group">
+                                    <span class="form-control" id="civil"></span>
+                                </div>
+                            </div>
                         </div>
-                    </fieldset>
-                </form>
-            </div>
+                    </div>
+                </fieldset>
+                <button type="submit" class="btn btn-default"></button>
+            </form>
         </div>
     </div>
 </div>

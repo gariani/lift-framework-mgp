@@ -37,7 +37,8 @@ libraryDependencies ++= {
     "ch.qos.logback"           % "logback-classic"        % "1.1.3",
     "org.specs2"              %% "specs2-core"            % "3.6.4"               % "test",
     "com.timesprint"           % "hasher_2.10"            % "0.3.0",
-    "net.liftmodules"         %% "extras_2-6"             % "0.4"
+    "net.liftmodules"         %% "extras_2-6"             % "0.4",
+    "net.liftmodules"         %% "validate_2.6"      % "1.0"
   )
 }
 

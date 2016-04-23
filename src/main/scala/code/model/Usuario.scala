@@ -11,7 +11,7 @@ case class Usuario(idUsuario: Long,
                    nome: String,
                    cargo: Option[String] = None,
                    observacao: Option[String] = None,
-                   telefone: Option[Long],
+                   telefone: Option[String],
                    senha: String,
                    inicioEmpresa: Option[DateTime],
                    nascimento: Option[DateTime],
@@ -40,7 +40,7 @@ object Usuario extends SQLSyntaxSupport[Usuario] with Settings {
     nome = rs.get(u.nome),
     cargo = rs.stringOpt(u.cargo),
     observacao = rs.stringOpt(u.observacao),
-    telefone = rs.longOpt(u.telefone),
+    telefone = rs.stringOpt(u.telefone),
     senha = rs.string(u.senha),
     inicioEmpresa = rs.jodaDateTimeOpt(u.inicioEmpresa),
     nascimento = rs.jodaDateTimeOpt(u.nascimento),
@@ -54,19 +54,23 @@ object Usuario extends SQLSyntaxSupport[Usuario] with Settings {
 
   //private val isNotDeleted = sqls.isNull(u.deletedAt)
 
-  def findByEmail(email: String)(implicit session: DBSession = autoSession): Option[Usuario] = withSQL {
+  def isExistsEmail(email: String)(implicit session: DBSession = AutoSession): Option[String] = withSQL {
+    select(u.email).from(Usuario as u).where.eq(u.email, email)
+  }.map(_.string(u.email)).single().apply()
+
+  def findByEmail(email: String)(implicit session: DBSession = AutoSession): Option[Usuario] = withSQL {
     select.from(Usuario as u).where.eq(u.email, email)
   }.map(Usuario(u)).single().apply()
 
-  def findByLogin(email: String, senha: String)(implicit session: DBSession = autoSession): Option[String] = withSQL {
+  def findByLogin(email: String, senha: String)(implicit session: DBSession = AutoSession): Option[String] = withSQL {
     select(u.email).from(Usuario as u).where.eq(u.email, email).and.eq(u.senha, senha)
   }.map(_.string(u.email)).single().apply()
 
-  def findAllUsuarios()(implicit session: DBSession = autoSession): List[Usuario] = withSQL {
+  def findAllUsuarios()(implicit session: DBSession = AutoSession): List[Usuario] = withSQL {
     select.from(Usuario as u)
   }.map(Usuario(u)).list().apply()
 
-  def save(usuario: Usuario)(implicit session: DBSession = autoSession): Usuario = {
+  def save(usuario: Usuario)(implicit session: DBSession = AutoSession): Usuario = {
     print(usuario)
     withSQL {
       update(Usuario).set(
@@ -86,7 +90,7 @@ object Usuario extends SQLSyntaxSupport[Usuario] with Settings {
   }
 
   def create(email: String, nome: String, cargo: Option[String] = None, observacao: Option[String] = None,
-             telefone: Option[Long] = None, senha: String, inicioEmpresa: Option[DateTime], nascimento: Option[DateTime],
+             telefone: Option[String] = None, senha: String, inicioEmpresa: Option[DateTime], nascimento: Option[DateTime],
              sexo: Option[Int], estadoCivil: Option[Int], createdAt: DateTime = DateTime.now)
             (implicit session: DBSession = autoSession): Usuario = {
 
@@ -122,7 +126,7 @@ object Usuario extends SQLSyntaxSupport[Usuario] with Settings {
     )
   }
 
-  def destroy(idUsuario: Long)(implicit session: DBSession = autoSession): Unit = withSQL {
+  def destroy(idUsuario: Long)(implicit session: DBSession = AutoSession): Unit = withSQL {
     update(Usuario).set(column.deletedAt -> DateTime.now).where.eq(column.idUsuario, idUsuario)
   }
 }

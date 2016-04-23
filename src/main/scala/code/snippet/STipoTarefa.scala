@@ -1,6 +1,8 @@
 package code.snippet
 
 import java.sql.Time
+import java.text.SimpleDateFormat
+import java.util.Calendar
 
 import code.dao.TipoTarefaDAO
 import code.model.TipoTarefa
@@ -20,6 +22,7 @@ import scala.xml.{NodeSeq, Text, Group}
   */
 
 object tipoTarefaSelecioada extends RequestVar[Option[TipoTarefa]](Empty)
+object exibirNovoTipoTarefa extends RequestVar[Option[Boolean]](Some(false))
 
 class STipoTarefa extends StatefulSnippet {
 
@@ -35,18 +38,53 @@ class STipoTarefa extends StatefulSnippet {
     "#descricaoTipoTarefa" #> listaTipoTarefa
   }
 
+  def formatarEstimativa(e: Time): String = {
+    val formatar = new SimpleDateFormat("HH:mm")
+    val hora = formatar.format(e)
+    hora
+  }
+
+  def retornarEstimativa(estima: Option[Time]) = {
+    estima match {
+      case Some(e) => formatarEstimativa(e)
+      case None => ""
+    }
+  }
+
+  def desativarNovoTipoTarefa = {
+
+    JsCmds.Noop
+  }
+
+  def ativarNovoTipoTarefa = {
+    JsCmds.Noop
+  }
+
+  def criarNovoTipoTarefa: JsCmd = {
+    exibirNovoTipoTarefa.get match {
+      case Some(true) => desativarNovoTipoTarefa
+      case Some(false) => ativarNovoTipoTarefa
+      case _ => JsCmds.Noop
+    }
+  }
+
+
   def listaTipoTarefa = {
 
     var tipoTarefaDao = new TipoTarefaDAO
     val lista = tipoTarefaDao.findAll()
-
+    "#adicionaNovoTipoTarefa" #> SHtml.ajaxButton(Text("Cadastrar novo"), () => criarNovoTipoTarefa) &
     ".listaTipoTarefa *" #> lista.map(tt =>
       ".id *" #> tt.idTipoTarefa &
         ".descricao *" #> tt.nomeTipoTarefa &
-        ".estimativa *" #> tt.estimativa.toString &
+        ".estimativa *" #> retornarEstimativa(tt.estimativa) &
         "#foraUso *" #> SHtml.ajaxCheckbox(retornaForaUso(tt.idTipoTarefa), (v) => setForaUso(tt, v)) &
-        "#editar" #> link("/sistema/tarefa/tipo_tarefa/editar", () => tipoTarefaSelecioada.set(Some(tt)), <i class="fa fa-pencil-square-o"></i>) &
-        "#deletar [onclick]" #> SHtml.ajaxButton("Detele", () => deletar(tt.idTipoTarefa)))
+        "#editar [onclick]" #> SHtml.ajaxInvoke(() => editar(tt.idTipoTarefa)) &
+        "#deletar [onclick]" #> SHtml.ajaxInvoke(() => deletar(tt.idTipoTarefa)))
+  }
+
+  private def editar(idTipoTarefa: Long) = {
+
   }
 
   private def retornaForaUso(idTipoTarefa: Long): Boolean = {
@@ -66,6 +104,54 @@ class STipoTarefa extends StatefulSnippet {
     tipoTarefaDAO.delete(idTipoTarefa)
     JsCmds.Noop
   }
+
+  private val formCadstroTipoTarefa: NodeSeq =
+    <div class="col-md-4">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <i class="fa fa-bell fa-fw"></i>
+          Cadastrar novo usuário
+        </div>
+        <div class="panel-body">
+          <div id="alertaMensagem"></div>
+    <div class="lift:EditarTipoTarefa">
+      <div id="mensagem"></div>
+      <form id="tipoTarefa" class="lift:form.ajax">
+        <fieldset style="margin-bottom:5px;">
+          <div class="lift:EditarTipoTarefa">
+            <div class="row">
+              <div class="col-lg-3">
+                <label for="descricao">* Descrição</label> <br/>
+                <input class="form-control" type="text" id="descricao" name="descricao"/>
+              </div>
+              <div class="col-lg-3">
+                <label>Estimativa</label>
+                  <div class="input-group">
+                    <span class="form-control" data-inline="true" id="hora" name="hora"></span>
+                    <span class="form-control" data-inline="true" id="min" name="min"></span>
+                  </div>
+              </div>
+              <br/>
+            </div>
+              </div>
+              </fieldset>
+              <div class="row">
+                <div class="col-md-3">
+                  <button type="submit" name="adicionarNovo" class="btn btn-primary">
+                    <i
+                    class="glyphicon glyphicon-ok"></i>
+                    Salvar
+                  </button>
+                  <a id="cancelar" class="btn btn-info" href="#">
+                    <i class="fa fa-trash-o fa-lg"></i>
+                  </a>
+                </div>
+              </div>
+            </form>
+          </div>
+          </div>
+      </div>
+    </div>
 
 
 }

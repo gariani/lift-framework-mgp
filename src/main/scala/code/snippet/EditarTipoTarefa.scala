@@ -3,17 +3,16 @@ package code.snippet
 import java.sql.Time
 import java.text.SimpleDateFormat
 
-import code.lib.GenericSnippet
+import code.lib.Util._
 import code.model.TipoTarefa
 import net.liftweb.common.{Logger, Full, Empty, Box}
-import net.liftweb.http.js.jquery.JqJsCmds.DisplayMessage
-import net.liftweb.http.{S, RequestVar, SHtml, StatefulSnippet}
-import net.liftweb.http.js.{JsCmds, JsCmd}
+import net.liftweb.http.js.JsCmds.SetHtml
+import net.liftweb.http.{S, SHtml, StatefulSnippet}
+import net.liftweb.http.js.{JsCmds}
 import net.liftweb.util
-import net.liftweb.util.FieldError
 import util.Helpers._
 import org.joda.time.DateTime
-import scala.xml.{NodeSeq, Text}
+import scala.xml.{Text}
 
 /**
   * Created by daniel on 09/04/16.
@@ -30,17 +29,7 @@ class EditarTipoTarefa extends StatefulSnippet with Logger {
   private lazy val internvaloMinuto = intervaloMin
   private lazy val internvaloHora = intervaloHora
 
-  private def intervaloHora = {
-    (0 to 23).toList.map(i => (Util.formataNum(i), Util.formataNum(i)))
-  }
 
-  private def intervaloMin = {
-    (0 to 59).toList.map(i => (Util.formataNum(i), Util.formataNum(i)))
-  }
-
-
-
-  //inicia os valores vindo de STipoTarefa
   setValores
 
 
@@ -68,7 +57,7 @@ class EditarTipoTarefa extends StatefulSnippet with Logger {
       estimativa = Full(ppstime)
     } catch {
       case e: Exception => _logger.info("EditarTipoTarefa: erro na conversao da estimativa")
-        S.error("error", Util.mensagemErro("Erro ao salvar estimativa"))
+        SetHtml("mensagem", mensagemErro("Erro ao salvar estimativa"))
     }
 
     try {
@@ -81,14 +70,14 @@ class EditarTipoTarefa extends StatefulSnippet with Logger {
         None)
 
       TipoTarefa.save(tipoTarefa)
+      redirectTo("/sistema/tarefa/tipo_tarefa/tipo_tarefa")
     }
     catch {
       case e: Exception => {
-        _logger.info("Erro ao salvar tipo de tarefa"+e.getMessage)
-        S.error("error", Util.mensagemErro("Erro ao salvar tipo de tarefa"))
+        _logger.info("Erro ao salvar tipo de tarefa: "+e.getMessage)
+        SetHtml("mensagem", mensagemErro("Erro ao salvar tipo de tarefa"))
       }
     }
-    redirectTo("/sistema/tarefa/tipo_tarefa/tipo_tarefa")
   }
 
   private def setValores = {

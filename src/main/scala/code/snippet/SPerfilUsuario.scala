@@ -1,41 +1,41 @@
 package code.snippet
 
 
-import java.text.{SimpleDateFormat}
+import java.sql.SQLException
+import java.text.{MessageFormat, SimpleDateFormat}
 import java.util.Calendar
 import code.dao.UsuarioDAO
-import code.lib.Validador
-import code.lib.session.SessionState
+import code.lib.{Util, Validador}
 import code.model.Usuario
-import net.liftweb.common.{Logger, Full, Empty}
+import net.liftweb.common.{Empty, Logger, Full}
 import net.liftweb.http.SHtml.{text}
 import net.liftweb.http._
 import net.liftweb.http.SHtml.ajaxSubmit
+import net.liftweb.http.js.JsCmds.SetHtml
 import net.liftweb.http.js.{JsCmds, JsCmd}
-import net.liftweb.util.{Helpers}
 import org.joda.time.{DateTime}
 import scala.xml.{NodeSeq}
 import net.liftweb._
 import util.Helpers._
-
+import code.lib.Util._
 
 /**
   * Created by daniel on 15/01/16.
   */
-class PerfilUsuario extends StatefulSnippet with Logger {
+class SPerfilUsuario extends StatefulSnippet with Logger {
 
   private var id_usuario: Long = 0
   private var nome: String = ""
   private var email: String = ""
   private var cargo: String = ""
   private var senha: String = ""
-  private var telefone: Option[Long] = None
+  private var telefone: String = ""
   private var observacao: String = ""
   private var sexo: String = "0"
   private var estadoCivil: String = "0"
   private var mes_empresa: String = "0"
   private var ano_empresa: String = "0"
-  private var dia_nasc: String = "0"
+  private var dia_nasc: String = "0 "
   private var mes_nasc: String = "0"
   private var ano_nasc: String = "0"
   private lazy val meses = intervaloMeses
@@ -44,34 +44,29 @@ class PerfilUsuario extends StatefulSnippet with Logger {
   private lazy val lestadoCivil = getEstadoCivil
   private lazy val lsexo = getSexo
 
+  private val definirUsuario = editarPerfilUsuario.is
+
   carregarDados
 
   def carregarDados = {
-
     var usuarioDAO = new UsuarioDAO
-
-    val usuario = usuarioDAO.findByEmail(SessionState.getLogin)
-
+    val usuario = usuarioDAO.findByEmail(definirUsuario.getOrElse(""))
     usuario match {
       case Some(u) => {
-
         id_usuario = u.idUsuario
         nome = u.nome
         email = u.email
-        telefone = u.telefone
         senha = u.senha
-
+        telefone = converterTelefone(u.telefone)
         observacao = definirObservacao(u.observacao)
         cargo = definiCargo(u.cargo)
         sexo = definirSexo(u.sexo)
         estadoCivil = definiEstadoCicil(u.estadoCivil)
         definirInicioEmpresa(u.inicioEmpresa)
         definirNascimento(u.nascimento)
-
       }
       case None => JsCmds.Noop
     }
-
   }
 
   def dispatch = {
@@ -81,11 +76,11 @@ class PerfilUsuario extends StatefulSnippet with Logger {
   def render = {
     "name=nome" #> SHtml.text(nome, nome = _) &
       "name=email" #> SHtml.text(email, email = _) &
-      "name=telefone" #> SHtml.text(telefone.get.toString, (v) => formatarTelefone(v)) &
+      "name=telefone" #> SHtml.ajaxText(telefone, (v) => telefone = formatarTelefone(v)) &
       "name=cargo" #> SHtml.text(cargo, cargo = _) &
       "name=observacao" #> SHtml.textarea(observacao, observacao = _) &
-      "#desde_mes" #> SHtml.ajaxSelect(meses, Full(mes_empresa), (m) => mes_empresa = m, "style" -> "width:130px;") &
-      "#desde_ano" #> SHtml.ajaxSelect(anos, Full(ano_empresa), (a) => ano_empresa = a, "style" -> "width:90px;") &
+      "#desde_mes" #> SHtml.ajaxSelect(meses, Full(mes_empresa), (m) => mes_empresa = m, "style" -> "width:130px;padding-right: 10px;padding-left: 10px;") &
+      "#desde_ano" #> SHtml.ajaxSelect(anos, Full(ano_empresa), (a) => ano_empresa = a, "style" -> "width:90px;padding-right: 10px;padding-left: 10px;") &
       "#sexo" #> SHtml.ajaxSelect(lsexo, Full(sexo), (s) => sexo = s, "style" -> "width:130px;") &
       "#nasc_dia" #> SHtml.ajaxSelect(dias, Full(dia_nasc), (d) => dia_nasc = d, "style" -> "width:90px;") &
       "#nasc_mes" #> SHtml.ajaxSelect(meses, Full(mes_nasc), (m) => mes_nasc = m, "style" -> "width:130px;") &
@@ -94,78 +89,81 @@ class PerfilUsuario extends StatefulSnippet with Logger {
       "type=submit" #> ajaxSubmit("Atualizar", () => atualizar)
   }
 
-  private def mensagemErro(msg: String): NodeSeq = {
-    <div class="alert alert-danger alert-dismissible" role="alert">
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">
-          &times;
-        </span>
-      </button>{msg}
-    </div>
+  private def validarMesmoEmail: Boolean = {
+    editarPerfilUsuario.is match {
+      case Full(e) => email == e
+      case Empty => false
+      case _ => false
+    }
   }
 
   private def atualizar: JsCmd = {
-
-    S.clearCurrentNotices
-
-    if (!Validador.validarMinTamanhoNome(nome)) {
-      S.error("perfilError", mensagemErro("Nome deve conter no mínimo 4 caracteres."))
+    if (validarNome(nome)) {
+      SetHtml("perfil", mensagemErro(MensagemUsuario.INTERVALO_VALOR.format(5, 100)))
     }
-    else if (!Validador.validarMaxTamanhoNome(nome)) {
-      S.error("perfilError", mensagemErro("Nome muito grande, há mais de 100 caracteres."))
+    else if (validarEmail(email)) {
+      SetHtml("perfil", mensagemErro(MensagemUsuario.EMAIL_INVALIDO))
     }
-    else if (!Validador.validarEmail(email)) {
-      S.error("perfilError", mensagemErro("Email incorreto"))
+    else if (!validarMesmoEmail && !Usuario.isExistsEmail(email).isEmpty) {
+      SetHtml("perfil", mensagemErro(MensagemUsuario.EMAIL_JA_USADO))
     }
     else {
-      salvar
-    }
-
-    JsCmds.Noop
-  }
-
-  private def formatarTelefone(t: String): String = {
-    t.isEmpty match {
-      case true => telefone = None
-        ""
-      case false => t.matches("^\\d*$") match {
-        case true => telefone = Some(t.toLong)
-          t
-        case false => telefone = None
-          ""
+      if (salvar) {
+        SetHtml("perfil", mensagemSucesso(MensagemUsuario.DADOS_SALVOS_SUCESSO))
+      }
+      else {
+        SetHtml("perfil", mensagemErro(MensagemUsuario.ERRO_SALVAR_DADOS))
       }
     }
   }
 
   private def formatarDataInicioEmpresa: Option[org.joda.time.DateTime] = {
-    var formatar = new SimpleDateFormat("dd/MM/yyyy")
-    var parse = formatar.parse("01" + "/" + mes_empresa + "/" + ano_empresa)
-    var c = Calendar.getInstance()
-    c.setTime(parse)
-    var data = new DateTime(c.getTime)
-    Some(data)
+    if ((mes_empresa == "-1") || (ano_empresa == "0") || (mes_empresa == "") || (ano_empresa == "")) {
+      Some(null)
+    }
+    else {
+      var formatar = new SimpleDateFormat("dd/MM/yyyy")
+
+      var mesAjuste = (BigDecimal(mes_empresa) + 1).toString
+
+      var parse = formatar.parse("01" + "/" + mesAjuste + "/" + ano_empresa)
+      var c = Calendar.getInstance()
+      c.setTime(parse)
+      var data = new DateTime(c.getTime)
+      Some(data)
+    }
   }
 
   private def formatarDataNascimento: Option[DateTime] = {
-    var formatar = new SimpleDateFormat("dd/MM/yyyy")
-    var parse = formatar.parse(dia_nasc + "/" + mes_nasc + "/" + ano_nasc)
-    var c = Calendar.getInstance()
-    c.setTime(parse)
-    var data = new DateTime(c.getTime)
-    Some(data)
+    if ((dia_nasc == "0") || (mes_nasc == "-1") || (ano_nasc == "0") || (dia_nasc == "")
+      || (mes_nasc == "") || (ano_nasc == "")) {
+      Some(null)
+    }
+    else {
+      var formatar = new SimpleDateFormat("dd/MM/yyyy")
+
+      var mesAjuste = (BigDecimal(mes_nasc) + 1).toString
+
+      var parse = formatar.parse(dia_nasc + "/" + mesAjuste + "/" + ano_nasc)
+      var c = Calendar.getInstance()
+      c.setTime(parse)
+      var data = new DateTime(c.getTime)
+      Some(data)
+    }
   }
 
-  private def salvar() = {
+  private def salvar(): Boolean = {
 
     var inicioEmpresa = formatarDataInicioEmpresa
     var nascimento = formatarDataNascimento
+    telefone = removerFormatacao(telefone)
 
     var u = new Usuario(id_usuario,
       email,
       nome,
       Some(cargo),
       Some(observacao),
-      telefone,
+      Some(telefone),
       senha,
       inicioEmpresa,
       nascimento,
@@ -174,20 +172,30 @@ class PerfilUsuario extends StatefulSnippet with Logger {
       DateTime.now,
       None)
 
-    Usuario.save(u)
+    try {
+      Usuario.save(u)
+      true
+    } catch {
+      case _: SQLException | _: IndexOutOfBoundsException => println("Erro!")
+        false
+      case e: Throwable => println("Erro ao salvar!")
+        false
+    }
+
+
   }
 
   private def definirSexo(sexo: Option[Int]): String = {
     sexo match {
       case Some(s) => getSexo(s)._1
-      case None => ""
+      case None => "0"
     }
   }
 
   private def definiEstadoCicil(estadoCivil: Option[Int]): String = {
     estadoCivil match {
       case Some(ec) => getEstadoCivil(ec)._1
-      case None => ""
+      case None => "0"
     }
   }
 
@@ -241,35 +249,6 @@ class PerfilUsuario extends StatefulSnippet with Logger {
       case Some(o) => o
       case None => ""
     }
-  }
-
-  private def intervaloMeses = {
-    Map(-1 -> "", 0 -> "Janeiro", 1 -> "Fevereiro", 2 -> "Março", 3 -> "Abril", 4 -> "Maio", 5 -> "Junho", 6 -> "Julho", 7 -> "Agosto", 8 -> "Setembro", 9 -> "Outubro", 10 -> "Novembro", 11 -> "Dezembro")
-      .toList.map { case (i, j) => (Util.formataNum(i), j) }.sorted
-  }
-
-  private def intervaloAnos = {
-    val inicio = (0 to 0).map(i => (Util.formataNum(i), ""));
-    val intervalo = (1900 to 2016).map(i => (Util.formataNum(i), i.toString));
-    inicio ++ intervalo
-  }
-
-  private def getDia(d: Int) = {
-    intervaloDias(d)._1
-  }
-
-  private def intervaloDias = {
-    val inicio = (0 to 0).map(i => (Util.formataNum(i), ""));
-    val intervalo = (1 to 31).map(i => (Util.formataNum(i), i.toString));
-    inicio ++ intervalo
-  }
-
-  private def getSexo = {
-    Map(0 -> "", 1 -> "Masculino", 2 -> "Feminino").toList.map { case (i, s) => (Util.formataNum(i), s) }
-  }
-
-  private def getEstadoCivil = {
-    Map(0 -> "", 1 -> "Solteiro", 2 -> "Casado", 3 -> "Divorciado").toList.map { case (i, ec) => (Util.formataNum(i), ec) }
   }
 
 }

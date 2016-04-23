@@ -8,7 +8,7 @@ import util.Helpers._
   * Created by daniel on 27/03/16.
   */
 
-class Projeto extends StatefulSnippet {
+class SProjeto extends StatefulSnippet {
 
   private var nome: String = ""
 
