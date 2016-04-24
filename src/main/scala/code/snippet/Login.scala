@@ -1,12 +1,7 @@
 package code.snippet
 
-import code.lib.Validador
-import net.liftweb.common.{Empty, Full}
+import code.lib.Util._
 import net.liftweb.http._
-import scala.xml.{NodeSeq, Text}
-import js._
-import JsCmds._
-import SHtml._
 import _root_.net.liftweb.http._
 import net.liftweb.util.Helpers._
 import scala.language.postfixOps
@@ -21,14 +16,14 @@ class Login extends StatefulSnippet {
     case "render" => render
   }
 
-  private def process() {
+  private def login() {
 
     S.clearCurrentNotices
 
-    email = S.param("email").toOption
-    senha = S.param("senha").toOption
+    email = S.param("email")
+    senha = S.param("senha")
 
-      Validador.isValidoLogin(email, senha) match {
+      isValidoLogin(email, senha) match {
         case true => {
           SessionState.gravarSessao(email)
           S.redirectTo("/sistema/index")
@@ -44,6 +39,6 @@ class Login extends StatefulSnippet {
   def render =
     "email=email" #> SHtml.text(email.get, (String) => email) &
     "senha=senha" #> SHtml.text(senha.get, (String) => senha) &
-    "type=submit" #> SHtml.onSubmitUnit(process)
+    "type=submit" #> SHtml.onSubmitUnit(login)
 
 }

@@ -66,7 +66,7 @@ object Usuario extends SQLSyntaxSupport[Usuario] with Settings {
     select(u.email).from(Usuario as u).where.eq(u.email, email).and.eq(u.senha, senha)
   }.map(_.string(u.email)).single().apply()
 
-  def findAllUsuarios()(implicit session: DBSession = AutoSession): List[Usuario] = withSQL {
+  def findAll()(implicit session: DBSession = AutoSession): List[Usuario] = withSQL {
     select.from(Usuario as u)
   }.map(Usuario(u)).list().apply()
 

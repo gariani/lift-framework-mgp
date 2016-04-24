@@ -4,8 +4,7 @@ package code.snippet
 import java.sql.SQLException
 import java.text.{MessageFormat, SimpleDateFormat}
 import java.util.Calendar
-import code.dao.UsuarioDAO
-import code.lib.{Util, Validador}
+import code._
 import code.model.Usuario
 import net.liftweb.common.{Empty, Logger, Full}
 import net.liftweb.http.SHtml.{text}
@@ -49,8 +48,7 @@ class SPerfilUsuario extends StatefulSnippet with Logger {
   carregarDados
 
   def carregarDados = {
-    var usuarioDAO = new UsuarioDAO
-    val usuario = usuarioDAO.findByEmail(definirUsuario.getOrElse(""))
+    val usuario = Usuario.findByEmail(definirUsuario.getOrElse(""))
     usuario match {
       case Some(u) => {
         id_usuario = u.idUsuario
@@ -154,11 +152,11 @@ class SPerfilUsuario extends StatefulSnippet with Logger {
 
   private def salvar(): Boolean = {
 
-    var inicioEmpresa = formatarDataInicioEmpresa
-    var nascimento = formatarDataNascimento
+    val inicioEmpresa = formatarDataInicioEmpresa
+    val nascimento = formatarDataNascimento
     telefone = removerFormatacao(telefone)
 
-    var u = new Usuario(id_usuario,
+    val u = new Usuario(id_usuario,
       email,
       nome,
       Some(cargo),
@@ -208,7 +206,7 @@ class SPerfilUsuario extends StatefulSnippet with Logger {
         var c = Calendar.getInstance()
 
         c.setTime(parse)
-        mes_empresa = Util.formataNum(c.get(Calendar.MONTH))
+        mes_empresa = formataNum(c.get(Calendar.MONTH))
         ano_empresa = c.get(Calendar.YEAR).toString
       }
       case None => {
@@ -225,8 +223,8 @@ class SPerfilUsuario extends StatefulSnippet with Logger {
         var parse = data.parse(hm.toString("dd/MM/YYYY"))
         var c = Calendar.getInstance()
         c.setTime(parse)
-        dia_nasc = Util.formataNum(c.get(Calendar.DAY_OF_MONTH))
-        mes_nasc = Util.formataNum(c.get(Calendar.MONTH))
+        dia_nasc = formataNum(c.get(Calendar.DAY_OF_MONTH))
+        mes_nasc = formataNum(c.get(Calendar.MONTH))
         ano_nasc = c.get(Calendar.YEAR).toString
       }
       case None => {

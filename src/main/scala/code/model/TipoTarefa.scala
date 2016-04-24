@@ -44,17 +44,17 @@ object TipoTarefa extends SQLSyntaxSupport[TipoTarefa] with Settings {
 
   val tt = TipoTarefa.syntax("tt")
 
-  def findByIdTipoTarefa(idTipoTarefa: Long)(implicit session: DBSession = autoSession): Option[TipoTarefa] = {
+  def findByIdTipoTarefa(idTipoTarefa: Long)(implicit session: DBSession = AutoSession): Option[TipoTarefa] = {
     withSQL{
-      select.from(TipoTarefa as tt).orderBy(tt.idTipoTarefa)
+      select.from(TipoTarefa as tt).where.eq(tt.idTipoTarefa, idTipoTarefa)
     }.map(TipoTarefa(tt)).single().apply()
   }
 
-  def findAll()(implicit session: DBSession = autoSession): List[TipoTarefa] = withSQL {
+  def findAll()(implicit session: DBSession = AutoSession): List[TipoTarefa] = withSQL {
       select.from(TipoTarefa as tt).orderBy(tt.idTipoTarefa)
   }.map(TipoTarefa(tt)).list().apply()
 
-  def create(nomeTipoTarefa: String, estimativa: Option[Time], foraUso: Boolean, createdAt: DateTime)(implicit session: DBSession = autoSession): TipoTarefa ={
+  def create(nomeTipoTarefa: String, estimativa: Option[Time], foraUso: Boolean, createdAt: DateTime)(implicit session: DBSession = AutoSession): TipoTarefa ={
 
     val id = withSQL {
       insert.into(TipoTarefa).namedValues(
@@ -75,7 +75,7 @@ object TipoTarefa extends SQLSyntaxSupport[TipoTarefa] with Settings {
 
   }
 
-  def save(tipoTarefa: TipoTarefa)(implicit session: DBSession = autoSession): TipoTarefa = {
+  def save(tipoTarefa: TipoTarefa)(implicit session: DBSession = AutoSession): TipoTarefa = {
     withSQL {
       update(TipoTarefa).set(
         TipoTarefa.column.nomeTipoTarefa -> tipoTarefa.nomeTipoTarefa,
@@ -86,7 +86,7 @@ object TipoTarefa extends SQLSyntaxSupport[TipoTarefa] with Settings {
     tipoTarefa
   }
 
-  def foraUsoTipoTarefa(idTipoTarefa: Long, foraUso: Boolean)(implicit session: DBSession = autoSession): Boolean = {
+  def foraUsoTipoTarefa(idTipoTarefa: Long, foraUso: Boolean)(implicit session: DBSession = AutoSession): Boolean = {
     withSQL {
       update(TipoTarefa).set(
         TipoTarefa.column.foraUso -> foraUso
@@ -95,14 +95,14 @@ object TipoTarefa extends SQLSyntaxSupport[TipoTarefa] with Settings {
     !foraUso
   }
 
-  def getForaUso(idTipoTarefa: Long)(implicit session: DBSession = autoSession): Option[Boolean]  = {
+  def getForaUso(idTipoTarefa: Long)(implicit session: DBSession = AutoSession): Option[Boolean]  = {
     withSQL {
       select(tt.foraUso).from(TipoTarefa as tt).where.eq(tt.idTipoTarefa, idTipoTarefa)
     }.map( rs => (rs.boolean("fora_uso"))).single().apply()
 
   }
 
-  def destroy(idTipoTarefa: Long)(implicit session: DBSession = autoSession): Unit = withSQL {
+  def destroy(idTipoTarefa: Long)(implicit session: DBSession = AutoSession): Unit = withSQL {
     delete.from(TipoTarefa).where.eq(column.idTipoTarefa, idTipoTarefa)
   }.update.apply()
 

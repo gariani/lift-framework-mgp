@@ -6,44 +6,40 @@
             </div>
             <!-- /.col-lg-12 -->
         </div>
-        <!-- /.row -->
-        <!--<div data-lift="lazy-load?template=/sistema/usuario/usuario-hidden/empty">-->
-        <div class="lift:EditarTipoTarefa">
-            <div id="mensagem"></div>
-            <form id="tipoTarefa" class="lift:form.ajax">
-                <fieldset style="margin-bottom:5px;">
-                    <div class="lift:EditarTipoTarefa">
-                        <div class="row">
-                            <div class="col-lg-3">
+        <div class="row">
+            <div class="col-lg-3">
+                <div class="lift:EditarTipoTarefa">
+                    <div id="mensagem"></div>
+                    <form id="tipoTarefa" class="lift:form.ajax" method="post">
+                        <fieldset style="margin-bottom:5px;">
+                            <div>
                                 <label for="descricao">* Descrição</label><br>
                                 <input class="form-control" type="text" id="descricao" name="descricao">
-                            </div>
-                            <div class="col-lg-3">
-                                <label> Estimativa</label>
-                                <div class="input-group">
-                                    <span class="form-control" data-inline="true" id="hora" name="hora"></span>
-                                    <span class="form-control" data-inline="true" id="min" name="min"></span>
+                                <div class="form-group">
+                                    <label> Estimativa</label>
+                                    <div class="form-group input-group">
+                                                        <span class="form-control" data-inline="true" id="hora"
+                                                              name="hora"></span>
+                                                        <span class="form-control" data-inline="true" id="min"
+                                                              name="min"></span>
+                                    </div>
                                 </div>
-
                             </div>
-                            <br>
+                        </fieldset>
+                        <div>
+                            <button type="submit" id="adicionarBotao"
+                                    class="btn btn-primary">
+                                <i class="glyphicon glyphicon-ok"></i>Salvar
+                            </button>
+                            <button type="button" id="cancelar" value="Cancelar" name="Voltar"
+                                    class="btn btn-danger">
+                                <span class="glyphicon glyphicon-remove-sign"></span>
+                            </button>
                         </div>
-                    </div>
-                </fieldset>
-                <div class="row">
-                    <div class="col-md-3">
-                        <button type="submit" name="adicionarNovo" class="btn btn-primary"><i
-                                class="glyphicon glyphicon-ok"></i> Salvar
-                        </button>
-                        <a id="cancelar" class="btn btn-info" href="#">
-                            <i class="fa fa-trash-o fa-lg"></i></a>
-                    </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
-    <!--</div>-->
 </div>
-<!-- /#page-wrapper -->
-</div>
-<!-- /#wrapper -->
+

@@ -1,10 +1,9 @@
 package code.snippet
 
-import code.dao.UsuarioDAO
 import code.model.Usuario
 import net.liftweb.http.js.JsCmds.{SetHtml}
 import net.liftweb.util.Helpers
-import net.liftweb.common.{Box, Full, Empty}
+import net.liftweb.common.{Logger, Box, Full, Empty}
 import net.liftweb.http.js.{JsCmds, JsCmd}
 import net.liftweb.http._
 import net.liftweb.util.Helpers._
@@ -13,9 +12,10 @@ import code.lib.Util._
 import scala.xml.{NodeSeq, Text}
 
 object novoUsuarioVisivel extends RequestVar[Box[Boolean]](Full(true))
+
 object editarPerfilUsuario extends SessionVar[Box[String]](Empty)
 
-class ListaUsuario extends StatefulSnippet {
+class SListaUsuario extends StatefulSnippet with Logger {
 
   private var nome: String = ""
   private var email: String = ""
@@ -61,21 +61,13 @@ class ListaUsuario extends StatefulSnippet {
   }
 
   def listaUsuario = {
-
-    var usuarioDao = new UsuarioDAO
-
-    val lista = usuarioDao.findAllUsuarios()
-
-    ".linha *" #> lista.map(u =>
-      ".id *" #> adicionarIdUsuario(u.idUsuario) &
+    var usuario = Usuario.findAll()
+    ".linha *" #> usuario.map(u =>
+      ".id *" #> u.idUsuario &
         ".nome *" #> u.nome &
         ".email *" #> u.email &
         "#editar [onclick]" #> SHtml.ajaxInvoke(() => editar(u.email)) &
         "#deletar [onclick]" #> SHtml.ajaxInvoke(() => deletar(u.email)))
-  }
-
-  private def adicionarIdUsuario(idUsuario: Long) = {
-    idUsuario + 1
   }
 
   private def editar(email: String) = {
@@ -121,7 +113,7 @@ class ListaUsuario extends StatefulSnippet {
           None,
           None,
           DateTime.now)
-          JsCmds.Noop
+          SetHtml("alertaMensagem", mensagemSucesso(MensagemUsuario.DADOS_SALVOS_SUCESSO))
       }
     }
   }
@@ -134,9 +126,9 @@ class ListaUsuario extends StatefulSnippet {
           Cadastrar novo usuário
         </div>
         <div class="panel-body">
-          <div id="alertaMensagem"></div>
-          <form data-lift="form.ajax" method="post">
-            <div class="lift:ListaUsuario.cadastrarUsuario">
+          <div class="lift:SListaUsuario.cadastrarUsuario">
+            <div id="alertaMensagem"></div>
+            <form data-lift="form.ajax" method="post">
               <div class="col-lg-12">
                 <fieldset style="margin-bottom:5px;">
                   <div>
@@ -162,8 +154,8 @@ class ListaUsuario extends StatefulSnippet {
                   </button>
                 </div>
               </div>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
       </div>
     </div>

@@ -1,10 +1,13 @@
 package code.lib
 
-import java.text.MessageFormat
+import java.sql.Time
+import java.text.{SimpleDateFormat, MessageFormat}
 
+import code.model.Usuario
 import code.snippet.editarPerfilUsuario
 import net.liftweb.common.{Empty, Full}
-
+import com.roundeights.hasher.Implicits._
+import scala.language.postfixOps
 import scala.xml.NodeSeq
 
 /**
@@ -36,6 +39,14 @@ object Util {
     </div>
   }
 
+  def converterSHA(sha: Option[String]): Option[String] = {
+    sha match {
+      case Some(s) => Some(s.sha256.toString)
+      case None => None
+    }
+
+  }
+
   def formataNum(i: Int): String = {
     i.toString.length match {
       case 1 => "0" + i.toString
@@ -60,7 +71,8 @@ object Util {
   }
 
   object MensagemUsuario {
-    val REQUERIDO = "Campo obrigatório!"
+    val NAO_ENCONTRADO = "Dado não econtrado."
+    val REQUERIDO = "Campo %s obrigatório!"
     val REMOTE = "Por favor, corrija este campo."
     val EMAIL_INVALIDO = "Por favor, forneça um endereço eletrônico válido."
     val URL = "Por favor, forneça uma URL válida."
@@ -73,7 +85,7 @@ object Util {
     val INTERVALO_VALOR = "Por favor, forneça um valor entre %d e %d caracteres de comprimento."
     val INTERVALO = "Por favor, forneça um valor entre %d e %d."
     val MAX = "Por favor, forneça um valor menor ou igual a %d."
-    val MIN = "Por favor, forneça um valor maior ou igual a %d."
+    val MIN = "Por favor, forneça um valor maior ou igual a %d para %s."
     val EMAIL_JA_USADO = "Endereço eletrônico já utilizado."
     val TAM_SENHA = "Por favor, forneça um valor maior ou igual a %d para senha."
     val ERRO_SALVAR_DADOS = "Ocorreu um erro ao salvar os dados. Entre em contato com o suporte."
@@ -143,5 +155,54 @@ object Util {
     Map(0 -> "", 1 -> "Solteiro", 2 -> "Casado", 3 -> "Divorciado").toList.map { case (i, ec) => (Util.formataNum(i), ec) }
   }
 
+  def isValidoEmail(email: String): Boolean = {
+    !Usuario.findByEmail(email).isEmpty
+  }
+
+  def isValidoLogin(email: Option[String], senha: Option[String]): Boolean = {
+    var senhaSHA = converterSHA(senha)
+    (email, senhaSHA) match {
+      case (Some(e), Some(s)) => !Usuario.findByLogin(e, s).isEmpty
+      case _ => false
+    }
+  }
+
+  def formataHora(horaMin: Option[Time]) = {
+    var h = new SimpleDateFormat("HH")
+    horaMin match {
+      case Some(hm) => h.format(hm)
+      case None => "00"
+    }
+  }
+
+  def formataMin(horaMin: Option[Time]) = {
+    var m = new SimpleDateFormat("mm")
+
+    horaMin match {
+      case Some(hm) => m.format(hm)
+      case None => "00"
+    }
+  }
+
+  def formatarEstimativa(hora: String, min: String) = {
+    var formatar = new SimpleDateFormat("HH:mm")
+    formatar.format(new java.util.Date())
+    var d1 = formatar.parse(hora + ":" + min)
+    var ppstime = new java.sql.Time(d1.getTime)
+    Full(ppstime)
+  }
+
+  def formatarHoraMinEstimativa(e: Time): String = {
+    val formatar = new SimpleDateFormat("HH:mm")
+    val hora = formatar.format(e)
+    hora
+  }
+
+  def retornarEstimativa(estima: Option[Time]) = {
+    estima match {
+      case Some(e) => formatarHoraMinEstimativa(e)
+      case None => "00:00"
+    }
+  }
 
 }
