@@ -17,7 +17,7 @@ import scala.xml.{NodeSeq, _}
 
 //private object guidToIdRV extends RequestVar[Map[String, Long]](Map())
 
-class Teste {
+/*class Teste {
 
   def render = {
       "#editar" #> SHtml.onSubmit((s) => editar(s))
@@ -79,3 +79,4 @@ class Teste {
 
 }
 
+*/

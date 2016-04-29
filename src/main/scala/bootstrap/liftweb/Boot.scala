@@ -70,7 +70,7 @@ object Site {
   val perfil = Menu(Loc("perfil", Link(List("sistema", "usuario", "perfil", "perfil"), true, "/sistema/usuario/perfil/perfil"), S.loc("perfil", Text(""))))
   val projeto = Menu("Projeto") / "sistema" / "projeto" / "index"
 
-  var admin = Menu("Administrador") / "sistema" / "cliente" / "administrador" submenus(
+  var admin = Menu("Administrador") / "sistema" / "administrador" submenus(
     Menu.i("Usuários") / "sistema" / "usuario" / "configuracao" / "configuracao_usuario" submenus (
       Menu.i("Cadastrar usuários") / "sistema" / "usuario" / "configuracao" / "cadastrar_usuario" >> Hidden
       ),

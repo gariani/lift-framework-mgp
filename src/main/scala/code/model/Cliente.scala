@@ -63,4 +63,9 @@ object Cliente extends SQLSyntaxSupport[Cliente] with Settings {
     c
   }
 
+
+  def destroy(idCliente: Long)(implicit session: DBSession = AutoSession): Unit = withSQL {
+    update(Cliente).set(column.deletedAt -> DateTime.now).where.eq(column.idCliente, idCliente)
+  }.update.apply()
+
 }

@@ -15,9 +15,12 @@ import scala.xml.{NodeSeq, Text}
 
 object novoUsuarioVisivel extends RequestVar[Option[Boolean]](Some(true))
 object editarPerfilUsuario extends SessionVar[Option[String]](None)
-private object listTamplateRV extends RequestVar[NodeSeq](Nil)
-private object guidToIdRV extends RequestVar[Map[String, Long]](Map())
-private object usuarioRV extends RequestVar[Option[Usuario]](None)
+
+object listTamplateRVUsuario extends RequestVar[NodeSeq](Nil)
+
+object guidToIdRVUsuario extends RequestVar[Map[String, Long]](Map())
+
+object usuarioRV extends RequestVar[Option[Usuario]](None)
 
 class SListaUsuario extends StatefulSnippet with Logger {
 
@@ -114,23 +117,23 @@ class SListaUsuario extends StatefulSnippet with Logger {
 
   def lista(in: NodeSeq): NodeSeq = {
     val products = Usuario.findAll()
-    listTamplateRV(in)
+    listTamplateRVUsuario(in)
     _rowTemplate(products);
   }
 
   private def associatedGuid(l: Long): Option[String] = {
-    val map = guidToIdRV.is;
+    val map = guidToIdRVUsuario.is;
     map.find(e => l == e._2) match {
       case Some(e) => Some(e._1)
       case None =>
         val guid = nextFuncName
-        guidToIdRV.set(map + (guid -> l))
+        guidToIdRVUsuario.set(map + (guid -> l))
         Some(guid)
     }
   }
 
   private def _rowTemplate(usuarios: List[Usuario]): NodeSeq = {
-    val in = listTamplateRV.is
+    val in = listTamplateRVUsuario.is
     val cssSel =
       "#row" #> usuarios.map(u => {
         val guid = associatedGuid(u.idUsuario).get
@@ -154,7 +157,7 @@ class SListaUsuario extends StatefulSnippet with Logger {
   }
 
   private def _ajaxDelete(p: Usuario, guid: String): JsCmd = {
-    guidToIdRV.set(guidToIdRV.is - guid)
+    guidToIdRVUsuario.set(guidToIdRVUsuario.is - guid)
     Usuario.destroy(p.idUsuario);
     JsCmds.Replace(guid, NodeSeq.Empty)
   }

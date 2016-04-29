@@ -2,24 +2,21 @@ package code.snippet
 
 import net.liftweb.http.{SHtml, StatefulSnippet}
 import net.liftweb.util
-import util.Helpers._
-import code.model.{Cliente, Usuario}
-import net.liftweb.http.js.JsCmds.{Alert, SetHtml}
+import code.model.{Cliente}
+import net.liftweb.http.js.JsCmds.{Alert}
 import net.liftweb.http.js.jquery.JqJsCmds
 import net.liftweb.http.js.jquery.JqJsCmds.ModalDialog
-import net.liftweb.util.Helpers
-import net.liftweb.common._
 import net.liftweb.http.js.{JsCmds, JsCmd}
 import net.liftweb.http._
 import net.liftweb.util.Helpers._
-import org.joda.time.DateTime
-import code.lib.Util._
 import scala.xml.{NodeSeq, Text}
 
 object novoClienteVisivel extends RequestVar[Option[Boolean]](Some(true))
 object editarPerfilCliente extends SessionVar[Option[Long]](None)
-private object listTamplateRV extends RequestVar[NodeSeq](Nil)
-private object guidToIdRV extends RequestVar[Map[String, Long]](Map())
+
+private object listTamplateRVCliente extends RequestVar[NodeSeq](Nil)
+
+private object guidToIdRVCliente extends RequestVar[Map[String, Long]](Map())
 private object clienteRV extends RequestVar[Option[Cliente]](None)
 
 class SCliente extends StatefulSnippet {
@@ -44,23 +41,23 @@ class SCliente extends StatefulSnippet {
 
     def lista(in: NodeSeq): NodeSeq = {
       val c = Cliente.findAll()
-      listTamplateRV(in)
+      listTamplateRVCliente(in)
       _rowTemplate(c);
     }
 
     private def associatedGuid(l: Long): Option[String] = {
-      val map = guidToIdRV.is;
+      val map = guidToIdRVCliente.is;
       map.find(e => l == e._2) match {
         case Some(e) => Some(e._1)
         case None =>
           val guid = nextFuncName
-          guidToIdRV.set(map + (guid -> l))
+          guidToIdRVCliente.set(map + (guid -> l))
           Some(guid)
       }
     }
 
     private def _rowTemplate(cliente: List[Cliente]): NodeSeq = {
-      val in = listTamplateRV.is
+      val in = listTamplateRVCliente.is
       val cssSel =
         "#row" #> cliente.map(c => {
           val guid = associatedGuid(c.idCliente).get
@@ -84,8 +81,8 @@ class SCliente extends StatefulSnippet {
     }
 
     private def _ajaxDelete(c: Cliente, guid: String): JsCmd = {
-      guidToIdRV.set(guidToIdRV.is - guid)
-      Usuario.destroy(c.idCliente);
+      guidToIdRVCliente.set(guidToIdRVCliente.is - guid)
+      Cliente.destroy(c.idCliente);
       JsCmds.Replace(guid, NodeSeq.Empty)
     }
 

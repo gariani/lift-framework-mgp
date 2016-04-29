@@ -1,18 +1,15 @@
 package code.snippet
 
-import java.sql.Time
-import java.text.SimpleDateFormat
 import code.model.TipoTarefa
 import code.lib.Util._
-import net.liftweb.common.{Full, Empty, Box, Logger}
+import net.liftweb.common.{Full, Box, Logger}
 import net.liftweb.http.js.JsCmds.SetHtml
-import net.liftweb.http.js.{JsCmd, JsCmds}
+import net.liftweb.http.js.{JsCmds}
 import net.liftweb.http._
 import net.liftweb._
 import net.liftweb.util.Helpers
 import util.Helpers._
-import scala.xml.{NodeSeq, Text, Group}
-import org.joda.time.DateTime
+import scala.xml.{NodeSeq, Text}
 
 /**
   * Created by daniel on 03/04/16.
