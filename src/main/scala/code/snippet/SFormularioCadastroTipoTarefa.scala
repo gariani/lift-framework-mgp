@@ -5,14 +5,16 @@ import java.sql.Time
 import code.lib.Util._
 import code.model.TipoTarefa
 import net.liftweb.common.{Logger, Full, Empty}
-import net.liftweb.http.{StatefulSnippet, SHtml}
+import net.liftweb.http.js.JE.JsRaw
+import net.liftweb.http.js.jquery.JqJsCmds.Unblock
+import net.liftweb.http.{S, StatefulSnippet, SHtml}
 import net.liftweb.util
 import net.liftweb.util.Helpers
-import net.liftweb.http.js.{JsCmd, JsCmds}
+import net.liftweb.http.js.{JE, JsCmd, JsCmds}
 import org.joda.time.DateTime
 import util.Helpers._
 import scala.xml.Text
-import net.liftweb.http.js.JsCmds.SetHtml
+import net.liftweb.http.js.JsCmds.{Script, Alert, SetHtml}
 
 /**
   * Created by daniel on 24/04/16.
@@ -21,7 +23,7 @@ class SFormularioCadastroTipoTarefa extends StatefulSnippet with Logger {
 
   protected var idTipoTarefa: Long = 0
   protected var descricao: String = ""
-  protected var estimativa: Option[Time] = Empty
+  protected var estimativa: Option[Time] = None
   protected var min: String = ""
   protected var hora: String = ""
   protected var foraUso: Boolean = false;
@@ -33,7 +35,7 @@ class SFormularioCadastroTipoTarefa extends StatefulSnippet with Logger {
       "#hora" #> SHtml.ajaxSelect(internvaloHora, Full(hora), v => hora = v, "style" -> "width:70px;") &
       "#min" #> SHtml.ajaxSelect(internvaloMinuto, Full(min), v => min = v, "style" -> "width:70px;") &
       "#cancelar" #> SHtml.ajaxButton(Text("Cancelar"), () => cancelarNovoTipoTarefa) &
-    "#adicionarBotao" #> SHtml.ajaxSubmit("Cadastrar novo", () => criar)
+      "#adicionarBotao" #> SHtml.ajaxSubmit("Cadastrar novo", () => criar)
   }
 
   def dispatch = {
@@ -63,6 +65,7 @@ class SFormularioCadastroTipoTarefa extends StatefulSnippet with Logger {
 
   protected def criar: JsCmd = {
     if (descricao.isEmpty) {
+      S.notice("teste")
       SetHtml("mensagem", mensagemErro(MensagemUsuario.MIN.format(5, "Descrição")))
     }
     else {
@@ -71,6 +74,15 @@ class SFormularioCadastroTipoTarefa extends StatefulSnippet with Logger {
           estimativa,
           foraUso,
           DateTime.now)
+
+       Script(JsRaw("""
+            |var table = $('#dataTables-example').DataTable( {
+            |    ajax: "data.json"
+            |} );
+            |
+            |table.ajax.reload()
+          """.stripMargin).cmd)
+
         SetHtml("mensagem", mensagemSucesso(MensagemUsuario.DADOS_SALVOS_SUCESSO))
       }
       catch {

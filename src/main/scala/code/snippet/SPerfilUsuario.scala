@@ -89,8 +89,8 @@ class SPerfilUsuario extends StatefulSnippet with Logger {
 
   private def validarMesmoEmail: Boolean = {
     editarPerfilUsuario.is match {
-      case Full(e) => email == e
-      case Empty => false
+      case Some(e) => email == e
+      case None => false
       case _ => false
     }
   }

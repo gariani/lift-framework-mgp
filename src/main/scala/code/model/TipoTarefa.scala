@@ -38,7 +38,7 @@ object TipoTarefa extends SQLSyntaxSupport[TipoTarefa] with Settings {
     nomeTipoTarefa = rs.get(tt.nomeTipoTarefa),
     estimativa = rs.timeOpt(tt.estimativa),
     foraUso = rs.get(tt.foraUso),
-    createdAt = rs.get(tt.createdAt),
+    createdAt = rs.jodaDateTime(tt.createdAt),
     deletedAt = rs.jodaDateTimeOpt(tt.deletedAt)
   )
 
@@ -61,7 +61,7 @@ object TipoTarefa extends SQLSyntaxSupport[TipoTarefa] with Settings {
         column.nomeTipoTarefa -> nomeTipoTarefa,
         column.estimativa -> estimativa,
         column.foraUso -> foraUso,
-        column.createdAt -> createdAt
+        column.createdAt -> DateTime.now
       )
     }.updateAndReturnGeneratedKey.apply()
 
@@ -75,15 +75,15 @@ object TipoTarefa extends SQLSyntaxSupport[TipoTarefa] with Settings {
 
   }
 
-  def save(tipoTarefa: TipoTarefa)(implicit session: DBSession = AutoSession): TipoTarefa = {
+  def save(tt: TipoTarefa)(implicit session: DBSession = AutoSession): TipoTarefa = {
     withSQL {
       update(TipoTarefa).set(
-        TipoTarefa.column.nomeTipoTarefa -> tipoTarefa.nomeTipoTarefa,
-        TipoTarefa.column.estimativa -> tipoTarefa.estimativa,
-        TipoTarefa.column.foraUso -> tipoTarefa.foraUso
-      ).where.eq(TipoTarefa.column.idTipoTarefa, tipoTarefa.idTipoTarefa).and.isNull(column.deletedAt)
+        TipoTarefa.column.nomeTipoTarefa -> tt.nomeTipoTarefa,
+        TipoTarefa.column.estimativa -> tt.estimativa,
+        TipoTarefa.column.foraUso -> tt.foraUso
+      ).where.eq(TipoTarefa.column.idTipoTarefa, tt.idTipoTarefa).and.isNull(column.deletedAt)
     }.update.apply()
-    tipoTarefa
+    tt
   }
 
   def foraUsoTipoTarefa(idTipoTarefa: Long, foraUso: Boolean)(implicit session: DBSession = AutoSession): Boolean = {

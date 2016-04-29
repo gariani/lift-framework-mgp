@@ -52,7 +52,7 @@ object Usuario extends SQLSyntaxSupport[Usuario] with Settings {
 
   val u = Usuario.syntax("u")
 
-  //private val isNotDeleted = sqls.isNull(u.deletedAt)
+  private val isNotDeleted = sqls.isNull(u.deletedAt)
 
   def isExistsEmail(email: String)(implicit session: DBSession = AutoSession): Option[String] = withSQL {
     select(u.email).from(Usuario as u).where.eq(u.email, email)
@@ -67,7 +67,7 @@ object Usuario extends SQLSyntaxSupport[Usuario] with Settings {
   }.map(_.string(u.email)).single().apply()
 
   def findAll()(implicit session: DBSession = AutoSession): List[Usuario] = withSQL {
-    select.from(Usuario as u)
+    select.from(Usuario as u).where.isNull(u.deletedAt)
   }.map(Usuario(u)).list().apply()
 
   def save(usuario: Usuario)(implicit session: DBSession = AutoSession): Usuario = {
@@ -128,5 +128,5 @@ object Usuario extends SQLSyntaxSupport[Usuario] with Settings {
 
   def destroy(idUsuario: Long)(implicit session: DBSession = AutoSession): Unit = withSQL {
     update(Usuario).set(column.deletedAt -> DateTime.now).where.eq(column.idUsuario, idUsuario)
-  }
+  }.update.apply()
 }

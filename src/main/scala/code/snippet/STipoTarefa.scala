@@ -29,13 +29,14 @@ class STipoTarefa extends StatefulSnippet with Logger {
   }
 
   def render = {
-    "#descricaoTipoTarefa" #> listaTipoTarefa &
+    "#dataTables-example" #> listaTipoTarefa &
       "#adicionaNovoTipoTarefa" #> SHtml.ajaxButton(Text("Cadastrar novo"), () => adicionarFormulario)
   }
 
   def listaTipoTarefa = {
     val lista = TipoTarefa.findAll()
     ".listaTipoTarefa" #> lista.map(tt =>
+      ".listaTipoTarefa [class]" #> "gradeA" &
       "#row [id]" #> Helpers.nextFuncName &
         ".id *" #> tt.idTipoTarefa &
         ".descricao *" #> tt.nomeTipoTarefa &
@@ -79,6 +80,7 @@ class STipoTarefa extends StatefulSnippet with Logger {
     exibirNovoTipoTarefa.is match {
       case Full(true) =>
         exibirNovoTipoTarefa.set(Full(false))
+        //Templates("sistema" :: "templates-hidden" :: "_confirmar_exclusao" :: Nil).openOr("error")
         JsCmds.SetHtml("formNovoTipoTarefa", formCadstroTipoTarefa) &
           JsCmds.JsHideId("adicionaNovoTipoTarefa")
       case _ => JsCmds.Noop

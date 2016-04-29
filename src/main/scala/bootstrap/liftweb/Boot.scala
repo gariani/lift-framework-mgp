@@ -10,7 +10,7 @@ import common._
 import http._
 import net.liftweb.util.{NamedPF}
 import scala.xml.Text
-import sitemap._
+import net.liftweb.sitemap._
 import Loc._
 
 class Boot extends Loggable {
@@ -79,8 +79,10 @@ object Site {
     Menu.i("Tipos de Tarefas") / "sistema" / "tarefa" / "tipo_tarefa" / "tipo_tarefa" submenus (
       Menu.i("Editar Tipo de Tarefas") / "sistema" / "tarefa" / "tipo_tarefa" / "editar" >> Hidden
       ),
-    Menu.i("Status de Tarefa") / "sistema" / "status_tarefa" / "status_tarefa"
+    Menu.i("Status de Tarefa") / "sistema" / "status_tarefa" / "status_tarefa",
+    Menu.i("Teste") / "sistema" / "teste"
     )
+
 
   def siteMap = SiteMap(
     home, //>> If( () => SessionState.estaLogado, RedirectResponse("/")),
