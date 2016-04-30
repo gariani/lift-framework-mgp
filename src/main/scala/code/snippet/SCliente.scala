@@ -25,9 +25,17 @@ class SCliente extends StatefulSnippet {
     private var nome: String = ""
     private var projetos: String = ""
 
+  private var cliente: List[Cliente] = List()
+  private var count: Long = 0;
+
     def dispatch = {
       case "lista" => lista
+      case "render" => render
     }
+
+  def render = {
+    "#nada" #> NodeSeq.Empty
+  }
 
     private def limparCampos = {
       nome = ""
@@ -42,8 +50,16 @@ class SCliente extends StatefulSnippet {
     def lista(in: NodeSeq): NodeSeq = {
       val c = Cliente.findAll()
       listTamplateRVCliente(in)
-      _rowTemplate(c);
+      extrairValores(c)
+      _rowTemplate(cliente);
     }
+
+  def extrairValores(client: List[(Any, Long)]) = {
+    client.map { case (cli, c) =>
+      cliente = List(cli.asInstanceOf[Cliente])
+      count = c
+    }
+  }
 
     private def associatedGuid(l: Long): Option[String] = {
       val map = guidToIdRVCliente.is;
@@ -62,16 +78,16 @@ class SCliente extends StatefulSnippet {
         "#row" #> cliente.map(c => {
           val guid = associatedGuid(c.idCliente).get
           "#row [id]" #> (guid) &
-            ".lista [class]" #> "gradeA" &
+            ".listaUsuario [class]" #> "gradeA" &
             cellSelector("id") #> Text(c.idCliente.toString) &
             cellSelector("nome") #> Text(c.nomeCliente) &
-            //cellSelector("projetos") #> Text(c.projetos) &
-            "#editar [onclick]" #> SHtml.ajaxInvoke(() => editar(c.idCliente)) &
-            "#deletar [onclick]" #> {
-              SHtml.ajaxInvoke(() => {
-                S.runTemplate(List("/sistema/templates-hidden/_confirmar_exclusao"))
-              }.map(ns => ModalDialog(ns)) openOr Alert("Erro ao excluir!")
-              )}
+            cellSelector("projetos") #> Text(c.nomeCliente) &
+            "#editar [onclick]" #> SHtml.ajaxInvoke(() => editar(c.idCliente)) //&
+          "#deletar [onclick]" #> {
+            SHtml.ajaxInvoke(() => {
+              S.runTemplate(List("/sistema/templates-hidden/_confirmar_exclusao"))
+            }.map(ns => ModalDialog(ns)) openOr Alert("Erro ao excluir!"))
+          }
         })
       cssSel.apply(in)
     }

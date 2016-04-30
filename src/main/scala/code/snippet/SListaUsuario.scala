@@ -45,7 +45,6 @@ class SListaUsuario extends StatefulSnippet with Logger {
       case _ => novoUsuarioVisivel.set(Empty)
         JsCmds.Noop
     }
-
   }
 
   private def cancelarNovoUsuario = {
