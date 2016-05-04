@@ -12,27 +12,22 @@ import net.liftweb.util.Helpers._
 import org.joda.time.DateTime
 import code.lib.Util._
 import scala.xml.{NodeSeq, Text}
+import net.liftweb.util.Helpers.strToCssBindPromoter
 
 object novoUsuarioVisivel extends RequestVar[Option[Boolean]](Some(true))
 object editarPerfilUsuario extends SessionVar[Option[String]](None)
-
 object listTamplateRVUsuario extends RequestVar[NodeSeq](Nil)
-
 object guidToIdRVUsuario extends RequestVar[Map[String, Long]](Map())
-
 object usuarioRV extends RequestVar[Option[Usuario]](None)
+private object formTemplateUsuarioRV extends RequestVar[NodeSeq](Nil)
 
 class SListaUsuario extends StatefulSnippet with Logger {
 
   private val TEMPLATE_LIST_ID = "lista-usuarios";
 
-  private var nome: String = ""
-  private var email: String = ""
-  private var senha: String = ""
 
   def dispatch = {
-    case "render" => render
-    case "cadastrarUsuario" => cadastrarUsuario
+    case "render" => adicionaNovoUsuario
     case "lista" => lista
   }
 
@@ -41,77 +36,20 @@ class SListaUsuario extends StatefulSnippet with Logger {
       case Some(true) =>
         novoUsuarioVisivel.set(Full(false))
         JsCmds.SetHtml("formNovoUsuario", formCadstroUsuario) &
-    JsCmds.JsHideId("adicionaNovoUsuario")
+          JsCmds.JsHideId("adicionaNovoUsuario") &
+          SetHtml("mensageSucesso", Text(Mensagem.MSN_VAZIA))
       case _ => novoUsuarioVisivel.set(Empty)
         JsCmds.Noop
     }
   }
 
-  private def cancelarNovoUsuario = {
-    limparCampos
-    novoUsuarioVisivel.is match {
-      case Some(false) => novoUsuarioVisivel.set(Full(true))
-        JsCmds.SetHtml("formNovoUsuario", <div></div>) &
-          JsCmds.JsShowId("adicionaNovoUsuario")
-      case _ => novoUsuarioVisivel.set(Empty)
-        JsCmds.Noop
-    }
-  }
-
-  private def limparCampos = {
-    nome = ""
-    senha = ""
-    email = ""
-  }
-
-  def render = {
+  def adicionaNovoUsuario = {
     "#adicionaNovoUsuario" #> SHtml.ajaxButton(Text("Cadastrar novo"), () => adicionarFormulario)
   }
 
   private def editar(email: String) = {
     editarPerfilUsuario.set(Some(email))
     S.redirectTo("/sistema/usuario/perfil/perfil")
-  }
-
-  def cadastrarUsuario = {
-    "#nome" #> SHtml.ajaxText(nome, nome = _) &
-      "#email" #> SHtml.ajaxText(email, email = _) &
-      "#senha" #> SHtml.password(senha, senha = _, "type" -> "password") &
-      "#cancelar" #> SHtml.ajaxButton(Text("Cancelar"), () => cancelarNovoUsuario) &
-      "#adicionarNovo" #> SHtml.ajaxSubmit("Cadastrar", () => adicionarUsuario)
-  }
-
-  private def adicionarUsuario: JsCmd = {
-    if (validarEmail(email)) {
-      SetHtml("alertaMensagem", mensagemErro(MensagemUsuario.EMAIL_INVALIDO))
-    }
-    else if (validarNome(nome)) {
-      SetHtml("alertaMensagem", mensagemErro(MensagemUsuario.INTERVALO_VALOR.format(5, 100)))
-    }
-    else if (validarSenha(senha)) {
-      SetHtml("alertaMensagem", mensagemErro(MensagemUsuario.TAM_SENHA.format(6)))
-    }
-    else {
-      //Email.sendEMail("danielgrafael@gmail.com", "danielgrafael@gmail.com", "", "teste", <div></div>)
-      Usuario.isExistsEmail(email) match {
-        case Some(e) => SetHtml("alertaMensagem", mensagemErro(MensagemUsuario.EMAIL_JA_USADO))
-        case None => val u = Usuario.create(
-          email,
-          nome,
-          None,
-          None,
-          None,
-          senha,
-          None,
-          None,
-          None,
-          None,
-          DateTime.now)
-          usuarioRV.set(Full(u))
-          _ajaxRenderRow(u, true, false) &
-            SetHtml("alertaMensagem", mensagemSucesso(MensagemUsuario.DADOS_SALVOS_SUCESSO))
-      }
-    }
   }
 
   def lista(in: NodeSeq): NodeSeq = {
@@ -137,7 +75,7 @@ class SListaUsuario extends StatefulSnippet with Logger {
       "#row" #> usuarios.map(u => {
         val guid = associatedGuid(u.idUsuario).get
         "#row [id]" #> (guid) &
-        ".listaUsuario [class]" #> "gradeA" &
+          ".listaUsuario [class]" #> "gradeA" &
           cellSelector("id") #> Text(u.idUsuario.toString) &
           cellSelector("nome") #> Text(u.nome) &
           cellSelector("email") #> Text(u.email) &
@@ -146,7 +84,8 @@ class SListaUsuario extends StatefulSnippet with Logger {
             SHtml.ajaxInvoke(() => {
               S.runTemplate(List("/sistema/templates-hidden/_confirmar_exclusao"))
             }.map(ns => ModalDialog(ns)) openOr Alert("Erro ao excluir!")
-            )}
+            )
+          }
       })
     cssSel.apply(in)
   }
@@ -160,7 +99,6 @@ class SListaUsuario extends StatefulSnippet with Logger {
     Usuario.destroy(p.idUsuario);
     JsCmds.Replace(guid, NodeSeq.Empty)
   }
-
 
   private def _ajaxRenderRow(u: Usuario, isNew: Boolean, selected: Boolean): JsCmd = {
     val templateRowRoot = TEMPLATE_LIST_ID;
@@ -189,40 +127,38 @@ class SListaUsuario extends StatefulSnippet with Logger {
   }
 
   private val formCadstroUsuario: NodeSeq =
-    <div class="col-md-4">
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <i class="fa fa-bell fa-fw"></i>
-          Cadastrar novo usuário
-        </div>
-        <div class="panel-body">
-          <div class="lift:SListaUsuario.cadastrarUsuario">
-            <div id="alertaMensagem"></div>
-            <form data-lift="form.ajax" method="post">
-              <div class="col-lg-12">
-                <fieldset style="margin-bottom:5px;">
-                  <div>
-                    <label>* Nome</label> <br/>
-                    <input class="form-control" type="text" id="nome" name="nome"/>
-                  </div>
-                  <div class="form-group">
-                    <label>* E-mail</label>
-                    <div class="form-group input-group">
-                      <span class="input-group-addon">@</span>
-                      <input class="form-control" type="text" id="email" name="email"/>
-                    </div>
-                  </div>
-                  <label>* Senha</label> <br/>
-                  <input class="form-control" type="password" id="senha" name="senha"/>
-                </fieldset>
+    <div class="lift:SFormularioCadastroUsuario">
+      <div class="col-md-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <i class="fa fa-bell fa-fw"></i>
+            Cadastrar novo usuário
+          </div>
+          <div class="panel-body">
+            <div id="mensagem"></div>
+            <form class="lift:form.ajax" method="post">
+              <fieldset style="margin-bottom:5px;">
                 <div>
-                  <input type="submit" id="adicionarNovo" value="Cadastrar" name="adicionarNovo" class="btn btn-primary">
-                    <span class="glyphicon glyphicon-ok"></span>
-                  </input>
-                  <button type="button" id="cancelar" value="Cancelar" name="cancelar" class="btn btn-danger">
-                    <span class="glyphicon glyphicon-remove-sign"></span>
-                  </button>
+                  <label>* Nome</label> <br/>
+                  <input class="form-control" type="text" id="nome" name="nome"/>
                 </div>
+                <div class="form-group">
+                  <label>* E-mail</label>
+                  <div class="form-group input-group">
+                    <span class="input-group-addon">@</span>
+                    <input class="form-control" type="text" id="email" name="email"/>
+                  </div>
+                </div>
+                <label>* Senha</label> <br/>
+                <input class="form-control" type="password" id="senha" name="senha"/>
+              </fieldset>
+              <div>
+                <input type="submit" id="adicionarNovo" value="Cadastrar" name="adicionarNovo" class="btn btn-primary">
+                  <span class="glyphicon glyphicon-ok"></span>
+                </input>
+                <button type="button" id="cancelar" value="Cancelar" name="cancelar" class="btn btn-danger">
+                  <span class="glyphicon glyphicon-remove-sign"></span>
+                </button>
               </div>
             </form>
           </div>

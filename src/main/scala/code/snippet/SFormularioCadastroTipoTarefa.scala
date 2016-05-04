@@ -35,7 +35,7 @@ class SFormularioCadastroTipoTarefa extends StatefulSnippet with Logger {
       "#hora" #> SHtml.ajaxSelect(internvaloHora, Full(hora), v => hora = v, "style" -> "width:70px;") &
       "#min" #> SHtml.ajaxSelect(internvaloMinuto, Full(min), v => min = v, "style" -> "width:70px;") &
       "#cancelar" #> SHtml.ajaxButton(Text("Cancelar"), () => cancelarNovoTipoTarefa) &
-      "#adicionarBotao" #> SHtml.ajaxSubmit("Cadastrar novo", () => criar)
+      "#adicionarBotao" #> SHtml.ajaxSubmit("Cadastrar novo", () => adicionarTipoTarefa)
   }
 
   def dispatch = {
@@ -45,7 +45,7 @@ class SFormularioCadastroTipoTarefa extends StatefulSnippet with Logger {
   protected def cancelarNovoTipoTarefa = {
     limparCampos
     exibirNovoTipoTarefa.is match {
-      case Full(false) => exibirNovoTipoTarefa.set(Full(true))
+      case Some(false) => exibirNovoTipoTarefa.set(Full(true))
         JsCmds.SetHtml("formNovoTipoTarefa", <div></div>) &
           JsCmds.JsShowId("adicionaNovoTipoTarefa")
       case _ => JsCmds.Noop
@@ -63,10 +63,9 @@ class SFormularioCadastroTipoTarefa extends StatefulSnippet with Logger {
     min = formataMin(tt.estimativa)
   }
 
-  protected def criar: JsCmd = {
+  protected def adicionarTipoTarefa: JsCmd = {
     if (descricao.isEmpty) {
-      S.notice("teste")
-      SetHtml("mensagem", mensagemErro(MensagemUsuario.MIN.format(5, "Descrição")))
+      SetHtml("mensagem", mensagemErro(Mensagem.MIN.format(5, "Descrição")))
     }
     else {
       try {
@@ -75,18 +74,19 @@ class SFormularioCadastroTipoTarefa extends StatefulSnippet with Logger {
           foraUso,
           DateTime.now)
 
-       Script(JsRaw("""
-            |var table = $('#dataTables-example').DataTable( {
-            |    ajax: "data.json"
-            |} );
-            |
-            |table.ajax.reload()
-          """.stripMargin).cmd)
+        Script(JsRaw("""
+                       |var table = $('#dataTables-example').DataTable( {
+                       |    ajax: "data.json"
+                       |} );
+                       |
+                       |table.ajax.reload()
+                     """.stripMargin).cmd)
 
-        SetHtml("mensagem", mensagemSucesso(MensagemUsuario.DADOS_SALVOS_SUCESSO))
+        SetHtml("mensageSucesso", mensagemSucesso(Mensagem.DADOS_SALVOS_SUCESSO)) &
+          cancelarNovoTipoTarefa
       }
       catch {
-        case e: Exception => SetHtml("mensagem", mensagemErro(MensagemUsuario.ERRO_SALVAR_DADOS))
+        case e: Exception => SetHtml("mensagem", mensagemErro(Mensagem.ERRO_SALVAR_DADOS))
       }
     }
   }

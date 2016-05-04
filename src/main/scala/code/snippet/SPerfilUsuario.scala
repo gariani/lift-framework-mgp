@@ -97,20 +97,20 @@ class SPerfilUsuario extends StatefulSnippet with Logger {
 
   private def atualizar: JsCmd = {
     if (validarNome(nome)) {
-      SetHtml("perfil", mensagemErro(MensagemUsuario.INTERVALO_VALOR.format(5, 100)))
+      SetHtml("perfil", mensagemErro(Mensagem.INTERVALO_VALOR.format(5, 100)))
     }
     else if (validarEmail(email)) {
-      SetHtml("perfil", mensagemErro(MensagemUsuario.EMAIL_INVALIDO))
+      SetHtml("perfil", mensagemErro(Mensagem.EMAIL_INVALIDO))
     }
     else if (!validarMesmoEmail && !Usuario.isExistsEmail(email).isEmpty) {
-      SetHtml("perfil", mensagemErro(MensagemUsuario.EMAIL_JA_USADO))
+      SetHtml("perfil", mensagemErro(Mensagem.EMAIL_JA_USADO))
     }
     else {
       if (salvar) {
-        SetHtml("perfil", mensagemSucesso(MensagemUsuario.DADOS_SALVOS_SUCESSO))
+        SetHtml("perfil", mensagemSucesso(Mensagem.DADOS_SALVOS_SUCESSO))
       }
       else {
-        SetHtml("perfil", mensagemErro(MensagemUsuario.ERRO_SALVAR_DADOS))
+        SetHtml("perfil", mensagemErro(Mensagem.ERRO_SALVAR_DADOS))
       }
     }
   }
@@ -171,7 +171,7 @@ class SPerfilUsuario extends StatefulSnippet with Logger {
       None)
 
     try {
-      Usuario.save(u)
+      u.save()
       true
     } catch {
       case _: SQLException | _: IndexOutOfBoundsException => println("Erro!")

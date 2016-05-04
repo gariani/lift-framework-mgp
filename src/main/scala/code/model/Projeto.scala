@@ -3,7 +3,6 @@ package code.model
 import code.lib.Settings
 import org.joda.time.DateTime
 import scalikejdbc._
-import net.liftweb.common._
 
 case class Projeto(idProjeto: Long,
                    idCliente: Option[Long],

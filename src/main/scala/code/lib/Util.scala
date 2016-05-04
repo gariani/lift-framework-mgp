@@ -7,6 +7,7 @@ import code.model.Usuario
 import code.snippet.editarPerfilUsuario
 import net.liftweb.common.{Empty, Full}
 import com.roundeights.hasher.Implicits._
+import org.joda.time.DateTime
 import scala.language.postfixOps
 import scala.xml.NodeSeq
 
@@ -70,7 +71,8 @@ object Util {
     bool
   }
 
-  object MensagemUsuario {
+  object Mensagem {
+    val MSN_VAZIA = ""
     val NAO_ENCONTRADO = "Dado não econtrado."
     val REQUERIDO = "Campo %s obrigatório!"
     val REMOTE = "Por favor, corrija este campo."
@@ -90,6 +92,8 @@ object Util {
     val TAM_SENHA = "Por favor, forneça um valor maior ou igual a %d para senha."
     val ERRO_SALVAR_DADOS = "Ocorreu um erro ao salvar os dados. Entre em contato com o suporte."
     val DADOS_SALVOS_SUCESSO = "Dados atualizados com sucesso."
+    val CADASTRO_SALVO_SUCESSO = "%s cadastrado com sucesso."
+    val NOME_EXISTENTE = "Nome já cadastrado."
   }
 
   def intervaloHora = {

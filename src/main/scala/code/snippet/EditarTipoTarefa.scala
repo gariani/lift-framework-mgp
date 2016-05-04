@@ -48,7 +48,7 @@ class EditarTipoTarefa extends StatefulSnippet with Logger {
 
   private def salvar: JsCmd = {
     if (descricao.isEmpty) {
-      SetHtml("mensagem", mensagemErro(MensagemUsuario.REQUERIDO.format("Descrição")))
+      SetHtml("mensagem", mensagemErro(Mensagem.REQUERIDO.format("Descrição")))
     }
     else {
       estimativa = formatarEstimativa(hora, min)
@@ -60,11 +60,11 @@ class EditarTipoTarefa extends StatefulSnippet with Logger {
         None)
 
       try {
-        TipoTarefa.save(tipoTarefa)
-        SetHtml("mensagem", mensagemSucesso(MensagemUsuario.DADOS_SALVOS_SUCESSO))
+        tipoTarefa.save()
+        SetHtml("mensagem", mensagemSucesso(Mensagem.DADOS_SALVOS_SUCESSO))
       }
       catch {
-        case e: Exception => SetHtml("mensagem", mensagemErro(MensagemUsuario.ERRO_SALVAR_DADOS))
+        case e: Exception => SetHtml("mensagem", mensagemErro(Mensagem.ERRO_SALVAR_DADOS))
       }
     }
   }

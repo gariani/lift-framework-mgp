@@ -1,13 +1,15 @@
 package code.snippet
 
-import code.model.TipoTarefa
+import code.model.{TipoTarefa}
 import code.lib.Util._
 import net.liftweb.common.{Full, Box, Logger}
-import net.liftweb.http.js.JsCmds.SetHtml
-import net.liftweb.http.js.{JsCmds}
+import net.liftweb.http.js.JE.JsRaw
+import net.liftweb.http.js.JsCmds.{Alert, SetHtml}
+import net.liftweb.http.js.jquery.JqJsCmds
+import net.liftweb.http.js.jquery.JqJsCmds.{Unblock, ModalDialog}
+import net.liftweb.http.js.{JsCmd, JsCmds}
 import net.liftweb.http._
 import net.liftweb._
-import net.liftweb.util.Helpers
 import util.Helpers._
 import scala.xml.{NodeSeq, Text}
 
@@ -17,31 +19,32 @@ import scala.xml.{NodeSeq, Text}
 
 object tipoTarefaSelecioada extends SessionVar[Option[Long]](None)
 
-object exibirNovoTipoTarefa extends RequestVar[Box[Boolean]](Full(true))
+object exibirNovoTipoTarefa extends RequestVar[Option[Boolean]](Some(true))
+
+object novoTipoTarefaVisivel extends RequestVar[Option[Boolean]](Some(true))
+
+object editarPerfilTipoTarefa extends SessionVar[Option[String]](None)
+
+object listTamplateRVTipoTarefa extends RequestVar[NodeSeq](Nil)
+
+object guidToIdRVTipoTarefa extends RequestVar[Map[String, Long]](Map())
+
+object tipoTarefaRV extends RequestVar[Option[TipoTarefa]](None)
+
+object tipoTarefaExcluir extends SessionVar[List[(TipoTarefa, String)]](List())
 
 class STipoTarefa extends StatefulSnippet with Logger {
 
+  private val TEMPLATE_LIST_ID = "lista-tipo-tarefa";
+
   def dispatch = {
     case "render" => render
+    case "lista" => lista
+    case "confirmacao" => confirmacao
   }
 
   def render = {
-    "#dataTables-example" #> listaTipoTarefa &
-      "#adicionaNovoTipoTarefa" #> SHtml.ajaxButton(Text("Cadastrar novo"), () => adicionarFormulario)
-  }
-
-  def listaTipoTarefa = {
-    val lista = TipoTarefa.findAll()
-    ".listaTipoTarefa" #> lista.map(tt =>
-      ".listaTipoTarefa [class]" #> "gradeA" &
-      "#row [id]" #> Helpers.nextFuncName &
-        ".id *" #> tt.idTipoTarefa &
-        ".descricao *" #> tt.nomeTipoTarefa &
-        ".estimativa *" #> retornarEstimativa(tt.estimativa) &
-        "#foraUso *" #> SHtml.ajaxCheckbox(retornaForaUso(tt.idTipoTarefa), (v) => setForaUso(tt, v)) &
-        "#editar" #> SHtml.ajaxButton(Text("Editar"), () => editar(tt.idTipoTarefa)) &
-        "#deletar" #> SHtml.ajaxButton(Text("Deletar"), () => deletar(tt.idTipoTarefa), "class" -> "button delete"))
-
+    "#adicionaNovoTipoTarefa" #> SHtml.ajaxButton(Text("Cadastrar novo"), () => adicionarFormulario)
   }
 
   protected def setForaUso(tipoTarefa: TipoTarefa, v: Boolean) = {
@@ -59,7 +62,7 @@ class STipoTarefa extends StatefulSnippet with Logger {
   private def editar(idTipoTarefa: Long) = {
     TipoTarefa.findByIdTipoTarefa(idTipoTarefa) match {
       case Some(tt) => S.redirectTo("/sistema/tarefa/tipo_tarefa/editar", () => definirTipoTarefaEdicao(tt.idTipoTarefa))
-      case None => SetHtml("mensagem", mensagemErro(MensagemUsuario.NAO_ENCONTRADO))
+      case None => SetHtml("mensagem", mensagemErro(Mensagem.NAO_ENCONTRADO))
     }
   }
 
@@ -75,14 +78,120 @@ class STipoTarefa extends StatefulSnippet with Logger {
 
   private def adicionarFormulario = {
     exibirNovoTipoTarefa.is match {
-      case Full(true) =>
+      case Some(true) =>
         exibirNovoTipoTarefa.set(Full(false))
-        //Templates("sistema" :: "templates-hidden" :: "_confirmar_exclusao" :: Nil).openOr("error")
         JsCmds.SetHtml("formNovoTipoTarefa", formCadstroTipoTarefa) &
-          JsCmds.JsHideId("adicionaNovoTipoTarefa")
+          JsCmds.JsHideId("adicionaNovoTipoTarefa") &
+          SetHtml("mensageSucesso", Text(Mensagem.MSN_VAZIA))
       case _ => JsCmds.Noop
     }
   }
+
+  def lista(in: NodeSeq): NodeSeq = {
+    val tipoTarefa = TipoTarefa.findAll()
+    listTamplateRVUsuario(in)
+    _rowTemplate(tipoTarefa);
+  }
+
+  private def associatedGuid(l: Long): Option[String] = {
+    val map = guidToIdRVTipoTarefa.is;
+    map.find(e => l == e._2) match {
+      case Some(e) => Some(e._1)
+      case None =>
+        val guid = nextFuncName
+        guidToIdRVTipoTarefa.set(map + (guid -> l))
+        Some(guid)
+    }
+  }
+
+  private def _rowTemplate(tipoTarefa: List[TipoTarefa]): NodeSeq = {
+    val in = listTamplateRVUsuario.is
+    val cssSel =
+      "#row" #> tipoTarefa.map(tt => {
+        val guid = associatedGuid(tt.idTipoTarefa).get
+        "#row [id]" #> (guid) &
+          ".listaUsuario [class]" #> "gradeA" &
+          cellSelector("id") #> Text(tt.idTipoTarefa.toString) &
+          cellSelector("descricao") #> Text(tt.nomeTipoTarefa) &
+          cellSelector("estimativa") #> retornarEstimativa(tt.estimativa) &
+          cellSelector("fora") #> SHtml.ajaxCheckbox(retornaForaUso(tt.idTipoTarefa), (v) => setForaUso(tt, v)) &
+          "#editar [onclick]" #> SHtml.ajaxInvoke(() => editar(tt.idTipoTarefa)) &
+          "#deletar" #> SHtml.ajaxButton(Text("Excluir"), () => ModalDialog(configurarExclusao(tt, guid)))
+      })
+    cssSel.apply(in)
+  }
+
+  private def excluir = {
+
+  }
+
+  private def cellSelector(p: String): String = {
+    "#" + p + " *"
+  }
+
+  private def _ajaxDelete(tt: TipoTarefa, guid: String): JsCmd = {
+    guidToIdRVTipoTarefa.set(guidToIdRVTipoTarefa.is - guid)
+    TipoTarefa.destroy(tt.idTipoTarefa);
+    JsCmds.Replace(guid, NodeSeq.Empty)
+  }
+
+
+  private def _ajaxRenderRow(tt: TipoTarefa, isNew: Boolean, selected: Boolean): JsCmd = {
+    val templateRowRoot = TEMPLATE_LIST_ID;
+    var xml: NodeSeq = NodeSeq.Empty
+    var idUsuario: Long = -1
+
+    tipoTarefaRV.is match {
+      case Some(ttRV) => xml = _rowTemplate(List(ttRV)); idUsuario = ttRV.idTipoTarefa
+      case _ => xml = NodeSeq.Empty
+    }
+
+    var op: Option[JsCmd] = None;
+    for {
+      elem <- xml \\ "_"
+      tr <- (elem \ "tr") if (elem \ "@id").text == templateRowRoot
+    } yield {
+      val ajaxRow = if (selected) ("td [class+]" #> "selected-row").apply(tr) else tr
+      if (isNew) {
+        op = Some(JqJsCmds.AppendHtml(templateRowRoot, ajaxRow));
+      } else {
+        val guid = associatedGuid(idUsuario).get
+        op = Some(JsCmds.Replace(guid, ajaxRow));
+      }
+    }
+    op.get
+  }
+
+  def confirmacao =
+    "#sim" #> SHtml.ajaxButton(Text("Sim"), () => informarConfirmacao(true)) &
+      "#nao" #> SHtml.ajaxButton(Text("Não"), () => informarConfirmacao(false))
+
+  private def informarConfirmacao(b: Boolean) = {
+    if(b) {
+      tipoTarefaExcluir.is match {
+        case List((tt, guid)) => _ajaxDelete(tt, guid)
+        case _ => JsCmds.Noop
+      }
+    }
+
+    Unblock
+  }
+
+  private def configurarExclusao(tt: TipoTarefa, guid: String) = {
+    val itemList: List[(TipoTarefa, String)] = List((tt, guid))
+    tipoTarefaExcluir.set(itemList)
+    <div>
+      <h4>
+        Deseja excluir o tipo de tarefa?
+        <br/>
+        <div class="lift:STipoTarefa.confirmacao">
+          <div id="sim">Sim</div>
+          <div id="nao">Cancelar exclusão</div>
+        </div>
+      </h4>
+    </div>
+  }
+
 
   private val formCadstroTipoTarefa: NodeSeq =
     <div class="lift:SFormularioCadastroTipoTarefa">
