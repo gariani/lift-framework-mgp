@@ -63,7 +63,7 @@ class SCliente extends StatefulSnippet {
 
   private def editar(id: Long) = {
     editarPerfilCliente.set(Some(id))
-    S.redirectTo("/sistema/cliente/cliente")
+    S.redirectTo("/sistema/cliente/editar")
   }
 
   def lista(in: NodeSeq): NodeSeq = {
@@ -126,8 +126,8 @@ class SCliente extends StatefulSnippet {
     Unblock
   }
 
-  private def configurarExclusao(tt: Cliente, guid: String) = {
-    val itemList: List[(Cliente, String)] = List((tt, guid))
+  private def configurarExclusao(c: Cliente, guid: String) = {
+    val itemList: List[(Cliente, String)] = List((c, guid))
     clienteExcluir.set(itemList)
     <div>
       <h4>

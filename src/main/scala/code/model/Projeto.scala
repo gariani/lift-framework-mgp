@@ -60,11 +60,12 @@ object Projeto extends SQLSyntaxSupport[Projeto] with Settings {
 
     val id = withSQL {
       insert.into(Projeto).namedValues(
+        column.idCliente -> idCliente,
+        column.idEquipe -> idEquipe,
         column.nomeProjeto -> nomeProjeto,
         column.descricaoProjeto -> descricaoProjeto,
         column.dtInicioProjeto -> dtInicioProjeto,
         column.dtFinalProjeto -> dtFinalProjeto,
-        column.nomeProjeto -> nomeProjeto,
         column.createdAt -> createdAt
       )
     }.updateAndReturnGeneratedKey.apply()
@@ -87,7 +88,7 @@ object Projeto extends SQLSyntaxSupport[Projeto] with Settings {
       update(Projeto).set(
         Projeto.column.idProjeto -> p.idProjeto,
         Projeto.column.nomeProjeto -> p.nomeProjeto,
-        Projeto.column.descricaoProjeto -> p.nomeProjeto,
+        Projeto.column.descricaoProjeto -> p.descricaoProjeto,
         Projeto.column.dtInicioProjeto -> p.dtInicioProjeto,
         Projeto.column.dtFinalProjeto -> p.dtFinalProjeto,
         Projeto.column.createdAt -> p.createdAt,
@@ -96,8 +97,17 @@ object Projeto extends SQLSyntaxSupport[Projeto] with Settings {
     p
   }
 
+  def salvarMinimoProjeto(idCliente: Long, idProjeto: Long, nomeProjeto: String, descricaoProjeto: String)(implicit session: DBSession = AutoSession) = {
+    withSQL {
+      update(Projeto).set(
+        Projeto.column.nomeProjeto -> nomeProjeto,
+        Projeto.column.descricaoProjeto -> descricaoProjeto
+      ).where.eq(Projeto.column.idProjeto, idProjeto).and.eq(Projeto.column.idCliente, idCliente)
+    }.update().apply()
+  }
+
   def destroy(idProjeto: Long)(implicit session: DBSession = AutoSession): Unit = withSQL {
-    update(Projeto).set(column.deletedAt -> DateTime.now).where.eq(column.idProjeto, idProjeto)
+    delete.from(Projeto).where.eq(column.idProjeto, idProjeto)
   }.update.apply()
 
 }

@@ -7,7 +7,10 @@ organization := "net.liftweb"
 scalaVersion := "2.11.6"
 
 resolvers ++= Seq("snapshots"     at "https://oss.sonatype.org/content/repositories/snapshots",
-                  "releases"      at "https://oss.sonatype.org/content/repositories/releases")
+                  "releases"      at "https://oss.sonatype.org/content/repositories/releases",
+                  "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
+                  Resolver.sonatypeRepo("public"),
+                  Resolver.bintrayRepo("scalaz", "releases"))
 
 Seq(webSettings :_*)
 
@@ -38,7 +41,7 @@ libraryDependencies ++= {
     "org.specs2"              %% "specs2-core"            % "3.6.4"               % "test",
     "com.timesprint"           % "hasher_2.10"            % "0.3.0",
     "net.liftmodules"         %% "extras_2-6"             % "0.4",
-    "net.liftmodules"         %% "validate_2.6"      % "1.0"
+    "net.liftmodules"         %% "validate_2.6"           % "1.0"
   )
 }
 

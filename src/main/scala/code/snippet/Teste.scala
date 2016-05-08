@@ -2,6 +2,7 @@ package code.snippet
 
 import code.comet.{Excluir, ItemsServer}
 import code.model.Usuario
+import code.view.{DataTableParams, DataTableObjectSource, DataTable}
 import net.liftweb.common.Box
 import net.liftweb.http.js.{JsCmd, JsCmds}
 import net.liftweb.http.{RequestVar, LiftView, SHtml}
@@ -13,70 +14,33 @@ import scala.xml.{NodeSeq, _}
   * Created by daniel on 29/02/16.
   */
 
-//private object listTamplateRV extends RequestVar[NodeSeq](Nil)
+class Teste {
 
-//private object guidToIdRV extends RequestVar[Map[String, Long]](Map())
 
-/*class Teste {
+  def editar = {
+    val cols = "Col1" :: "Col2" :: Nil
 
-  def render = {
-      "#editar" #> SHtml.onSubmit((s) => editar(s))
-  }
+    // this function returns data to populate table based on parameters passed in
+    val fun = (params: DataTableParams) => {
+      val rows = List(("row1_col1", "row1_col2"), ("row2_col1", "row2_col2"), ("row2_col1", "row2_col2"),
+        ("row2_col1", "row2_col2"), ("row2_col1", "row2_col2"), ("row2_col1", "row2_col2"), ("row2_col1", "row2_col2"),
+        ("row2_col1", "row2_col2"), ("row2_col1", "row2_col2"), ("row2_col1", "row2_col2"), ("row2_col1", "row2_col2"),
+        ("row2_col1", "row2_col2"), ("777", "999"), ("777", "999"), ("777", "999"), ("777", "999"), ("777", "999"))
 
-  def editar(s: String) = {
-    print("teste edicao: " + s)
-    //ItemsServer ! Excluir(s)
-  }
+      val count = 3
 
-  def deletar = {
-    print("teste deletear")
-    JsCmds.Noop
-  }
-
-  def list(in:NodeSeq) : NodeSeq = {
-    val products = Usuario.findAll()
-    listTamplateRV(in)
-    _rowTemplate(products);
-  }
-
-  private def associatedGuid(l: Long): Option[String] = {
-    val map = guidToIdRV.is;
-    map.find(e => l == e._2) match {
-      case Some(e) => Some(e._1)
-      case None =>
-        val guid = nextFuncName
-        guidToIdRV.set(map + (guid -> l))
-        Some(guid)
+      new DataTableObjectSource(30, 10, rows.map(r =>
+        List(("0", r._1),
+          ("1", r._2),
+          ("DT_RowId", "rowid_" + r._1))))
     }
-  }
 
-  private def _rowTemplate(products: List[Usuario]): NodeSeq = {
-    val in = listTamplateRV.is
-    val cssSel =
-      ".row" #> products.map(p => {
-        val guid = associatedGuid(p.idUsuario).get
-        ".row [id]" #> (guid) &
-          cellSelector("id") #> Text(p.nome) &
-          cellSelector("nome") #> Text(p.email) &
-          cellSelector("email") #> {
-            SHtml.a(() => {
-              _ajaxDelete(p, guid)
-            }, Text("Excluir"))
-          }
-      })
-    cssSel.apply(in)
-  }
-
-  private def cellSelector(p: String): String = {
-    "#" + p + " *"
-  }
-
-  private def _ajaxDelete(p: Usuario, guid: String): JsCmd = {
-    guidToIdRV.set(guidToIdRV.is - guid)
-    Usuario.destroy(p.idUsuario);
-    JsCmds.Replace(guid, NodeSeq.Empty)
+    DataTable(
+      cols, // columns
+      fun, // our data provider
+      "my-table", // html table id
+      List(("bFilter", "true"), ("bSort", "true")), // datatables configuration
+      ("class", "table table-striped table-bordered table-hover")) // set css class for table
   }
 
 }
-
-*/

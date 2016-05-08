@@ -5,15 +5,14 @@ import java.text.SimpleDateFormat
 
 import code.lib.Util._
 import code.model.TipoTarefa
-import net.liftweb.common.{Logger, Full, Empty, Box}
+import net.liftweb.common.{Logger, Full, Empty}
 import net.liftweb.http.js.JsCmds.SetHtml
 import net.liftweb.http.{S, SHtml, StatefulSnippet}
 import net.liftweb.http.js.{JsCmd, JsCmds}
-import net.liftweb.util._
 import net.liftweb.util
 import util.Helpers._
 import org.joda.time.DateTime
-import scala.xml.{NodeSeq, Text}
+import scala.xml.{Text}
 
 /**
   * Created by daniel on 09/04/16.

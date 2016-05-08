@@ -74,12 +74,14 @@ object Site {
     Menu.i("Usuários") / "sistema" / "usuario" / "configuracao" / "configuracao_usuario" submenus (
       Menu.i("Cadastrar usuários") / "sistema" / "usuario" / "configuracao" / "cadastrar_usuario" >> Hidden
       ),
-    Menu.i("Cliente->Projeto") / "sistema" / "cliente" / "cliente",
+    Menu.i("Cliente->Projeto") / "sistema" / "cliente" / "cliente" submenus (
+      Menu.i("Editar Cliente") / "sistema" / "cliente" / "editar"  >> Hidden
+      ),
     Menu.i("Equipes") / "sistema" / "equipe" / "equipe",
     Menu.i("Tipos de Tarefas") / "sistema" / "tarefa" / "tipo_tarefa" / "tipo_tarefa" submenus (
       Menu.i("Editar Tipo de Tarefas") / "sistema" / "tarefa" / "tipo_tarefa" / "editar" >> Hidden
       ),
-    Menu.i("Status de Tarefa") / "sistema" / "status_tarefa" / "status_tarefa",
+    Menu.i("Status de Tarefa") / "sistema" / "tarefa" / "status_tarefa" / "status_tarefa",
     Menu.i("Teste") / "sistema" / "teste"
     )
 

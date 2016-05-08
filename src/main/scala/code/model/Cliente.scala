@@ -39,18 +39,24 @@ object Cliente extends SQLSyntaxSupport[Cliente] with Settings {
 
   def findAll()(implicit session: DBSession = AutoSession) = {
     withSQL {
-    select.from(Cliente as c)
-      .leftJoin(Projeto as p)
-      .on(c.idCliente, p.idCliente).where.isNull(c.deletedAt) }
-        .one(Cliente(c))
-        .toMany(Projeto.opt(p)).map{ (cliente, projetos) => cliente.copy(projetos = projetos) }
+      select.from(Cliente as c)
+        .leftJoin(Projeto as p)
+        .on(c.idCliente, p.idCliente).where.isNull(c.deletedAt)
+    }
+      .one(Cliente(c))
+      .toMany(Projeto.opt(p)).map { (cliente, projetos) => cliente.copy(projetos = projetos) }
       .list.apply()
   }
 
-  def findClienteById(idCliente: Long)(implicit sesession: DBSession = AutoSession): Option[Cliente] = withSQL {
-    select.from(Cliente as c)
-      .where.eq(c.idCliente, idCliente)
-  }.map(Cliente(c)).single().apply()
+  def findClienteById(idCliente: Long)(implicit sesession: DBSession = AutoSession): Option[Cliente]=
+    withSQL {
+      select.from(Cliente as c)
+        .leftJoin(Projeto as p)
+        .on(c.idCliente, p.idCliente).where.eq(c.idCliente, idCliente)
+    }
+      .one(Cliente(c))
+      .toMany(Projeto.opt(p)).map { (cliente, projetos) => cliente.copy(projetos = projetos)
+    }.single().apply()
 
   def findClienteByNome(nomeCliente: String)(implicit sesession: DBSession = AutoSession): Option[Int] = withSQL {
     select(count(c.idCliente)).from(Cliente as c)
@@ -78,14 +84,13 @@ object Cliente extends SQLSyntaxSupport[Cliente] with Settings {
     withSQL {
       update(Cliente).set(
         Cliente.column.nomeCliente -> c.nomeCliente,
-        Cliente.column.createdAt -> c.createdAt,
         Cliente.column.deletedAt -> c.deletedAt).where.eq(Cliente.column.idCliente, c.idCliente)
     }.update().apply()
     c
   }
 
   def destroy(idCliente: Long)(implicit session: DBSession = AutoSession): Unit = withSQL {
-    update(Cliente).set(column.deletedAt -> DateTime.now).where.eq(column.idCliente, idCliente)
+    delete.from(Cliente).where.eq(column.idCliente, idCliente)
   }.update.apply()
 
 }
