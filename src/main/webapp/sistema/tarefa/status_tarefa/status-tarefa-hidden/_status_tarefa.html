@@ -1,10 +1,56 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<div id="wrapper">
+    <div id="page-wrapper">
+        <div class="container-fuild">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header"> Status de Tarefas</h1>
+                </div>
+                <div class="col-md-8">
+                    <div class="lift:SStatusTarefa">
+                        <div class="row">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div id="mensagem"></div>
+                                </div>
+                            </div>
+                            <button type="button" id="adicionaNovoStatusTarefa"
+                                    name="adicionaStatusTarefa" value="Cadastrar novo" class="btn btn-default">
+                            </button>
+                            <span id="formNovoStatusTarefa"></span>
+                        </div>
+                        <div class="row">
+                            <br/>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">Lista de status de tarefa</div>
+                                <div class="lift:SStatusTarefa.lista">
+                                    <div class="panel-body">
+                                        <div class="dataTable_wrapper">
+                                            <table width="100%" class="table">
+                                                <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Descrição</th>
+                                                    <th>Ação</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody id="lista-status-tarefa">
+                                                <tr id="row" class="listaStatusTarefa">
+                                                    <td id="id"></td>
+                                                    <td id="descricao"></td>
+                                                    <td><a id="deletar" class="btn btn-link" href="#"></i>Deletar</a>
+                                                    </td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-</body>
-</html>

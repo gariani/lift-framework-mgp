@@ -16,6 +16,8 @@ case class Projeto(idProjeto: Long,
 
   def save()(implicit session: DBSession = Projeto.autoSession): Projeto = Projeto.save(this)(session)
 
+  def salvarMinimoProjeto()(implicit session: DBSession = Projeto.autoSession): Projeto = Projeto.salvarMinimoProjeto(this)(session)
+
   def destroy()(implicit session: DBSession = Projeto.autoSession): Unit = Projeto.destroy(idProjeto)(session)
 
   private val (p) = (Projeto.p)
@@ -32,16 +34,16 @@ object Projeto extends SQLSyntaxSupport[Projeto] with Settings {
 
   def apply(p: SyntaxProvider[Projeto])(rs: WrappedResultSet): Projeto = apply(p.resultName)(rs)
 
-  def apply(c: ResultName[Projeto])(rs: WrappedResultSet): Projeto = new Projeto(
-    idProjeto = rs.get(c.idProjeto),
-    idCliente = rs.longOpt(c.idCliente),
-    idEquipe = rs.longOpt(c.idEquipe),
-    nomeProjeto = rs.get(c.nomeProjeto),
-    descricaoProjeto = rs.get(c.descricaoProjeto),
-    dtInicioProjeto = rs.jodaDateTimeOpt(c.dtInicioProjeto),
-    dtFinalProjeto = rs.jodaDateTimeOpt(c.dtFinalProjeto),
-    createdAt = rs.jodaDateTime(c.createdAt),
-    deletedAt = rs.jodaDateTimeOpt(c.deletedAt)
+  def apply(p: ResultName[Projeto])(rs: WrappedResultSet): Projeto = new Projeto(
+    idProjeto = rs.get(p.idProjeto),
+    idCliente = rs.longOpt(p.idCliente),
+    idEquipe = rs.longOpt(p.idEquipe),
+    nomeProjeto = rs.get(p.nomeProjeto),
+    descricaoProjeto = rs.get(p.descricaoProjeto),
+    dtInicioProjeto = rs.jodaDateTimeOpt(p.dtInicioProjeto),
+    dtFinalProjeto = rs.jodaDateTimeOpt(p.dtFinalProjeto),
+    createdAt = rs.jodaDateTime(p.createdAt),
+    deletedAt = rs.jodaDateTimeOpt(p.deletedAt)
   )
 
   val p = Projeto.syntax("p")
@@ -97,13 +99,15 @@ object Projeto extends SQLSyntaxSupport[Projeto] with Settings {
     p
   }
 
-  def salvarMinimoProjeto(idCliente: Long, idProjeto: Long, nomeProjeto: String, descricaoProjeto: String)(implicit session: DBSession = AutoSession) = {
+  def salvarMinimoProjeto(p: Projeto)
+                         (implicit session: DBSession = AutoSession): Projeto = {
     withSQL {
       update(Projeto).set(
-        Projeto.column.nomeProjeto -> nomeProjeto,
-        Projeto.column.descricaoProjeto -> descricaoProjeto
-      ).where.eq(Projeto.column.idProjeto, idProjeto).and.eq(Projeto.column.idCliente, idCliente)
+        Projeto.column.nomeProjeto -> p.nomeProjeto,
+        Projeto.column.descricaoProjeto -> p.descricaoProjeto
+      ).where.eq(Projeto.column.idProjeto, p.idProjeto).and.eq(Projeto.column.idCliente, p.idCliente)
     }.update().apply()
+    p
   }
 
   def destroy(idProjeto: Long)(implicit session: DBSession = AutoSession): Unit = withSQL {

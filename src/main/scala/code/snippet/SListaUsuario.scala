@@ -1,6 +1,8 @@
 package code.snippet
 
+import code.lib.session.SessionState
 import code.model.Usuario
+import net.liftmodules.widgets.bootstrap.Bs3ConfirmDialog
 import net.liftweb.http.js.JsCmds.{Alert, SetHtml}
 import net.liftweb.http.js.jquery.JqJsCmds
 import net.liftweb.http.js.jquery.JqJsCmds.ModalDialog
@@ -25,10 +27,20 @@ class SListaUsuario extends StatefulSnippet with Logger {
 
   private val TEMPLATE_LIST_ID = "lista-usuarios";
 
+  private var nome: String = ""
+  private var email: String = ""
+  private var senha: String = ""
+
+  private def limparCampos = {
+    nome = ""
+    senha = ""
+    email = ""
+  }
 
   def dispatch = {
     case "render" => adicionaNovoUsuario
     case "lista" => lista
+    case "addNovoUsuario" => addNovoUsuario
   }
 
   private def adicionarFormulario = {
@@ -43,12 +55,71 @@ class SListaUsuario extends StatefulSnippet with Logger {
     }
   }
 
+  def addNovoUsuario = {
+    "#nome" #> SHtml.ajaxText(nome, nome = _) &
+      "#email" #> SHtml.ajaxText(email, (e) => validarEmailUsado(e)) &
+      "#senha" #> SHtml.password(senha, senha = _, "type" -> "password") &
+      "#cancelar" #> SHtml.ajaxButton(Text("Cancelar"), () => cancelarNovoUsuario) &
+      "#adicionarNovo" #> SHtml.ajaxSubmit("Cadastrar", () => adicionarUsuario)
+  }
+
+  private def validarEmailUsado(em: String) = {
+    Usuario.isExistsEmail(em) match {
+      case Some(e) => SetHtml("mensagem", mensagemErro(Mensagem.EMAIL_JA_USADO))
+      case None => email = em; SetHtml("mensagem", Text(""))
+    }
+  }
+
+  private def adicionarUsuario: JsCmd = {
+    if (validarEmail(email)) {
+      SetHtml("mensagem", mensagemErro(Mensagem.EMAIL_INVALIDO))
+    }
+    else if (validarNome(nome)) {
+      SetHtml("mensagem", mensagemErro(Mensagem.INTERVALO_VALOR.format(5, 100)))
+    }
+    else if (validarSenha(senha)) {
+      SetHtml("mensagem", mensagemErro(Mensagem.TAM_SENHA.format(6)))
+    }
+    else {
+      //Email.sendEMail("danielgrafael@gmail.com", "danielgrafael@gmail.com", "", "teste", <div></div>)
+      val u = Usuario.create(
+        None,
+        email,
+        nome,
+        None,
+        None,
+        None,
+        senha,
+        None,
+        None,
+        None,
+        None,
+        DateTime.now)
+      usuarioRV.set(Full(u))
+      SetHtml("mensageSucesso", mensagemSucesso(Mensagem.CADASTRO_SALVO_SUCESSO.format("Usuário"))) &
+        cancelarNovoUsuario
+    }
+  }
+
+
+  private def cancelarNovoUsuario = {
+    limparCampos
+    novoUsuarioVisivel.is match {
+      case Some(false) => novoUsuarioVisivel.set(Full(true))
+        JsCmds.SetHtml("formNovoUsuario", <div></div>) &
+          JsCmds.JsShowId("adicionaNovoUsuario")
+      case _ => novoUsuarioVisivel.set(Empty)
+        JsCmds.Noop
+    }
+  }
+
   def adicionaNovoUsuario = {
     "#adicionaNovoUsuario" #> SHtml.ajaxButton(Text("Cadastrar novo"), () => adicionarFormulario)
   }
 
   private def editar(email: String) = {
     editarPerfilUsuario.set(Some(email))
+    linkOrigemUsuario.set(Some("/sistema/usuario/configuracao/configuracao_usuario"))
     S.redirectTo("/sistema/usuario/perfil/perfil")
   }
 
@@ -80,18 +151,30 @@ class SListaUsuario extends StatefulSnippet with Logger {
           cellSelector("nome") #> Text(u.nome) &
           cellSelector("email") #> Text(u.email) &
           "#editar [onclick]" #> SHtml.ajaxInvoke(() => editar(u.email)) &
-          "#deletar [onclick]" #> {
-            SHtml.ajaxInvoke(() => {
-              S.runTemplate(List("/sistema/templates-hidden/_confirmar_exclusao"))
-            }.map(ns => ModalDialog(ns)) openOr Alert("Erro ao excluir!")
-            )
-          }
+          "#deletar [onclick]" #> SHtml.ajaxInvoke(() => notificarExcluirProjeto(u, guid))
       })
     cssSel.apply(in)
   }
 
+  private def notificarExcluirProjeto(p: Usuario, guid: String) = {
+    val node = S.runTemplate("sistema" :: "usuario" :: "configuracao" :: "configuracao-hidden" :: "_modal_excluir" :: Nil)
+    node match {
+      case Full(nd) => Bs3ConfirmDialog("Excluir usuário", nd, () => excluirUsuario(p, guid), () => JsCmds.Noop)
+      case _ => Bs3ConfirmDialog("Erro ao carregar tela", NodeSeq.Empty, () => JsCmds.Noop, () => JsCmds.Noop)
+    }
+  }
+
   private def cellSelector(p: String): String = {
     "#" + p + " *"
+  }
+
+  private def excluirUsuario(u: Usuario, guid: String): JsCmd = {
+    if (u.email == SessionState.getLogin) {
+      SetHtml("mensagem", mensagemErro("Não é possível excluir usuário ao qual está logado"))
+    }
+    else {
+      _ajaxDelete(u, guid)
+    }
   }
 
   private def _ajaxDelete(p: Usuario, guid: String): JsCmd = {
@@ -127,7 +210,7 @@ class SListaUsuario extends StatefulSnippet with Logger {
   }
 
   private val formCadstroUsuario: NodeSeq =
-    <div class="lift:SFormularioCadastroUsuario">
+    <div class="lift:SListaUsuario.addNovoUsuario">
       <div class="col-md-4">
         <div class="panel panel-default">
           <div class="panel-heading">
@@ -153,10 +236,10 @@ class SListaUsuario extends StatefulSnippet with Logger {
                 <input class="form-control" type="password" id="senha" name="senha"/>
               </fieldset>
               <div>
-                <input type="submit" id="adicionarNovo" value="Cadastrar" name="adicionarNovo" class="btn btn-primary">
+                <input type="submit" id="adicionarNovo" value="Cadastrar" name="adicionarNovo" class="btn btn-default">
                   <span class="glyphicon glyphicon-ok"></span>
                 </input>
-                <button type="button" id="cancelar" value="Cancelar" name="cancelar" class="btn btn-danger">
+                <button type="button" id="cancelar" value="Cancelar" name="cancelar" class="btn btn-default">
                   <span class="glyphicon glyphicon-remove-sign"></span>
                 </button>
               </div>

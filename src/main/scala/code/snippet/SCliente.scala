@@ -1,7 +1,11 @@
 package code.snippet
 
+import java.sql.SQLIntegrityConstraintViolationException
+
 import code.lib.Util._
-import net.liftweb.common.{Empty, Full}
+import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException
+import net.liftmodules.widgets.bootstrap._
+import net.liftweb.common.{Logger, Empty, Full}
 import net.liftweb.http.js.JsCmds.SetHtml
 import net.liftweb.http.{SHtml, StatefulSnippet}
 import net.liftweb.util
@@ -11,6 +15,7 @@ import net.liftweb.http.js.jquery.JqJsCmds.{Unblock, ModalDialog}
 import net.liftweb.http.js.{JsCmds, JsCmd}
 import net.liftweb.http._
 import net.liftweb.util.Helpers._
+import org.joda.time.DateTime
 import scala.xml.{NodeSeq, Text}
 
 object novoClienteVisivel extends RequestVar[Option[Boolean]](Some(true))
@@ -30,19 +35,65 @@ class SCliente extends StatefulSnippet {
   private val TEMPLATE_LIST_ID = "lista-cliente";
   private var nome: String = ""
   private var projetos: String = ""
-
   private var cliente: List[Cliente] = List()
   private var count: Long = 0;
+  private var nomeCliente: String = ""
 
   def dispatch = {
     case "lista" => lista
-    case "confirmacao" => confirmacao
     case "render" => adicionaNovoCliente
+    case "addNovoCliente" => addNovoCliente
   }
+
+  def addNovoCliente = {
+    "#nome" #> SHtml.ajaxText(nomeCliente, nomeCliente = _) &
+      "#cancelar" #> SHtml.ajaxButton(Text("Cancelar"), () => cancelarNovoUsuario) &
+      "#adicionarNovo" #> SHtml.ajaxSubmit("Cadastrar", () => adicionarUsuario)
+  }
+
+  def validarNomeCliente(nomeCliente: String): Boolean = {
+    Cliente.findClienteByNome(nomeCliente) match {
+      case Some(a) if (a <= 0) => false
+      case _ => true
+    }
+  }
+
+  private def adicionarUsuario: JsCmd = {
+    if (validarNomeCliente(nomeCliente)) {
+      SetHtml("mensagem", mensagemErro(Mensagem.NOME_EXISTENTE))
+    }
+    else if (nomeCliente.isEmpty) {
+      SetHtml("mensagem", mensagemErro(Mensagem.INTERVALO.format(5, 50)))
+    }
+    else {
+      val data  = DateTime.now
+      val c = Cliente.create(
+        nomeCliente,
+        data)
+
+      clienteRV.set(Some(c))
+      _ajaxRenderRow(c, true, false) &
+      SetHtml("mensageSucesso", mensagemSucesso(Mensagem.CADASTRO_SALVO_SUCESSO.format("Cliente"))) &
+        cancelarNovoUsuario
+    }
+  }
+
+  private def cancelarNovoUsuario = {
+    limparCampos
+    novoClienteVisivel.is match {
+      case Some(false) => novoClienteVisivel.set(Full(true))
+        JsCmds.SetHtml("formNovoCliente", <div></div>) &
+          JsCmds.JsShowId("adicionaNovoCliente")
+      case _ => novoClienteVisivel.set(Empty)
+        JsCmds.Noop
+    }
+  }
+
 
   private def limparCampos = {
     nome = ""
     projetos = ""
+    nomeCliente = ""
   }
 
   private def adicionarFormulario = {
@@ -95,9 +146,27 @@ class SCliente extends StatefulSnippet {
           cellSelector("nome") #> Text(c.nomeCliente) &
           cellSelector("projetos") #> Text(c.projetos.size.toString) &
           "#editar [onclick]" #> SHtml.ajaxInvoke(() => editar(c.idCliente)) &
-          "#deletar" #> SHtml.ajaxButton(Text("Excluir"), () => ModalDialog(configurarExclusao(c, guid)))
+          "#deletar" #> SHtml.ajaxButton(Text("Excluir"), () => notificarExcluirProjeto(c, guid))
       })
     cssSel.apply(in)
+  }
+
+  private def notificarExcluirProjeto(c: Cliente, guid: String) = {
+    val node = S.runTemplate("sistema" :: "cliente" :: "cliente-hidden" :: "_modal_excluir" :: Nil)
+    node match {
+      case Full(nd) => Bs3ConfirmDialog("Excluir Cliente", nd, () => excluirCliente(c, guid), () => JsCmds.Noop)
+      case _ => Bs3ConfirmDialog("Erro ao carregar tela", NodeSeq.Empty, () => JsCmds.Noop, () => JsCmds.Noop)
+    }
+  }
+
+  private def erroExcluirProjeto(m: String): JsCmd = {
+    val node = S.runTemplate("sistema" :: "cliente" :: "cliente-hidden" :: "_modal_aviso" :: Nil)
+    node match {
+      case Full(nd) => val b = new Bs3InfoDialog(m, nd)
+        b
+      case _ => val b = new Bs3InfoDialog(m, NodeSeq.Empty)
+        b
+    }
   }
 
   private def cellSelector(p: String): String = {
@@ -110,35 +179,14 @@ class SCliente extends StatefulSnippet {
     JsCmds.Replace(guid, NodeSeq.Empty)
   }
 
-
-  def confirmacao =
-    "#sim" #> SHtml.ajaxButton(Text("Sim"), () => informarConfirmacao(true)) &
-      "#nao" #> SHtml.ajaxButton(Text("Não"), () => informarConfirmacao(false))
-
-  private def informarConfirmacao(b: Boolean) = {
-    if (b) {
-      clienteExcluir.is match {
-        case List((c, guid)) => _ajaxDelete(c, guid)
-        case _ => JsCmds.Noop
-      }
+  private def excluirCliente(c: Cliente, guid: String) = {
+    try {
+      _ajaxDelete(c, guid)
     }
-
-    Unblock
-  }
-
-  private def configurarExclusao(c: Cliente, guid: String) = {
-    val itemList: List[(Cliente, String)] = List((c, guid))
-    clienteExcluir.set(itemList)
-    <div>
-      <h4>
-        Deseja excluir o Cliente?
-        <br/>
-        <div class="lift:SCliente.confirmacao">
-          <div id="sim">Sim</div>
-          <div id="nao">Cancelar exclusão</div>
-        </div>
-      </h4>
-    </div>
+    catch {
+      case e: Exception => {erroExcluirProjeto("Erro ao excluir cliente: Existe projetos relacionados.") }
+      case _: Throwable => {erroExcluirProjeto("Erro ao excluir cliente: Existe projetos relacionados. Mensagem original: ") }
+    }
   }
 
   private def _ajaxRenderRow(c: Cliente, isNew: Boolean, selected: Boolean): JsCmd = {
@@ -168,7 +216,7 @@ class SCliente extends StatefulSnippet {
   }
 
   private val formCadastroCliente: NodeSeq =
-    <div class="lift:SFormularioCadastroCliente">
+    <div class="lift:SCliente.addNovoCliente">
       <div class="col-md-4">
         <div class="panel panel-default">
           <div class="panel-heading">
@@ -184,10 +232,10 @@ class SCliente extends StatefulSnippet {
                   <input class="form-control" type="text" id="nome" name="nome"/>
                 </div>
               </fieldset>
-              <input type="submit" id="adicionarNovo" value="Cadastrar" name="adicionarNovo" class="btn btn-primary">
+              <input type="submit" id="adicionarNovo" value="Cadastrar" name="adicionarNovo" class="btn btn-default">
                 <span class="glyphicon glyphicon-ok"></span>
               </input>
-              <button type="button" id="cancelar" value="Cancelar" name="cancelar" class="btn btn-danger">
+              <button type="button" id="cancelar" value="Cancelar" name="cancelar" class="btn btn-default">
                 <span class="glyphicon glyphicon-remove-sign"></span>
               </button>
             </form>

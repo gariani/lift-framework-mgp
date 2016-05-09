@@ -13,7 +13,7 @@ import net.liftweb.http.SHtml.ajaxSubmit
 import net.liftweb.http.js.JsCmds.SetHtml
 import net.liftweb.http.js.{JsCmds, JsCmd}
 import org.joda.time.{DateTime}
-import scala.xml.{NodeSeq}
+import scala.xml.{Text, NodeSeq}
 import net.liftweb._
 import util.Helpers._
 import code.lib.Util._
@@ -84,7 +84,15 @@ class SPerfilUsuario extends StatefulSnippet with Logger {
       "#nasc_mes" #> SHtml.ajaxSelect(meses, Full(mes_nasc), (m) => mes_nasc = m, "style" -> "width:130px;") &
       "#nasc_ano" #> SHtml.ajaxSelect(anos, Full(ano_nasc), (a) => ano_nasc = a, "style" -> "width:90px;") &
       "#civil" #> SHtml.ajaxSelect(lestadoCivil, Full(estadoCivil), (e) => estadoCivil = e, "style" -> "width:130px;") &
-      "type=submit" #> ajaxSubmit("Atualizar", () => atualizar)
+      "type=submit" #> ajaxSubmit("Atualizar", () => atualizar) &
+      "#cancelar" #> link(linkRedirecinamento, () => JsCmds.Noop, Text("Voltar"))
+  }
+
+  private def linkRedirecinamento = {
+    linkOrigemUsuario.is match {
+      case Some(e) => e
+      case None => "/sistema/index"
+    }
   }
 
   private def validarMesmoEmail: Boolean = {
@@ -155,23 +163,22 @@ class SPerfilUsuario extends StatefulSnippet with Logger {
     val inicioEmpresa = formatarDataInicioEmpresa
     val nascimento = formatarDataNascimento
     telefone = removerFormatacao(telefone)
-
-    val u = new Usuario(id_usuario,
-      email,
-      nome,
-      Some(cargo),
-      Some(observacao),
-      Some(telefone),
-      senha,
-      inicioEmpresa,
-      nascimento,
-      Some(sexo.toInt),
-      Some(estadoCivil.toInt),
-      DateTime.now,
-      None)
-
     try {
-      u.save()
+
+      Usuario(id_usuario,
+        None,
+        email,
+        nome,
+        Some(cargo),
+        Some(observacao),
+        Some(telefone),
+        senha,
+        inicioEmpresa,
+        nascimento,
+        Some(sexo.toInt),
+        Some(estadoCivil.toInt),
+        DateTime.now,
+        None).save
       true
     } catch {
       case _: SQLException | _: IndexOutOfBoundsException => println("Erro!")
@@ -179,8 +186,6 @@ class SPerfilUsuario extends StatefulSnippet with Logger {
       case e: Throwable => println("Erro ao salvar!")
         false
     }
-
-
   }
 
   private def definirSexo(sexo: Option[Int]): String = {

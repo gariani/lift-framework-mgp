@@ -130,8 +130,9 @@ class EditarCliente extends StatefulSnippet with Logger {
   private def criarNovoProjeto = {
     if (validarProjeto) {
       val p = Projeto.create(Some(idCliente), None, nomeProjeto, "", None, None, DateTime.now, None)
-      SetHtml("mensagemEditarProjeto", mensagemSucesso(Mensagem.DADOS_SALVOS_SUCESSO))
-      _ajaxRenderRow(p, true, false)
+      clienteRVProjeto.set(Some(p))
+      _ajaxRenderRow(p, true, false) &
+        SetHtml("mensagemEditarProjeto", mensagemSucesso(Mensagem.DADOS_SALVOS_SUCESSO))
     } else {
       SetHtml("mensagemEditarProjeto", mensagemSucesso(Mensagem.ERRO_SALVAR_DADOS))
     }
@@ -234,6 +235,8 @@ class EditarCliente extends StatefulSnippet with Logger {
   private def validarProjeto: Boolean = {
     if (nomeProjeto.length < 5 || nomeProjeto.isEmpty) {
       false
+    } else if (nomeProjeto.length > 50) {
+      false
     }
     else {
       true
@@ -242,8 +245,10 @@ class EditarCliente extends StatefulSnippet with Logger {
 
   def salvarProjeto: JsCmd = {
     if (validarProjeto) {
-      Projeto.salvarMinimoProjeto(idCliente, idProjeto, nomeProjeto, descricaoProjeto)
-      SetHtml("mensagemEditarProjeto", mensagemSucesso(Mensagem.DADOS_SALVOS_SUCESSO))
+      val p = Projeto(idProjeto, Some(idCliente), None, nomeProjeto, descricaoProjeto, None, None, DateTime.now, None).salvarMinimoProjeto()
+      clienteRVProjeto.set(Some(p))
+      _ajaxRenderRow(p, false, true) &
+        SetHtml("mensagemEditarProjeto", mensagemSucesso(Mensagem.DADOS_SALVOS_SUCESSO))
     }
     else {
       SetHtml("mensagemEditarProjeto", mensagemErro(Mensagem.ERRO_SALVAR_DADOS))

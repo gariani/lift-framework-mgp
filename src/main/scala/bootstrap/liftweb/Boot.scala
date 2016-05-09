@@ -8,10 +8,12 @@ import net.liftmodules.extras.{LiftExtras, Gravatar}
 import net.liftweb._
 import common._
 import http._
-import net.liftweb.util.{NamedPF}
+import net.liftweb.util.{Helpers, NamedPF}
 import scala.xml.Text
 import net.liftweb.sitemap._
 import Loc._
+import Helpers._
+
 
 class Boot extends Loggable {
 
@@ -44,6 +46,8 @@ class Boot extends Loggable {
     LiftExtras.artifactName.default.set("extras-example-0.4.0")
     Gravatar.defaultImage.default.set("wavatar")
 
+    LiftRules.noticesAutoFadeOut.default.set((noticeType: NoticeType.Value) => Full((1 seconds, 2 seconds)))
+
     FoBo.InitParam.JQuery = FoBo.JQuery214
     FoBo.InitParam.ToolKit = FoBo.Bootstrap320
     FoBo.InitParam.ToolKit = FoBo.FontAwesome430
@@ -68,8 +72,8 @@ object Site {
   val login = Menu("Login") / "index"
   val tarefas = Menu("Tarefas") / "sistema" / "tarefa" / "tarefa"
   val perfil = Menu(Loc("perfil", Link(List("sistema", "usuario", "perfil", "perfil"), true, "/sistema/usuario/perfil/perfil"), S.loc("perfil", Text(""))))
-  val projeto = Menu("Projeto") / "sistema" / "projeto" / "index"
-
+  val projeto = Menu("Projeto") / "sistema" / "projeto" / "projeto"
+  val teste =     Menu.i("Teste") / "sistema" / "teste"
   var admin = Menu("Administrador") / "sistema" / "administrador" submenus(
     Menu.i("Usuários") / "sistema" / "usuario" / "configuracao" / "configuracao_usuario" submenus (
       Menu.i("Cadastrar usuários") / "sistema" / "usuario" / "configuracao" / "cadastrar_usuario" >> Hidden
@@ -81,8 +85,7 @@ object Site {
     Menu.i("Tipos de Tarefas") / "sistema" / "tarefa" / "tipo_tarefa" / "tipo_tarefa" submenus (
       Menu.i("Editar Tipo de Tarefas") / "sistema" / "tarefa" / "tipo_tarefa" / "editar" >> Hidden
       ),
-    Menu.i("Status de Tarefa") / "sistema" / "tarefa" / "status_tarefa" / "status_tarefa",
-    Menu.i("Teste") / "sistema" / "teste"
+    Menu.i("Status de Tarefa") / "sistema" / "tarefa" / "status_tarefa" / "status_tarefa"
     )
 
 
@@ -92,6 +95,7 @@ object Site {
     tarefas, // If( () => SessionState.estaLogado, RedirectResponse("/")),
     perfil, //>> If( () => SessionState.estaLogado, RedirectResponse("/")),
     projeto, // >> If( () => SessionState.estaLogado, RedirectResponse("/")),
-    admin //>> If( () => SessionState.estaLogado, RedirectResponse("/"))
+    admin, //>> If( () => SessionState.estaLogado, RedirectResponse("/"))
+    teste
   )
 }

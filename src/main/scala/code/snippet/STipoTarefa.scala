@@ -1,15 +1,19 @@
 package code.snippet
 
+import java.sql.Time
+
 import code.model.{TipoTarefa}
 import code.lib.Util._
-import net.liftweb.common.{Full, Box, Logger}
+import net.liftmodules.widgets.bootstrap.{Bs3InfoDialog, Bs3ConfirmDialog}
+import net.liftweb.common.{Empty, Full, Box, Logger}
 import net.liftweb.http.js.JE.JsRaw
-import net.liftweb.http.js.JsCmds.{Alert, SetHtml}
+import net.liftweb.http.js.JsCmds.{Script, Alert, SetHtml}
 import net.liftweb.http.js.jquery.JqJsCmds
 import net.liftweb.http.js.jquery.JqJsCmds.{Unblock, ModalDialog}
 import net.liftweb.http.js.{JsCmd, JsCmds}
 import net.liftweb.http._
 import net.liftweb._
+import org.joda.time.DateTime
 import util.Helpers._
 import scala.xml.{NodeSeq, Text}
 
@@ -36,12 +40,76 @@ object tipoTarefaExcluir extends SessionVar[List[(TipoTarefa, String)]](List())
 class STipoTarefa extends StatefulSnippet with Logger {
 
   private val TEMPLATE_LIST_ID = "lista-tipo-tarefa";
+  protected var idTipoTarefa: Long = 0
+  protected var descricao: String = ""
+  protected var estimativa: Option[Time] = None
+  protected var min: String = ""
+  protected var hora: String = ""
+  protected var foraUso: Boolean = false;
+  protected lazy val internvaloMinuto = intervaloMin
+  protected lazy val internvaloHora = intervaloHora
 
   def dispatch = {
     case "render" => render
     case "lista" => lista
-    case "confirmacao" => confirmacao
+    case "addNovaTarefa" => addNovaTarefa
   }
+
+  def addNovaTarefa = {
+    "#descricao" #> SHtml.text(descricao, descricao = _) &
+      "#hora" #> SHtml.ajaxSelect(internvaloHora, Full(hora), v => hora = v, "style" -> "width:70px;") &
+      "#min" #> SHtml.ajaxSelect(internvaloMinuto, Full(min), v => min = v, "style" -> "width:70px;") &
+      "#cancelar" #> SHtml.ajaxButton(Text("Cancelar"), () => cancelarNovoTipoTarefa) &
+      "#adicionarBotao" #> SHtml.ajaxSubmit("Cadastrar novo", () => adicionarTipoTarefa)
+  }
+
+  protected def cancelarNovoTipoTarefa = {
+    limparCampos
+    exibirNovoTipoTarefa.is match {
+      case Some(false) => exibirNovoTipoTarefa.set(Full(true))
+        JsCmds.SetHtml("formNovoTipoTarefa", <div></div>) &
+          JsCmds.JsShowId("adicionaNovoTipoTarefa")
+      case _ => JsCmds.Noop
+    }
+  }
+
+  protected def limparCampos = {
+    descricao = ""
+    hora = ""
+    min = ""
+    estimativa = Empty
+  }
+
+  protected def preencherCampos(tt: TipoTarefa) = {
+    descricao = tt.nomeTipoTarefa
+    hora = formataHora(tt.estimativa)
+    min = formataMin(tt.estimativa)
+  }
+
+  protected def adicionarTipoTarefa: JsCmd = {
+    if (descricao.isEmpty) {
+      SetHtml("mensagem", mensagemErro(Mensagem.MIN.format(5, "Descrição")))
+    }
+    else {
+      try {
+        estimativa = formatarEstimativa(hora, min)
+        val tt = TipoTarefa.create(descricao,
+          estimativa,
+          foraUso,
+          DateTime.now)
+
+        tipoTarefaRV.set(Some(tt))
+
+        _ajaxRenderRow(tt, true, false) &
+        SetHtml("mensageSucesso", mensagemSucesso(Mensagem.DADOS_SALVOS_SUCESSO)) &
+          cancelarNovoTipoTarefa
+      }
+      catch {
+        case e: Exception => SetHtml("mensagem", mensagemErro(Mensagem.ERRO_SALVAR_DADOS))
+      }
+    }
+  }
+
 
   def render = {
     "#adicionaNovoTipoTarefa" #> SHtml.ajaxButton(Text("Cadastrar novo"), () => adicionarFormulario)
@@ -116,13 +184,9 @@ class STipoTarefa extends StatefulSnippet with Logger {
           cellSelector("estimativa") #> retornarEstimativa(tt.estimativa) &
           cellSelector("fora") #> SHtml.ajaxCheckbox(retornaForaUso(tt.idTipoTarefa), (v) => setForaUso(tt, v)) &
           "#editar [onclick]" #> SHtml.ajaxInvoke(() => editar(tt.idTipoTarefa)) &
-          "#deletar" #> SHtml.ajaxButton(Text("Excluir"), () => ModalDialog(configurarExclusao(tt, guid)))
+          "#deletar" #> SHtml.ajaxButton(Text("Excluir"), () => notificarExcluirProjeto(tt, guid))
       })
     cssSel.apply(in)
-  }
-
-  private def excluir = {
-
   }
 
   private def cellSelector(p: String): String = {
@@ -139,10 +203,10 @@ class STipoTarefa extends StatefulSnippet with Logger {
   private def _ajaxRenderRow(tt: TipoTarefa, isNew: Boolean, selected: Boolean): JsCmd = {
     val templateRowRoot = TEMPLATE_LIST_ID;
     var xml: NodeSeq = NodeSeq.Empty
-    var idUsuario: Long = -1
+    var idTipoTarefa: Long = -1
 
     tipoTarefaRV.is match {
-      case Some(ttRV) => xml = _rowTemplate(List(ttRV)); idUsuario = ttRV.idTipoTarefa
+      case Some(ttRV) => xml = _rowTemplate(List(ttRV)); idTipoTarefa = ttRV.idTipoTarefa
       case _ => xml = NodeSeq.Empty
     }
 
@@ -155,46 +219,43 @@ class STipoTarefa extends StatefulSnippet with Logger {
       if (isNew) {
         op = Some(JqJsCmds.AppendHtml(templateRowRoot, ajaxRow));
       } else {
-        val guid = associatedGuid(idUsuario).get
+        val guid = associatedGuid(idTipoTarefa).get
         op = Some(JsCmds.Replace(guid, ajaxRow));
       }
     }
     op.get
   }
 
-  def confirmacao =
-    "#sim" #> SHtml.ajaxButton(Text("Sim"), () => informarConfirmacao(true)) &
-      "#nao" #> SHtml.ajaxButton(Text("Não"), () => informarConfirmacao(false))
-
-  private def informarConfirmacao(b: Boolean) = {
-    if(b) {
-      tipoTarefaExcluir.is match {
-        case List((tt, guid)) => _ajaxDelete(tt, guid)
-        case _ => JsCmds.Noop
-      }
+  private def notificarExcluirProjeto(tt: TipoTarefa, guid: String) = {
+    val node = S.runTemplate("sistema" :: "tarefa" :: "tipo_tarefa" :: "tipo-tarefa-hidden" :: "_modal_excluir" :: Nil)
+    node match {
+      case Full(nd) => Bs3ConfirmDialog("Excluir tipo de tarefa", nd, () => excluirTipoTarefa(tt, guid), () => JsCmds.Noop)
+      case _ => Bs3ConfirmDialog("Erro ao carregar tela", NodeSeq.Empty, () => JsCmds.Noop, () => JsCmds.Noop)
     }
-
-    Unblock
   }
 
-  private def configurarExclusao(tt: TipoTarefa, guid: String) = {
-    val itemList: List[(TipoTarefa, String)] = List((tt, guid))
-    tipoTarefaExcluir.set(itemList)
-    <div>
-      <h4>
-        Deseja excluir o tipo de tarefa?
-        <br/>
-        <div class="lift:STipoTarefa.confirmacao">
-          <div id="sim">Sim</div>
-          <div id="nao">Cancelar exclusão</div>
-        </div>
-      </h4>
-    </div>
+  private def excluirTipoTarefa(tt: TipoTarefa, guid: String) = {
+    try {
+      _ajaxDelete(tt, guid)
+    }
+    catch {
+      case e: Exception => {erroExcluirProjeto("Erro ao excluir tipo de tarefa: Existe projetos relacionados.") }
+      case _: Throwable => {erroExcluirProjeto("Erro ao excluir tipo de tarefa: Existe projetos relacionados. Mensagem original: ") }
+    }
   }
 
+  private def erroExcluirProjeto(m: String): JsCmd = {
+    val node = S.runTemplate("sistema" :: "cliente" :: "cliente-hidden" :: "_modal_aviso" :: Nil)
+    node match {
+      case Full(nd) => val b = new Bs3InfoDialog(m, nd)
+        b
+      case _ => val b = new Bs3InfoDialog(m, NodeSeq.Empty)
+        b
+    }
+  }
 
   private val formCadstroTipoTarefa: NodeSeq =
-    <div class="lift:SFormularioCadastroTipoTarefa">
+    <div class="lift:STipoTarefa.addNovaTarefa">
       <div class="col-md-4">
         <div class="panel panel-default">
           <div class="panel-heading">
@@ -219,10 +280,10 @@ class STipoTarefa extends StatefulSnippet with Logger {
               </fieldset>
               <div>
                 <button type="submit" id="adicionarBotao"
-                        class="btn btn-primary">
+                        class="btn btn-default">
                   <i class="glyphicon glyphicon-ok"></i>
                 </button>
-                <button type="button" id="cancelar" value="Cancelar" name="cancelar" class="btn btn-danger">
+                <button type="button" id="cancelar" value="Cancelar" name="cancelar" class="btn btn-default">
                   <span class="glyphicon glyphicon-remove-sign"></span>
                 </button>
               </div>

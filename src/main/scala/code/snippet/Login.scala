@@ -7,6 +7,10 @@ import net.liftweb.util.Helpers._
 import scala.language.postfixOps
 import code.lib.session.SessionState
 
+import scala.xml.Text
+
+object linkOrigemUsuario extends SessionVar[Option[String]](None)
+
 class Login extends StatefulSnippet {
 
   private var email: Option[String] = None

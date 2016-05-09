@@ -3,7 +3,7 @@ package code.view
 import _root_.scala.xml.{ NodeSeq, Node, Elem, PCData, Text }
 import _root_.net.liftweb.common._
 import _root_.net.liftweb.util._
-import _root_.net.liftweb.http._
+import net.liftweb.http._
 import _root_.net.liftweb.http.js._
 import JsCmds._
 import JE._

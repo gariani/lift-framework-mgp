@@ -7,6 +7,7 @@ import org.joda.time.DateTime
 import scalikejdbc._
 
 case class Usuario(idUsuario: Long,
+                   idEquipe: Option[Long],
                    email: String,
                    nome: String,
                    cargo: Option[String] = None,
@@ -30,12 +31,13 @@ object Usuario extends SQLSyntaxSupport[Usuario] with Settings {
 
   override val tableName = "usuario"
 
-  override val columns = Seq("id_usuario", "email", "nome", "cargo", "observacao", "telefone", "senha", "inicio_empresa", "nascimento", "sexo", "estado_civil", "created_at", "deleted_at")
+  override val columns = Seq("id_usuario", "id_equipe", "email", "nome", "cargo", "observacao", "telefone", "senha", "inicio_empresa", "nascimento", "sexo", "estado_civil", "created_at", "deleted_at")
 
   def apply(u: SyntaxProvider[Usuario])(rs: WrappedResultSet): Usuario = apply(u.resultName)(rs)
 
   def apply(u: ResultName[Usuario])(rs: WrappedResultSet): Usuario = new Usuario(
     idUsuario = rs.get(u.idUsuario),
+    idEquipe = rs.longOpt(u.idEquipe),
     email = rs.get(u.email),
     nome = rs.get(u.nome),
     cargo = rs.stringOpt(u.cargo),
@@ -55,15 +57,15 @@ object Usuario extends SQLSyntaxSupport[Usuario] with Settings {
   private val isNotDeleted = sqls.isNull(u.deletedAt)
 
   def isExistsEmail(email: String)(implicit session: DBSession = AutoSession): Option[String] = withSQL {
-    select(u.email).from(Usuario as u).where.eq(u.email, email)
+    select(u.email).from(Usuario as u).where.eq(u.email, email).and.isNull(u.deletedAt)
   }.map(_.string(u.email)).single().apply()
 
   def findByEmail(email: String)(implicit session: DBSession = AutoSession): Option[Usuario] = withSQL {
-    select.from(Usuario as u).where.eq(u.email, email)
+    select.from(Usuario as u).where.eq(u.email, email).and.isNull(u.deletedAt)
   }.map(Usuario(u)).single().apply()
 
   def findByLogin(email: String, senha: String)(implicit session: DBSession = AutoSession): Option[String] = withSQL {
-    select(u.email).from(Usuario as u).where.eq(u.email, email).and.eq(u.senha, senha)
+    select(u.email).from(Usuario as u).where.eq(u.email, email).and.eq(u.senha, senha).and.isNull(u.deletedAt)
   }.map(_.string(u.email)).single().apply()
 
   def findAll()(implicit session: DBSession = AutoSession): List[Usuario] = withSQL {
@@ -89,13 +91,14 @@ object Usuario extends SQLSyntaxSupport[Usuario] with Settings {
     usuario
   }
 
-  def create(email: String, nome: String, cargo: Option[String] = None, observacao: Option[String] = None,
+  def create(idEquipe: Option[Long], email: String, nome: String, cargo: Option[String] = None, observacao: Option[String] = None,
              telefone: Option[String] = None, senha: String, inicioEmpresa: Option[DateTime], nascimento: Option[DateTime],
              sexo: Option[Int], estadoCivil: Option[Int], createdAt: DateTime = DateTime.now)
             (implicit session: DBSession = autoSession): Usuario = {
 
     val id = withSQL {
       insert.into(Usuario).namedValues(
+        column.idEquipe -> idEquipe,
         column.email -> email,
         column.nome -> nome,
         column.cargo -> cargo,
@@ -112,6 +115,7 @@ object Usuario extends SQLSyntaxSupport[Usuario] with Settings {
 
     Usuario(
       idUsuario = id,
+      idEquipe = idEquipe,
       email = email,
       nome = nome,
       cargo = cargo,

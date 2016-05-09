@@ -189,9 +189,22 @@ object Util {
   }
 
   def formatarEstimativa(hora: String, min: String) = {
+    var h: String = ""
+    var m: String = ""
+
+    hora match {
+      case "" => h = "00"
+      case _ => h = hora
+    }
+
+    min match {
+      case "" => m = "00"
+      case _ => m = min
+    }
+
     var formatar = new SimpleDateFormat("HH:mm")
     formatar.format(new java.util.Date())
-    var d1 = formatar.parse(hora + ":" + min)
+    var d1 = formatar.parse(h + ":" + m)
     var ppstime = new java.sql.Time(d1.getTime)
     Full(ppstime)
   }
