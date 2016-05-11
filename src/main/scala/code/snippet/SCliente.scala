@@ -47,8 +47,8 @@ class SCliente extends StatefulSnippet {
 
   def addNovoCliente = {
     "#nome" #> SHtml.ajaxText(nomeCliente, nomeCliente = _) &
-      "#cancelar" #> SHtml.ajaxButton(Text("Cancelar"), () => cancelarNovoUsuario) &
-      "#adicionarNovo" #> SHtml.ajaxSubmit("Cadastrar", () => adicionarUsuario)
+      "#cancelar" #> SHtml.ajaxButton(Text("Cancelar"), () => cancelarNovoCliente) &
+      "#adicionarNovo" #> SHtml.ajaxSubmit("Cadastrar", () => adicionarCliente)
   }
 
   def validarNomeCliente(nomeCliente: String): Boolean = {
@@ -58,7 +58,7 @@ class SCliente extends StatefulSnippet {
     }
   }
 
-  private def adicionarUsuario: JsCmd = {
+  private def adicionarCliente: JsCmd = {
     if (validarNomeCliente(nomeCliente)) {
       SetHtml("mensagem", mensagemErro(Mensagem.NOME_EXISTENTE))
     }
@@ -74,11 +74,11 @@ class SCliente extends StatefulSnippet {
       clienteRV.set(Some(c))
       _ajaxRenderRow(c, true, false) &
       SetHtml("mensageSucesso", mensagemSucesso(Mensagem.CADASTRO_SALVO_SUCESSO.format("Cliente"))) &
-        cancelarNovoUsuario
+        cancelarNovoCliente
     }
   }
 
-  private def cancelarNovoUsuario = {
+  private def cancelarNovoCliente = {
     limparCampos
     novoClienteVisivel.is match {
       case Some(false) => novoClienteVisivel.set(Full(true))

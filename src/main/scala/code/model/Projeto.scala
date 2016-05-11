@@ -16,7 +16,7 @@ case class Projeto(idProjeto: Long,
 
   def save()(implicit session: DBSession = Projeto.autoSession): Projeto = Projeto.save(this)(session)
 
-  def salvarMinimoProjeto()(implicit session: DBSession = Projeto.autoSession): Projeto = Projeto.salvarMinimoProjeto(this)(session)
+  def criarMinimoProjeto()(implicit session: DBSession = Projeto.autoSession): Projeto = Projeto.criarMinimoProjeto(this)(session)
 
   def destroy()(implicit session: DBSession = Projeto.autoSession): Unit = Projeto.destroy(idProjeto)(session)
 
@@ -99,7 +99,7 @@ object Projeto extends SQLSyntaxSupport[Projeto] with Settings {
     p
   }
 
-  def salvarMinimoProjeto(p: Projeto)
+  def criarMinimoProjeto(p: Projeto)
                          (implicit session: DBSession = AutoSession): Projeto = {
     withSQL {
       update(Projeto).set(

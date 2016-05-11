@@ -1,0 +1,75 @@
+CREATE TABLE usuario
+(
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(50) NOT NULL,
+    cargo VARCHAR(20),
+    observacao VARCHAR(100),
+    telefone VARCHAR(13),
+    senha VARCHAR(65) NOT NULL,
+    id_usuario INT(10) PRIMARY KEY NOT NULL,
+    deleted_at DATETIME,
+    created_at DATETIME,
+    inicio_empresa DATE,
+    sexo INT(11) DEFAULT '0',
+    estado_civil INT(11) DEFAULT '0',
+    nascimento DATE
+);
+CREATE UNIQUE INDEX email ON usuario (email);
+CREATE TABLE projeto
+(
+    id_projeto INT(11) PRIMARY KEY NOT NULL,
+    nome_projeto VARCHAR(50),
+    descricao_projeto VARCHAR(200),
+    dt_inicio_projeto DATETIME,
+    dt_final_projeto DATETIME,
+    status_projeto INT(11),
+    deleted_at DATETIME,
+    created_at DATETIME,
+    id_cliente INT(11),
+    id_equipe INT(11),
+    CONSTRAINT projeto_cliente_id_cliente_fk FOREIGN KEY (id_cliente) REFERENCES cliente (id_cliente),
+    CONSTRAINT projeto_equipe_id_equipe_fk FOREIGN KEY (id_equipe) REFERENCES equipe (id_equipe)
+);
+CREATE INDEX projeto_cliente_id_cliente_fk ON projeto (id_cliente);
+CREATE INDEX projeto_equipe_id_equipe_fk ON projeto (id_equipe);
+CREATE TABLE cliente
+(
+    id_cliente INT(11) PRIMARY KEY NOT NULL,
+    nome_cliente VARCHAR(50) NOT NULL,
+    deleted_at DATETIME,
+    created_at DATETIME
+);
+CREATE TABLE equipe
+(
+    id_equipe INT(11) PRIMARY KEY NOT NULL,
+    nome_equipe VARCHAR(200)
+);
+CREATE TABLE apontamento
+(
+    id_apontamento DECIMAL(10) PRIMARY KEY NOT NULL,
+    id_task DECIMAL(10),
+    id_usuario DECIMAL(10),
+    CONSTRAINT apontamento_task_id_task_fk FOREIGN KEY (id_task) REFERENCES tarefa (id_task)
+);
+CREATE INDEX apontamento_task_id_task_fk ON apontamento (id_task);
+CREATE TABLE tipo_tarefa
+(
+    id_tipo_tarefa INT(11) PRIMARY KEY NOT NULL,
+    nome_tipo_tarefa VARCHAR(100),
+    created_at DATETIME,
+    deleted_at DATETIME,
+    estimativa TIME,
+    fora_uso TINYINT(1) DEFAULT '0'
+);
+CREATE TABLE tarefa
+(
+    id_task DECIMAL(10) PRIMARY KEY NOT NULL,
+    nome VARCHAR(255),
+    id_task_nivel DECIMAL(10),
+    id_tipo_tarefa INT(11),
+    finalizada TINYINT(1) DEFAULT '0',
+    CONSTRAINT tarefa_tipo_tarefa_id_tipo_tarefa_fk FOREIGN KEY (id_tipo_tarefa) REFERENCES tipo_tarefa (id_tipo_tarefa),
+    CONSTRAINT task_task_id_task_fk FOREIGN KEY (id_task_nivel) REFERENCES tarefa (id_task)
+);
+CREATE INDEX tarefa_tipo_tarefa_id_tipo_tarefa_fk ON tarefa (id_tipo_tarefa);
+CREATE INDEX task_task_id_task_fk ON tarefa (id_task_nivel);

@@ -245,7 +245,16 @@ class EditarCliente extends StatefulSnippet with Logger {
 
   def salvarProjeto: JsCmd = {
     if (validarProjeto) {
-      val p = Projeto(idProjeto, Some(idCliente), None, nomeProjeto, descricaoProjeto, None, None, DateTime.now, None).salvarMinimoProjeto()
+      val p = Projeto(idProjeto,
+        Some(idCliente),
+        None,
+        nomeProjeto,
+        descricaoProjeto,
+        None,
+        None,
+        DateTime.now,
+        None).criarMinimoProjeto()
+
       clienteRVProjeto.set(Some(p))
       _ajaxRenderRow(p, false, true) &
         SetHtml("mensagemEditarProjeto", mensagemSucesso(Mensagem.DADOS_SALVOS_SUCESSO))

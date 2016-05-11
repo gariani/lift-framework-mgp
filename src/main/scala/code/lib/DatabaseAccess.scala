@@ -31,7 +31,7 @@ object DataSourceHi {
 
 object InicializarConfiguracao {
 
-  val init = {
+  def init = {
     ConnectionPool.singleton(new DataSourceConnectionPool(DataSourceHi()))
   }
 }

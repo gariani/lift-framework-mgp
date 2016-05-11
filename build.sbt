@@ -23,6 +23,7 @@ scalacOptions ++= Seq("-deprecation", "-unchecked")
 libraryDependencies ++= {
   val liftVersion = "2.6.3"
   Seq(
+
     "net.liftweb"             %% "lift-webkit"            % liftVersion         % "compile",
     "net.liftmodules"         %% "omniauth_2.6"               % "0.17"              % "compile",
     "com.dropbox.core"         %  "dropbox-core-sdk"        % "1.7.6"      % "compile",

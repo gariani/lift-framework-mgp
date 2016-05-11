@@ -25,6 +25,7 @@ case class Usuario(idUsuario: Long,
   def destroy()(implicit session: DBSession = Usuario.autoSession): Unit = Usuario.destroy(idUsuario)(session)
 
   private val (u) = (Usuario.u)
+  private val (u2) = (Usuario.u2)
 }
 
 object Usuario extends SQLSyntaxSupport[Usuario] with Settings {
@@ -53,6 +54,7 @@ object Usuario extends SQLSyntaxSupport[Usuario] with Settings {
   )
 
   val u = Usuario.syntax("u")
+  val u2 = Usuario.syntax("u2")
 
   private val isNotDeleted = sqls.isNull(u.deletedAt)
 
@@ -68,14 +70,35 @@ object Usuario extends SQLSyntaxSupport[Usuario] with Settings {
     select(u.email).from(Usuario as u).where.eq(u.email, email).and.eq(u.senha, senha).and.isNull(u.deletedAt)
   }.map(_.string(u.email)).single().apply()
 
+  def findById(idUsuario: Long)(implicit session: DBSession = AutoSession): Option[Usuario] = withSQL {
+    select.from(Usuario as u).where.eq(u.idUsuario, idUsuario).and.isNull(u.deletedAt)
+  }.map(Usuario(u)).single().apply()
+
   def findAll()(implicit session: DBSession = AutoSession): List[Usuario] = withSQL {
     select.from(Usuario as u).where.isNull(u.deletedAt)
   }.map(Usuario(u)).list().apply()
 
-  def save(usuario: Usuario)(implicit session: DBSession = AutoSession): Usuario = {
-    print(usuario)
+  def findAllUsuariosLivres(implicit session: DBSession = AutoSession): List[(Int, String)] = withSQL {
+    select(u.idUsuario, u.nome).from(Usuario as u).where.isNull(u.deletedAt).and.isNull(u.idEquipe)
+  }.map{ rs => (rs.int(1), rs.string(2)) }.list().apply()
+
+  def findByEquipe(idEquipe: Long)(implicit session: DBSession = AutoSession): List[Usuario] = withSQL {
+    select.from(Usuario as u).where.eq(u.idEquipe, idEquipe).and.isNull(u.deletedAt)
+  }.map(Usuario(u)).list().apply()
+
+  def updateEquipe(idUsuario: Long, idEquipe: Option[Long])(implicit session: DBSession = AutoSession) = {
     withSQL {
       update(Usuario).set(
+        Usuario.column.idEquipe -> idEquipe
+      ).where.eq(Usuario.column.idUsuario, idUsuario).and.isNull(column.deletedAt)
+    }.update.apply()
+  }
+
+
+  def save(usuario: Usuario)(implicit session: DBSession = AutoSession): Usuario = {
+    withSQL {
+      update(Usuario).set(
+        Usuario.column.idEquipe -> usuario.idEquipe,
         Usuario.column.email -> usuario.email,
         Usuario.column.nome -> usuario.nome,
         Usuario.column.cargo -> usuario.cargo,
@@ -92,8 +115,8 @@ object Usuario extends SQLSyntaxSupport[Usuario] with Settings {
   }
 
   def create(idEquipe: Option[Long], email: String, nome: String, cargo: Option[String] = None, observacao: Option[String] = None,
-             telefone: Option[String] = None, senha: String, inicioEmpresa: Option[DateTime], nascimento: Option[DateTime],
-             sexo: Option[Int], estadoCivil: Option[Int], createdAt: DateTime = DateTime.now)
+             telefone: Option[String] = None, senha: String, inicioEmpresa: Option[DateTime] = None, nascimento: Option[DateTime]= None,
+             sexo: Option[Int] = None, estadoCivil: Option[Int] = None, createdAt: DateTime = DateTime.now)
             (implicit session: DBSession = autoSession): Usuario = {
 
     val id = withSQL {
