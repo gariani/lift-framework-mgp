@@ -7,7 +7,7 @@ import net.liftweb.common.{Empty, Full, Logger}
 import net.liftweb.http.js.jquery.JqJsCmds
 import net.liftweb.http.js.{JsCmd, JsCmds}
 import net.liftweb.http._
-import net.liftweb.http.js.JsCmds.SetHtml
+import net.liftweb.http.js.JsCmds.{ReplaceOptions, SetHtml}
 import net.liftweb.util.Helpers
 import Helpers._
 import org.joda.time.DateTime
@@ -29,7 +29,7 @@ class EditarEquipe extends StatefulSnippet with Logger {
 
   private val TEMPLATE_LIST_ID = "lista-usuarios"
   private var nomeEquipe: String = ""
-  private var equipe: Option[Equipe] = None
+  private var equipe: Option[(Int, String, Option[String], Int)] = None
   private var idEquipe: Long = 0
   private var createdAt: DateTime = DateTime.now
   private var descricaoUsuario: String = ""
@@ -54,22 +54,23 @@ class EditarEquipe extends StatefulSnippet with Logger {
   def listaEquipe = {
     equipe = iniciaValores
     nomeEquipe = equipe match {
-      case Some(c) => c.nomeEquipe
+      case Some(e) => e._2
       case None => nomeEquipe
     }
 
     idEquipe = equipe match {
-      case Some(c) => c.idEquipe
+      case Some(c) => c._1
       case None => idEquipe
     }
 
-    createdAt = equipe match {
-      case Some(c) => c.createdAt
-      case None => createdAt
+    nomeUsuario = equipe match {
+      case Some(c) => c._3.getOrElse("Não encontrado líder...")
+      case None => "Não encontrado líder..."
     }
 
     "#nomeEquipe" #> SHtml.ajaxText(nomeEquipe, nomeEquipe = _) &
-      "#cancelar" #> link("/sistema/Equipe/Equipe", () => JsCmds.Noop, Text("Voltar")) &
+      "#nomeLider" #> SHtml.ajaxText(nomeUsuario, nomeUsuario = _) &
+      "#cancelar" #> link("/sistema/equipe/equipe", () => JsCmds.Noop, Text("Voltar")) &
       "type=submit" #> SHtml.ajaxOnSubmit(() => salvarEquipe)
   }
 
@@ -108,6 +109,7 @@ class EditarEquipe extends StatefulSnippet with Logger {
   private def _ajaxDelete(p: Usuario, guid: String): JsCmd = {
     guidToIdRVEquipeUsuario.set(guidToIdRVEquipeUsuario.is - guid)
     Usuario.updateEquipe(p.idUsuario, None);
+    ReplaceOptions("adicionarNovoUsuario", montaListaUsuariosLivres, Empty) &
     JsCmds.Replace(guid, NodeSeq.Empty)
   }
 
@@ -116,8 +118,9 @@ class EditarEquipe extends StatefulSnippet with Logger {
   }
 
   private def validarNomeExiste = {
+    val nEquipeAtual = equipe.get
     Equipe.findEquipeByNome(nomeEquipe) match {
-      case Some(c) if ((c > 0) || (nomeEquipe != equipe.get.nomeEquipe)) => true
+      case Some(c) if ((c > 0) && (nomeEquipe != nEquipeAtual._2)) => true
       case _ => false
     }
   }
@@ -183,7 +186,7 @@ class EditarEquipe extends StatefulSnippet with Logger {
 
   private def iniciaValores = {
     editarPerfilEquipe.is match {
-      case Some(id) => Equipe.findEquipeById(id)
+      case Some(id) => Equipe.findEquipeQuantUsuario(id)
       case None => None
     }
   }
@@ -194,8 +197,8 @@ class EditarEquipe extends StatefulSnippet with Logger {
   }
 
   def novoUsuario = {
-    "#adicionarNovoUsuario" #> SHtml.ajaxSelect(listaUsuariosLivres, Empty, (u) => relacionarEquipeUsuario(u),
-      "class" -> "form-control", "placeholder" -> "Selecione um usuário para ser inserido...")
+    "#adicionarNovoUsuario" #> SHtml.ajaxSelect(montaListaUsuariosLivres, Empty, (u) => relacionarEquipeUsuario(u),
+      "class" -> "form-control", "data-placeholder" -> "Selecione um usuário para ser inserido...")
   }
 
   private def relacionarEquipeUsuario(u: String) = {
@@ -204,7 +207,7 @@ class EditarEquipe extends StatefulSnippet with Logger {
       Usuario.updateEquipe(idUsuario, Some(idEquipe))
       val usuario = Usuario.findById(idUsuario)
       equipeRVUsuario.set(usuario)
-      listaUsuariosLivres
+      ReplaceOptions("adicionarNovoUsuario", montaListaUsuariosLivres, Empty) &
       _ajaxRenderRow(true, false)
     }
     else {

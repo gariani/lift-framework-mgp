@@ -1,12 +1,26 @@
-<div class="lift:surround?with=default&at=content">
-    <div class="row">
-        <div class="col-lg-5">
-            <div class="panel-heading">Lista de clientes</div>
-            <div class="panel-body">
-                <div class="dataTable_wrapper">
-                    <div class="lift:Teste.editar"></div>
-                </div>
-            </div>
+<div class="lift:surround?with=default;at=content">
+    <div>
+        <header>
+            <script type="text/javascript" src="/js/ckeditor/ckeditor.js"></script>
+            <script type="text/javascript" src="/js/ckeditor/sample.js"></script>
+            <link type="text/css" href="/js/ckeditor/sample.css" rel="stylesheet"/>
+        </header>
+
+        <div class="lift:Teste">
+            <form class="lift:Teste?post" style="height:90%; width: 80%;">
+                <label style="color: white; "><h2>Title of your Post...</h2></label>
+                <select id="titleText" style="width: 50%; "></select>
+                <br/>
+                <label style="color: white; "><h2>Expand your Post...</h2></label>
+                <textarea id="bodyText" style="height:90%; width: 89%;">mmmmmm</textarea>
+                <script type="text/javascript">
+                    //<![CDATA[
+                    CKEDITOR.replace('bodyText');
+                    //]]>
+                </script>
+                <br/>
+                <button type="button" id="submit" style="float:right;">save Post</button>
+            </form>
         </div>
     </div>
 </div>

@@ -48,6 +48,8 @@ class Boot extends Loggable {
 
     LiftRules.noticesAutoFadeOut.default.set((noticeType: NoticeType.Value) => Full((1 seconds, 2 seconds)))
 
+    LiftRules.useXhtmlMimeType = false;
+
     FoBo.InitParam.JQuery = FoBo.JQuery214
     FoBo.InitParam.ToolKit = FoBo.Bootstrap320
     FoBo.InitParam.ToolKit = FoBo.FontAwesome430
@@ -70,8 +72,8 @@ object Site {
 
   val home = Menu.i("Home") / "sistema" / "index"
   val login = Menu("Login") / "index"
-  val tarefas = Menu("Tarefas") / "sistema" / "tarefa" / "tarefa"
-  val perfil = Menu(Loc("perfil", Link(List("sistema", "usuario", "perfil", "perfil"), true, "/sistema/usuario/perfil/perfil"), S.loc("perfil", Text(""))))
+  val tarefas = Menu.i("Tarefa") / "sistema" / "tarefa" / "tarefa"
+  val perfil = Menu(Loc("perfil", Link(List("sistema", "usuario", "perfil", "perfil"), true, "/sistema/usuario/perfil/perfil"), Text("Perfil")))
   val projeto = Menu("Projeto") / "sistema" / "projeto" / "projeto"
   val teste = Menu.i("Teste") / "sistema" / "teste"
   var admin = Menu("Administrador") / "sistema" / "administrador" submenus(

@@ -24,7 +24,7 @@ private object listTamplateRVEquipe extends RequestVar[NodeSeq](Nil)
 
 private object guidToIdRVEquipe extends RequestVar[Map[String, Long]](Map())
 
-private object equipeRV extends RequestVar[Option[List[(Int, String, Option[String], Int)]]](None)
+private object equipeRV extends RequestVar[Option[(Int, String, Option[String], Int)]](None)
 
 object equipeExcluir extends SessionVar[List[(Equipe, String)]](List())
 
@@ -65,8 +65,8 @@ class SEquipe extends StatefulSnippet with Logger {
 
       val eq = Equipe.findEquipeQuantUsuario(e.idEquipe)
 
-      equipeRV.set(Some(eq))
-      _ajaxRenderRow(eq, true, false) &
+      equipeRV.set(eq)
+      _ajaxRenderRow(true, false) &
         SetHtml("mensageSucesso", mensagemSucesso(Mensagem.CADASTRO_SALVO_SUCESSO.format("Equipe"))) &
         cancelarNovoUsuario
     }
@@ -182,13 +182,13 @@ class SEquipe extends StatefulSnippet with Logger {
     }
   }
 
-  private def _ajaxRenderRow(e: List[(Int, String, Option[String], Int)], isNew: Boolean, selected: Boolean): JsCmd = {
+  private def _ajaxRenderRow(isNew: Boolean, selected: Boolean): JsCmd = {
     val templateRowRoot = TEMPLATE_LIST_ID;
     var xml: NodeSeq = NodeSeq.Empty
     var idEquipe: Long = -1
 
     equipeRV.is match {
-      case Some(eRV) => xml = _rowTemplate(eRV); eRV.map(r => idEquipe = r._1)
+      case Some(eRV) => xml = _rowTemplate(List(eRV)); idEquipe = eRV._1
       case _ => xml = NodeSeq.Empty
     }
 

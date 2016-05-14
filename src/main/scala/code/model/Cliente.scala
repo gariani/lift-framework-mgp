@@ -37,15 +37,10 @@ object Cliente extends SQLSyntaxSupport[Cliente] with Settings {
 
   private val (p) = (Projeto.p)
 
-  def findAll()(implicit session: DBSession = AutoSession) = {
+  def findAllClienteLista()(implicit session: DBSession = AutoSession) = {
     withSQL {
-      select.from(Cliente as c)
-        .leftJoin(Projeto as p)
-        .on(c.idCliente, p.idCliente).where.isNull(c.deletedAt)
-    }
-      .one(Cliente(c))
-      .toMany(Projeto.opt(p)).map { (cliente, projetos) => cliente.copy(projetos = projetos) }
-      .list.apply()
+      select(c.idCliente, c.nomeCliente).from(Cliente as c).where.isNull(c.deletedAt)
+    }.map{ rs => (rs.int(1), rs.string(2))}.list().apply()
   }
 
   def findClienteById(idCliente: Long)(implicit sesession: DBSession = AutoSession): Option[Cliente]=
@@ -57,6 +52,17 @@ object Cliente extends SQLSyntaxSupport[Cliente] with Settings {
       .one(Cliente(c))
       .toMany(Projeto.opt(p)).map { (cliente, projetos) => cliente.copy(projetos = projetos)
     }.single().apply()
+
+  def findAll()(implicit session: DBSession = AutoSession) = {
+    withSQL {
+      select.from(Cliente as c)
+        .leftJoin(Projeto as p)
+        .on(c.idCliente, p.idCliente).where.isNull(c.deletedAt)
+    }
+      .one(Cliente(c))
+      .toMany(Projeto.opt(p)).map { (cliente, projetos) => cliente.copy(projetos = projetos) }
+      .list.apply()
+  }
 
   def findClienteByNome(nomeCliente: String)(implicit sesession: DBSession = AutoSession): Option[Int] = withSQL {
     select(count(c.idCliente)).from(Cliente as c)

@@ -1,0 +1,68 @@
+<div>
+    <header>
+        <script type="text/javascript" src="/js/ckeditor/ckeditor.js"></script>
+        <script type="text/javascript" src="/js/ckeditor/sample.js"></script>
+        <link type="text/css" href="/js/ckeditor/sample.css" rel="stylesheet"/>
+    </header>
+
+
+    <div class="lift:STarefa.novaTarefa">
+        <span id="mensagem"></span>
+        <form class="lift:form.ajax" role="form" method="post">
+            <fieldset>
+                <div class="row">
+                    <div class="col-md-12 form-group">
+                        <span id="nomeTarefa"></span>
+                    </div>
+                </div>
+                <br/>
+                <div class="row">
+                    <div class="col-md-3">
+                        <label><h5>* Responsável: </h5></label>
+                    </div>
+                    <div class="col-md-9">
+                        <span id="responsavel"></span>
+                    </div>
+                </div>
+                <br/>
+                <div class="row">
+                    <div class="col-md-3">
+                        <label><h5>* Tipo de Tarefa: </h5></label>
+                    </div>
+                    <div class="col-md-9">
+                        <span id="tipoTarefa"></span>
+                    </div>
+                </div>
+                <br/>
+                <div class="row">
+                    <div class="col-md-3">
+                        <label><h5>* Cliente->Projeto: </h5></label>
+                    </div>
+                    <div class="col-md-9">
+                        <span id="cliente_projeto"></span>
+                    </div>
+                </div>
+                <br/>
+                <div>
+                    <div class="lift:Teste">
+                            <label style="color: white; "><h2>Descrição....</h2></label>
+                            <textarea id="bodyText" style="height:90%; width: 89%;">mmmmmm</textarea>
+                            <script type="text/javascript">
+                                //<![CDATA[
+                                CKEDITOR.replace('bodyText');
+                                //]]>
+                            </script>
+                            <br/>
+                    </div>
+                    <br/>
+                    <div class="row">
+                        <span id="anexarArquivo"></span>
+                        <span id="incluirSeguidor"></span>
+                        <span id="checklist"></span>
+                    </div>
+                </div>
+            </fieldset>
+            <button id="cadastrar" class="btn btn-default">Cadastrar</button>
+        </form>
+    </div>
+</div>

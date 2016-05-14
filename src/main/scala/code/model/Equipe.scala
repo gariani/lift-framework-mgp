@@ -47,7 +47,8 @@ object Equipe extends SQLSyntaxSupport[Equipe] with Settings {
           left join usuario u on e.id_equipe  = u.id_equipe
           left join usuario u2 on e.id_lider = u2.id_usuario
       """
-  .map { rs => (rs.int("id_equipe"), rs.string("nome_equipe"), rs.stringOpt("nomeUsuario"), rs.int("quantUsuario")) }.list().apply()
+  .map { rs => (rs.int("id_equipe"), rs.string("nome_equipe"), rs.stringOpt("nomeUsuario"), rs.int("quantUsuario"))
+  }.list().apply()
 
   def findEquipeQuantUsuario(idEquipe: Long)(implicit session: DBSession = autoSession) =
     sql"""select e.id_equipe, e.nome_equipe, u2.nome as nomeUsuario, count(u.id_usuario) as quantUsuario
@@ -55,7 +56,8 @@ object Equipe extends SQLSyntaxSupport[Equipe] with Settings {
           left join usuario u on e.id_equipe  = u.id_equipe
           left join usuario u2 on e.id_lider = u2.id_usuario
           where e.id_equipe = ${idEquipe}
-      """.map { rs => (rs.int("id_equipe"), rs.string("nome_equipe"), rs.stringOpt("nomeUsuario"), rs.int("quantUsuario")) }.list().apply()
+      """.map { rs => (rs.int("id_equipe"), rs.string("nome_equipe"), rs.stringOpt("nomeUsuario"), rs.int("quantUsuario"))
+    }.single().apply()
 
   def findEquipeById(idEquipe: Long)(implicit sesession: DBSession = AutoSession): Option[Equipe] = withSQL {
     select.from(Equipe as e).where.eq(e.idEquipe, idEquipe)

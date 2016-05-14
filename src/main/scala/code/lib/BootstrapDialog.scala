@@ -159,6 +159,36 @@ trait Bootstrap3DlgTpl extends BootstrapDialog with StructuredBootstrapDialog {
 
 }
 
+trait Bootstrap3DlgTplLg extends BootstrapDialog with StructuredBootstrapDialog {
+
+  override protected def formContent = {
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        {header match {
+        case Full(headSeq) =>
+          <div class="modal-header">
+            {closeX}
+            {headSeq}
+          </div>
+        case _ => NodeSeq.Empty
+      }}
+        <div class="modal-body">
+          {body}
+        </div>
+        {footer match {
+        case Full(footSeq) =>
+          <div class="modal-footer">
+            {footSeq}
+          </div>
+        case _ => NodeSeq.Empty
+      }}
+      </div>
+    </div>
+  }
+
+}
+
+
 trait DialogHelpers extends BootstrapDialog {
 
   def genFooter(okTitle: String, okFunc: Box[()=>JsCmd], cancelTitle: String, cancelFunc: Box[()=>JsCmd]): NodeSeq = {
@@ -209,6 +239,11 @@ class Bs3InfoDialog(title: String, override val body: NodeSeq) extends Structure
   override val footer = Full(<button class="btn btn-default" aria-hidden="true" data-dismiss="modal">Close</button>)
 }
 
+class Bs3InfoDialogLg(title: String, override val body: NodeSeq) extends StructuredBootstrapDialog with Bootstrap3DlgTplLg {
+  override val header = Full(<h3>{title}</h3>)
+  override val footer = Full(<button class="btn btn-default" aria-hidden="true" data-dismiss="modal">Close</button>)
+}
+
 object ConfirmDialog {
   def apply(title: String, body: NodeSeq, okFunc: ()=>JsCmd, options: (String, JsExp)*) =
     new ConfirmDialog(Full(<h3>{title}</h3>), body, S ? "liftmodule-widgets-ok", Full(okFunc), S ? "liftmodule-widgets-cancel", Empty, options: _*)
@@ -237,6 +272,24 @@ object Bs3ConfirmDialog {
 
 class Bs3ConfirmDialog(override val header: Box[NodeSeq], override val body: NodeSeq, okTitle: String, okFunc: Box[()=>JsCmd], cancelTitle: String, cancelFunc: Box[()=>JsCmd], override val options: (String, JsExp)*)
   extends StructuredBootstrapDialog with Bootstrap3DlgTpl with DialogHelpers {
+  override val footer = Full(genFooter(okTitle, okFunc, cancelTitle, cancelFunc))
+  override protected def onCloseFunc(): Box[()=>JsCmd] = cancelFunc
+}
+
+object Bs3ConfirmDialogLg {
+  def apply(title: String, body: NodeSeq, okFunc: ()=>JsCmd, options: (String, JsExp)*) = {
+    val options2: Seq[(String, JsExp)] = List(("cancelClass" -> "btn-default"), ("okClass" -> "btn-default"))
+    new Bs3ConfirmDialogLg(Full(<h3>{title}</h3>), body, S ? "liftmodule-widgets-ok", Full(okFunc), S ? "liftmodule-widgets-cancel", Empty, (options2 ++ options): _*)
+  }
+
+  def apply(title: String, body: NodeSeq, okFunc: ()=>JsCmd, cancelFunc: ()=>JsCmd, options: (String, JsExp)*) = {
+    val options2: Seq[(String, JsExp)] = List(("cancelClass" -> "btn-default"), ("okClass" -> "btn-default"))
+    new Bs3ConfirmDialogLg(Full(<h3>{title}</h3>), body, S ? "liftmodule-widgets-ok", Full(okFunc), S ? "liftmodule-widgets-cancel", Full(cancelFunc), (options2 ++ options): _*)
+  }
+}
+
+class Bs3ConfirmDialogLg(override val header: Box[NodeSeq], override val body: NodeSeq, okTitle: String, okFunc: Box[()=>JsCmd], cancelTitle: String, cancelFunc: Box[()=>JsCmd], override val options: (String, JsExp)*)
+  extends StructuredBootstrapDialog with Bootstrap3DlgTplLg with DialogHelpers {
   override val footer = Full(genFooter(okTitle, okFunc, cancelTitle, cancelFunc))
   override protected def onCloseFunc(): Box[()=>JsCmd] = cancelFunc
 }

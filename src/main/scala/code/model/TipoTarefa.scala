@@ -51,8 +51,13 @@ object TipoTarefa extends SQLSyntaxSupport[TipoTarefa] with Settings {
   }
 
   def findAll()(implicit session: DBSession = AutoSession): List[TipoTarefa] = withSQL {
-      select.from(TipoTarefa as tt).orderBy(tt.idTipoTarefa)
+      select.from(TipoTarefa as tt).where.isNull(tt.deletedAt).orderBy(tt.idTipoTarefa)
   }.map(TipoTarefa(tt)).list().apply()
+
+  def findAllTipoTarefaLista()(implicit session: DBSession = AutoSession): List[(Int, String)] = withSQL {
+    select(tt.idTipoTarefa, tt.nomeTipoTarefa).from(TipoTarefa as tt).where.isNull(tt.deletedAt).orderBy(tt.idTipoTarefa)
+  }.map{rs => (rs.int(1), rs.string(2))}.list().apply()
+
 
   def create(nomeTipoTarefa: String, estimativa: Option[Time], foraUso: Boolean, createdAt: DateTime)(implicit session: DBSession = AutoSession): TipoTarefa ={
 
