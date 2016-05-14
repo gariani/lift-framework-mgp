@@ -62,6 +62,10 @@ object Usuario extends SQLSyntaxSupport[Usuario] with Settings {
     select(u.email).from(Usuario as u).where.eq(u.email, email).and.isNull(u.deletedAt)
   }.map(_.string(u.email)).single().apply()
 
+  def findIdByEmail(email: String)(implicit session: DBSession = AutoSession): Option[Long] = withSQL {
+    select(u.idUsuario).from(Usuario as u).where.eq(u.email, email).and.isNull(u.deletedAt)
+  }.map{ rs => (rs.long(1))}.single().apply()
+
   def findByEmail(email: String)(implicit session: DBSession = AutoSession): Option[Usuario] = withSQL {
     select.from(Usuario as u).where.eq(u.email, email).and.isNull(u.deletedAt)
   }.map(Usuario(u)).single().apply()

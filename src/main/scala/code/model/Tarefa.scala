@@ -15,6 +15,7 @@ case class Tarefa(idTarefa: Long,
                   idUsuarioResponsavel: Long,
                   nomeTarefa: String,
                   descricao: Option[String],
+                  idTipoTarefa: Option[Long],
                   idStatusTarefa: Option[Long],
                   esforco: Option[DateTime],
                   dtInicioTarefa: Option[DateTime],
@@ -36,8 +37,8 @@ object Tarefa extends SQLSyntaxSupport[Tarefa] with Settings {
 
   override val tableName = "tarefa"
 
-  override val columns = Seq("id_tarefa", "id_usuario_responsavel", "nome_tarefa", "descricao", "id_tipo_tarefa", "esforco",
-    "dt_inicio_tarefa", "dt_final_tarefa", "created_by", "created_at", "deleted_at")
+  override val columns = Seq("id_tarefa", "id_usuario_responsavel", "nome_tarefa", "descricao", "id_tipo_tarefa", "id_status_tarefa", "esforco",
+    "dt_inicio_tarefa", "dt_final_tarefa", "id_created_by", "created_at", "deleted_at")
 
   def apply(t: SyntaxProvider[Tarefa])(rs: WrappedResultSet): Tarefa = apply(t.resultName)(rs)
 
@@ -46,6 +47,7 @@ object Tarefa extends SQLSyntaxSupport[Tarefa] with Settings {
     idUsuarioResponsavel = rs.long(t.idUsuarioResponsavel),
     nomeTarefa = rs.string(t.nomeTarefa),
     descricao = rs.stringOpt(t.descricao),
+    idTipoTarefa = rs.longOpt(t.idTipoTarefa),
     idStatusTarefa = rs.longOpt(t.idStatusTarefa),
     esforco = rs.jodaDateTimeOpt(t.esforco),
     dtInicioTarefa = rs.jodaDateTimeOpt(t.dtInicioTarefa),
@@ -67,10 +69,10 @@ object Tarefa extends SQLSyntaxSupport[Tarefa] with Settings {
     select.from(Tarefa as t).orderBy(t.idTarefa)
   }.map(Tarefa(t)).list().apply()
 
-  def create(idTarefa: Long,
-             idUsuarioResponsavel: Long,
+  def create(idUsuarioResponsavel: Long,
              nomeTarefa: String,
              descricao: Option[String],
+             idTipoTarefa: Option[Long],
              idStatusTarefa: Option[Long],
              esforco: Option[DateTime],
              dtInicioTarefa: Option[DateTime],
@@ -84,6 +86,7 @@ object Tarefa extends SQLSyntaxSupport[Tarefa] with Settings {
         column.idUsuarioResponsavel -> idUsuarioResponsavel,
         column.nomeTarefa -> nomeTarefa,
         column.descricao -> descricao,
+        column.idTipoTarefa -> idTipoTarefa,
         column.idStatusTarefa -> idStatusTarefa,
         column.esforco -> esforco,
         column.dtInicioTarefa -> dtInicioTarefa,
@@ -98,6 +101,7 @@ object Tarefa extends SQLSyntaxSupport[Tarefa] with Settings {
       idUsuarioResponsavel = idUsuarioResponsavel,
       nomeTarefa = nomeTarefa,
       descricao = descricao,
+      idTipoTarefa = idTipoTarefa,
       idStatusTarefa = idStatusTarefa,
       esforco = esforco,
       dtInicioTarefa = dtInicioTarefa,
@@ -106,7 +110,6 @@ object Tarefa extends SQLSyntaxSupport[Tarefa] with Settings {
       createdAt = createdAt,
       None
     )
-
   }
 
   def save(t: Tarefa)(implicit session: DBSession = AutoSession): Tarefa = {

@@ -1,14 +1,42 @@
 <div>
-    <header>
+
+    <head>
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+        <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+        <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    </head>
+
+    <div id="dialog-form" title="Create new user">
+        <p class="validateTips">All form fields are required.</p>
+
+        <form>
+            <fieldset>
+                <label for="name">Name</label>
+                <input type="text" name="name" id="name" value="Jane Smith"
+                       class="text ui-widget-content ui-corner-all">
+                <label for="email">Email</label>
+                <input type="text" name="email" id="email" value="jane@smith.com"
+                       class="text ui-widget-content ui-corner-all">
+                <label for="password">Password</label>
+                <input type="password" name="password" id="password" value="xxxxxxx"
+                       class="text ui-widget-content ui-corner-all">
+
+                <!-- Allow form submission with keyboard without duplicating the dialog button -->
+                <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+            </fieldset>
+        </form>
+    </div>
+</div>
+
+<!--    <head>
         <script type="text/javascript" src="/js/ckeditor/ckeditor.js"></script>
         <script type="text/javascript" src="/js/ckeditor/sample.js"></script>
-        <link type="text/css" href="/js/ckeditor/sample.css" rel="stylesheet"/>
-    </header>
+    </head>
 
 
     <div class="lift:STarefa.novaTarefa">
         <span id="mensagem"></span>
-        <form class="lift:form.ajax" role="form" method="post">
+        <form class="lift:form.ajax?class=modal-form" role="form" method="post">
             <fieldset>
                 <div class="row">
                     <div class="col-md-12 form-group">
@@ -44,16 +72,17 @@
                 </div>
                 <br/>
                 <div>
-                    <div class="lift:Teste">
-                            <label style="color: white; "><h2>Descrição....</h2></label>
-                            <textarea id="bodyText" style="height:90%; width: 89%;">mmmmmm</textarea>
-                            <script type="text/javascript">
-                                //<![CDATA[
-                                CKEDITOR.replace('bodyText');
-                                //]]>
-                            </script>
-                            <br/>
-                    </div>
+                    <label style="color: white; "><h2>Descrição....</h2></label>
+                    <textarea id="bodyText" style="height:90%; width: 89%;"></textarea>
+                    <script type="text/javascript">
+                        //<![CDATA[
+                        var instance = CKEDITOR.instances['bodyText'];
+                        if (instance) {
+                            instance.destroy(true);
+                        }
+                        CKEDITOR.replace('bodyText');
+                        //]]>
+                    </script>
                     <br/>
                     <div class="row">
                         <span id="anexarArquivo"></span>
@@ -65,4 +94,5 @@
             <button id="cadastrar" class="btn btn-default">Cadastrar</button>
         </form>
     </div>
+    -->
 </div>

@@ -29,7 +29,7 @@ object Util {
   }
 
   def mensagemSucesso(msg: String): NodeSeq = {
-    <div id="sucessoaMensagem" class="alert alert-success alert-dismissible fade in" role="alert">
+    <div id="sucessoMensagem" class="alert alert-success alert-dismissible fade in" role="alert">
       <button type="button" class="close" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">
           &times;
