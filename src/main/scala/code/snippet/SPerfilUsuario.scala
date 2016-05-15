@@ -12,10 +12,11 @@ import net.liftweb.http._
 import net.liftweb.http.SHtml.ajaxSubmit
 import net.liftweb.http.js.JsCmds.SetHtml
 import net.liftweb.http.js.{JsCmds, JsCmd}
+import net.liftweb.util.Helpers
 import org.joda.time.{DateTime}
 import scala.xml.{Text, NodeSeq}
 import net.liftweb._
-import util.Helpers._
+import Helpers._
 import code.lib.Util._
 
 /**

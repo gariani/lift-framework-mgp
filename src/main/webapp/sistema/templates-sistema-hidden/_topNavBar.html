@@ -12,43 +12,45 @@
         </div>
         <!-- /.navbar-header -->
 
-        <span class="lift:STarefa.adicionarNovaTarefa">
-            <ul class="nav navbar-top-links navbar-right">
-                <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                        <i class="fa fa-tasks fa-fw"></i> <i class="fa fa-caret-down"></i>
-                    </a>
-                    <ul class="dropdown-menu dropdown-navicon">
-                        <li>
-                            <span id="adicionarNovaTarefa"></span>
-                        </li>
-                    </ul>
-                    <!-- /.dropdown-tasks -->
-                </li>
-                <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                        <i class="fa fa-envelope fa-fw"></i> <i class="fa fa-caret-down"></i>
-                    </a>
-                    <ul class="dropdown-menu dropdown-messages">
+        <ul class="nav navbar-top-links navbar-right">
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="fa fa-tasks fa-fw"></i> <i class="fa fa-caret-down"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-navicon">
+                    <li>
+                        <span class="lift:STarefa.adicionarNovaTarefa">
+                            <span id="menuNovaTarefa"></span>
+                            <div class="lift:embed?what=/sistema/tarefa/tarefa-hidden/_modal_nova_tarefa"></div>
+                        </span>
+                    </li>
+                </ul>
+                <!-- /.dropdown-tasks -->
+            </li>
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="fa fa-envelope fa-fw"></i> <i class="fa fa-caret-down"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-messages">
 
-                    </ul>
-                    <!-- /.dropdown-messages -->
-                </li>
-                <!-- /.dropdown -->
-                <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                        <i class="fa fa-bell fa-fw"></i> <i class="fa fa-caret-down"></i>
-                    </a>
-                    <ul class="dropdown-menu dropdown-alerts">
+                </ul>
+                <!-- /.dropdown-messages -->
+            </li>
+            <!-- /.dropdown -->
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="fa fa-bell fa-fw"></i> <i class="fa fa-caret-down"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-alerts">
 
-                    </ul>
-                    <!-- /.dropdown-alerts -->
-                </li>
+                </ul>
+                <!-- /.dropdown-alerts -->
+            </li>
                 <span>
                     <div class="lift:embed?what=/sistema/templates-sistema-hidden/_menuDropDownUsuario"></div>
                 </span>
-            </ul>
-        </span>
+        </ul>
+
         <!-- /.navbar-top-links -->
 
         <!-- /.navbar-static-side -->

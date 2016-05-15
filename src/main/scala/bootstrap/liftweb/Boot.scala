@@ -69,12 +69,10 @@ class Boot extends Loggable {
 
 object Site {
 
-
-  val home = Menu.i("Home") / "sistema" / "index"
   val login = Menu("Login") / "index"
+  val projeto = Menu("Projeto") / "sistema" / "projeto" / "projeto"
   val tarefas = Menu.i("Tarefa") / "sistema" / "tarefa" / "tarefa"
   val perfil = Menu(Loc("perfil", Link(List("sistema", "usuario", "perfil", "perfil"), true, "/sistema/usuario/perfil/perfil"), Text("Perfil")))
-  val projeto = Menu("Projeto") / "sistema" / "projeto" / "projeto"
   val teste = Menu.i("Teste") / "sistema" / "teste"
   var admin = Menu("Administrador") / "sistema" / "administrador" submenus(
     Menu.i("Usuários") / "sistema" / "usuario" / "configuracao" / "configuracao_usuario" submenus (
@@ -94,7 +92,6 @@ object Site {
 
 
   def siteMap = SiteMap(
-    home, //>> If( () => SessionState.estaLogado, RedirectResponse("/")),
     login,
     tarefas, // If( () => SessionState.estaLogado, RedirectResponse("/")),
     perfil, //>> If( () => SessionState.estaLogado, RedirectResponse("/")),

@@ -1,45 +1,50 @@
 package code.snippet
 
-import code.comet.{Excluir, ItemsServer}
-import code.model.Usuario
-import code.view.{DataTableParams, DataTableObjectSource, DataTable}
-import net.liftweb.common.Box
-import net.liftweb.http.js.{JE, JsCmd, JsCmds}
-import net.liftweb.http._
-import net.liftweb.util.Helpers._
-import code.util.{Droppable, Draggable, DragDrop}
-import code.model._
-import scala.xml.NodeSeq
 
-import scala.xml.{NodeSeq, _}
+import net.liftweb._
+import net.liftweb.json.JValue
+import json._
+import scala.xml._
+import net.liftweb.json.JsonDSL._
+import net.liftweb._
+import net.liftweb.http.{S, SHtml, StatefulSnippet}
+import net.liftweb.http.js.{JsCmds, JsCmd}
+import net.liftweb.http.js.JsCmds._
+import net.liftweb.http.js.JE._
+import net.liftweb.util.Helpers._
+
+import net.liftmodules.extras._
 
 class Teste extends StatefulSnippet {
 
+  private var texto: String = ""
+  private var error: String = "teste"
+
+  val koModule = KoModule("app.views.notice.Teste", "forms-test-ajax")
+
+
   def dispatch = {
     case "render" => render
+    case "resultado" => resultado
   }
 
-  def render = {
+  def render(in: NodeSeq): NodeSeq = {
 
-    var titleText = ""
-    var bodyText = ""
+    val opts: JValue = ("alertid" -> "texto")
+    val bindNoticeId = Call("$('#ajaxerr').bsFormAlerts", opts)
 
-    "#titleText" #> SHtml.ajaxText(titleText, (a: String) => {
-      titleText = a;
-      JsCmds.Noop
-    }) &
-      "#bodyText" #> SHtml.ajaxTextarea(bodyText, (a: String) => {
-        bodyText = a;
-        JsCmds.Noop
-      }) &
-      "#submit [onclick]" #> SHtml.ajaxCall(JE.JsRaw("CKEDITOR.instances.bodyText.getData()"),
-        (x: String) => {
-          bodyText = x;
-          println(
-            "titleText=" + titleText + "\n" +
-              "bodyText=" + bodyText + "\n"
-          );
-        }
-      )
+    S.appendJs(koModule.init() & bindNoticeId)
+
+    "#texto" #> SHtml.ajaxText(texto, (s) => texto = s) &
+      "#cadastrar" #> SHtml.ajaxSubmit("Cadastrar", () => process)
+  }.apply(in)
+
+  def process: JsCmd = {
+    S.error("ajaxerr", error + " (ajaxerr)")
   }
+
+  def resultado = {
+    "#result" #> Text(texto)
+  }
+
 }

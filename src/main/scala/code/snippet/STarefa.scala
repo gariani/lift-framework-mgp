@@ -32,23 +32,17 @@ class STarefa extends StatefulSnippet with Logger {
   private var idStatusTarefa: String = ""
   private var esforco: Option[DateTime] = None
 
+
   def dispatch = {
     case "adicionarNovaTarefa" => adicionarNovaTarefa
     case "render" => render
     case "novaTarefa" => novaTarefa
+    case "editarDetalheTarefa" => editarDetalheTarefa
   }
 
-/*  def adicionarNovaTarefa = {
-    "#adicionarNovaTarefa" #> SHtml.a(
-      () => S.runTemplate("sistema" :: "tarefa" :: "tarefa-hidden" :: "_modal_nova_tarefa" :: Nil)
-        .map(ns => ModalDialog(ns)) openOr Alert("error"),
-      Text("Nova Tarefa"), "class" -> "fa fa-tasks")
-  }*/
-
-
   def adicionarNovaTarefa = {
-    "#newlocation" #> SHtml.ajaxButton(Text("Teste"),
-      () =>  { JsRaw("$( \"#dialog-form\" ).dialog( \"open\" )").cmd}, "class" -> "fa fa-tasks")
+    "#menuNovaTarefa" #> SHtml.a(
+      () =>  { JsRaw("$( \"#dialog-form\" ).dialog( \"open\" )").cmd}, Text("Nova Tarefa"), "class" -> "fa fa-tasks")
   }
 
   def render(node: NodeSeq): NodeSeq = {
@@ -63,19 +57,11 @@ class STarefa extends StatefulSnippet with Logger {
         "data-placeholder" -> "Selecione tipo de tarefa...") &
       "#cliente_projeto" #> SHtml.ajaxSelect(selecionarClienteProjeto, Empty, (s) => idCliente = s.toLong, "class" -> "form-control",
         "data-placeholder" -> "Selecione o cliente...") &
-      "#cadastrar [onclick]" #> SHtml.ajaxCall(JE.JsRaw("CKEDITOR.instances.bodyText.getData()"), (desc) => salvarNovaTarefa(desc))
+      "#cadastrarTarefa [onclick]" #> SHtml.ajaxCall(JE.JsRaw("CKEDITOR.instances.bodyText.getData()"), (desc) => salvarNovaTarefa(desc))
   }
 
-  private def criarNovaTarefa = {
-    val node = S.runTemplate("sistema" :: "tarefa" :: "tarefa-hidden" :: "_modal_nova_tarefa" :: Nil)
-      .map(ns => ModalDialog(ns)) openOr Alert("error")
-    /*node match {
-      case Full(nd) => {
-        /*var dialog = new */ Bs3ConfirmDialogLg("Incluir nova tarefa", nd, () => JsCmds.Noop)
-        //dialog
-      }
-      case Empty => JsCmds.Noop
-    }*/
+  def editarDetalheTarefa = {
+
   }
 
   private def salvarNovaTarefa(desc: String): JsCmd = {

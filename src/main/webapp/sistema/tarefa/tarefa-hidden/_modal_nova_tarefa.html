@@ -1,42 +1,22 @@
-<div>
+<div id="dialog-form" title="Criar uma nova tarefa">
+    <div class="lift:STarefa">
+        <head>
+            <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+            <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+            <script type="text/javascript" src="/js/ckeditor/ckeditor.js"></script>
+            <script type="text/javascript" src="/js/ckeditor/sample.js"></script>
 
-    <head>
-        <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
-        <script src="//code.jquery.com/jquery-1.10.2.js"></script>
-        <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
-    </head>
+            <style>
+                .fixed-dialog{
+                    position: fixed;
+                    top: 50px;
+                    left: 50px;
+                }
+            </style>
 
-    <div id="dialog-form" title="Create new user">
-        <p class="validateTips">All form fields are required.</p>
+        </head>
 
-        <form>
-            <fieldset>
-                <label for="name">Name</label>
-                <input type="text" name="name" id="name" value="Jane Smith"
-                       class="text ui-widget-content ui-corner-all">
-                <label for="email">Email</label>
-                <input type="text" name="email" id="email" value="jane@smith.com"
-                       class="text ui-widget-content ui-corner-all">
-                <label for="password">Password</label>
-                <input type="password" name="password" id="password" value="xxxxxxx"
-                       class="text ui-widget-content ui-corner-all">
-
-                <!-- Allow form submission with keyboard without duplicating the dialog button -->
-                <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
-            </fieldset>
-        </form>
-    </div>
-</div>
-
-<!--    <head>
-        <script type="text/javascript" src="/js/ckeditor/ckeditor.js"></script>
-        <script type="text/javascript" src="/js/ckeditor/sample.js"></script>
-    </head>
-
-
-    <div class="lift:STarefa.novaTarefa">
-        <span id="mensagem"></span>
-        <form class="lift:form.ajax?class=modal-form" role="form" method="post">
+        <form class="lift:STarefa.novaTarefa?form=post;eager_eval=true" role="form" method="post">
             <fieldset>
                 <div class="row">
                     <div class="col-md-12 form-group">
@@ -90,9 +70,36 @@
                         <span id="checklist"></span>
                     </div>
                 </div>
+
+                <button id="cadastrarTarefa">Cadastrar</button>
             </fieldset>
-            <button id="cadastrar" class="btn btn-default">Cadastrar</button>
         </form>
+
+        <script type="text/javascript">
+            $(function () {
+                var dialog, form
+
+                dialog = $("#dialog-form")
+                        .dialog({
+                            autoOpen: false,
+                            height: 750,
+                            width: 800,
+                            modal: true,
+                            dialogClass: 'fixed-dialog',
+                            buttons: {
+                                Cancel: function () {
+                                    dialog.dialog("close");
+                                }
+                            },
+                            close: function () {
+                                form[0].reset();
+                            }
+                        });
+                form = dialog.find("form").on("submit", function (event) {
+                    event.preventDefault();
+                });
+            });
+        </script>
+
     </div>
-    -->
 </div>
