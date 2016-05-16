@@ -12,12 +12,13 @@ import scalikejdbc._
   */
 
 case class Tarefa(idTarefa: Long,
+                  idProjeto: Option[Long],
                   idUsuarioResponsavel: Long,
                   nomeTarefa: String,
                   descricao: Option[String],
                   idTipoTarefa: Option[Long],
                   idStatusTarefa: Option[Long],
-                  esforco: Option[DateTime],
+                  esforco: Option[Time],
                   dtInicioTarefa: Option[DateTime],
                   dtFinalTarefa: Option[DateTime],
                   idCreatedBy: Long,
@@ -37,19 +38,20 @@ object Tarefa extends SQLSyntaxSupport[Tarefa] with Settings {
 
   override val tableName = "tarefa"
 
-  override val columns = Seq("id_tarefa", "id_usuario_responsavel", "nome_tarefa", "descricao", "id_tipo_tarefa", "id_status_tarefa", "esforco",
+  override val columns = Seq("id_tarefa", "id_projeto", "id_usuario_responsavel", "nome_tarefa", "descricao", "id_tipo_tarefa", "id_status_tarefa", "esforco",
     "dt_inicio_tarefa", "dt_final_tarefa", "id_created_by", "created_at", "deleted_at")
 
   def apply(t: SyntaxProvider[Tarefa])(rs: WrappedResultSet): Tarefa = apply(t.resultName)(rs)
 
   def apply(t: ResultName[Tarefa])(rs: WrappedResultSet): Tarefa = new Tarefa(
     idTarefa = rs.long(t.idTarefa),
+    idProjeto = rs.longOpt(t.idProjeto),
     idUsuarioResponsavel = rs.long(t.idUsuarioResponsavel),
     nomeTarefa = rs.string(t.nomeTarefa),
     descricao = rs.stringOpt(t.descricao),
     idTipoTarefa = rs.longOpt(t.idTipoTarefa),
     idStatusTarefa = rs.longOpt(t.idStatusTarefa),
-    esforco = rs.jodaDateTimeOpt(t.esforco),
+    esforco = rs.timeOpt(t.esforco),
     dtInicioTarefa = rs.jodaDateTimeOpt(t.dtInicioTarefa),
     dtFinalTarefa = rs.jodaDateTimeOpt(t.dtFinalTarefa),
     idCreatedBy = rs.long(t.idCreatedBy),
@@ -69,12 +71,55 @@ object Tarefa extends SQLSyntaxSupport[Tarefa] with Settings {
     select.from(Tarefa as t).orderBy(t.idTarefa)
   }.map(Tarefa(t)).list().apply()
 
-  def create(idUsuarioResponsavel: Long,
+  def findAllDetalhe()(implicit session: DBSession = AutoSession) =
+    sql"""select
+       t.id_tarefa,
+       t.id_projeto,
+       t.id_status_tarefa,
+       t.id_usuario_responsavel,
+       t.id_created_by,
+       t.descricao,
+       t.id_tipo_tarefa,
+       t.esforco,
+       t.dt_inicio_tarefa,
+       t.dt_final_tarefa,
+       t.nome_tarefa,
+       t.created_at,
+       s.nome_status_tarefa,
+       u.nome as nome_usuario,
+       p.nome_projeto
+       from tarefa t
+       left join tipo_tarefa tt on t.id_tipo_tarefa = tt.id_tipo_tarefa
+       left join status_tarefa s on t.id_status_tarefa = s.id_status_tarefa
+       left join usuario u on t.id_usuario_responsavel = u.id_usuario
+       left join projeto p on p.id_projeto = t.id_projeto
+       left join cliente c on c.id_cliente = p.id_projeto
+       where t.deleted_at is not null
+      """
+      .map { rs => (rs.long("id_tarefa"),
+        rs.stringOpt("id_projeto"),
+        rs.longOpt("id_status_tarefa"),
+        rs.longOpt("id_usuario_responsavel"),
+        rs.longOpt("id_created_by"),
+        rs.stringOpt("descricao"),
+        rs.stringOpt("id_tipo_tarefa"),
+        rs.timeOpt("esforco"),
+        rs.jodaDateTimeOpt("dt_inicio_tarefa"),
+        rs.jodaDateTimeOpt("dt_final_tarefa"),
+        rs.stringOpt("nome_tarefa"),
+        rs.stringOpt("created_at"),
+        rs.stringOpt("nome_status_tarefa"),
+        rs.stringOpt("nome_usuario"),
+        rs.stringOpt("nome_projeto"))
+      }.list().apply()
+
+  def create(idProjeto: Option[Long],
+             idUsuarioResponsavel: Long,
              nomeTarefa: String,
              descricao: Option[String],
              idTipoTarefa: Option[Long],
              idStatusTarefa: Option[Long],
-             esforco: Option[DateTime],
+             esforco: Option[Time],
              dtInicioTarefa: Option[DateTime],
              dtFinalTarefa: Option[DateTime],
              idCreatedBy: Long,
@@ -83,6 +128,7 @@ object Tarefa extends SQLSyntaxSupport[Tarefa] with Settings {
 
     val id = withSQL {
       insert.into(Tarefa).namedValues(
+        column.idProjeto -> idProjeto,
         column.idUsuarioResponsavel -> idUsuarioResponsavel,
         column.nomeTarefa -> nomeTarefa,
         column.descricao -> descricao,
@@ -98,6 +144,7 @@ object Tarefa extends SQLSyntaxSupport[Tarefa] with Settings {
 
     Tarefa(
       idTarefa = id,
+      idProjeto = idProjeto,
       idUsuarioResponsavel = idUsuarioResponsavel,
       nomeTarefa = nomeTarefa,
       descricao = descricao,
@@ -116,6 +163,7 @@ object Tarefa extends SQLSyntaxSupport[Tarefa] with Settings {
     withSQL {
       update(Tarefa).set(
         Tarefa.column.idTarefa -> t.idTarefa,
+        Tarefa.column.idProjeto -> t.idProjeto,
         Tarefa.column.idUsuarioResponsavel -> t.idUsuarioResponsavel,
         Tarefa.column.nomeTarefa -> t.nomeTarefa,
         Tarefa.column.descricao -> t.descricao,

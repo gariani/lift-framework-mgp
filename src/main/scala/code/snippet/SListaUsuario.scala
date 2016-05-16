@@ -124,9 +124,9 @@ class SListaUsuario extends StatefulSnippet with Logger {
   }
 
   def lista(in: NodeSeq): NodeSeq = {
-    val products = Usuario.findAll()
+    val u = Usuario.findAll()
     listTamplateRVUsuario(in)
-    _rowTemplate(products);
+    _rowTemplate(u);
   }
 
   private def associatedGuid(l: Long): Option[String] = {

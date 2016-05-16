@@ -1,9 +1,11 @@
 package code.snippet
 
 
+import code.lib.{FormDialog, JQueryDialog}
 import net.liftweb._
 import net.liftweb.json.JValue
 import json._
+import net.liftweb.http.{SHtml, TemplateFinder}
 import scala.xml._
 import net.liftweb.json.JsonDSL._
 import net.liftweb._
@@ -15,36 +17,28 @@ import net.liftweb.util.Helpers._
 
 import net.liftmodules.extras._
 
-class Teste extends StatefulSnippet {
-
-  private var texto: String = ""
-  private var error: String = "teste"
-
-  val koModule = KoModule("app.views.notice.Teste", "forms-test-ajax")
 
 
-  def dispatch = {
-    case "render" => render
-    case "resultado" => resultado
+class Teste {
+
+  def dialog(node: NodeSeq): NodeSeq = {
+    FormDialog("/sistema/temp", true, "Cadastrar Tarefa").button("show dialog")
   }
 
-  def render(in: NodeSeq): NodeSeq = {
+  def edit(node: NodeSeq): NodeSeq = {
 
-    val opts: JValue = ("alertid" -> "texto")
-    val bindNoticeId = Call("$('#ajaxerr').bsFormAlerts", opts)
+    def _template: NodeSeq = bind("item",
+      S.runTemplate("sistema" :: "tarefa" :: "tarefa-hidden" :: "_modal_nova_tarefa" :: Nil) openOr
+        <div>{"Cannot find template"}</div>,
+      "name" -> "")
 
-    S.appendJs(koModule.init() & bindNoticeId)
+    val dialog = new FormDialog(true, "Cadastrar Tarefa") {
+      override def getFormContent = _template
+      override def confirmDialog: NodeSeq = SHtml.ajaxSubmit("save",
+        () => {println("");this.closeCmd}) ++ super.confirmDialog
+    }
 
-    "#texto" #> SHtml.ajaxText(texto, (s) => texto = s) &
-      "#cadastrar" #> SHtml.ajaxSubmit("Cadastrar", () => process)
-  }.apply(in)
-
-  def process: JsCmd = {
-    S.error("ajaxerr", error + " (ajaxerr)")
-  }
-
-  def resultado = {
-    "#result" #> Text(texto)
+    dialog.button("Nova Tarefa")
   }
 
 }
