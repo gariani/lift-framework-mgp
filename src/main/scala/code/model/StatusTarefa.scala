@@ -69,6 +69,10 @@ object StatusTarefa extends SQLSyntaxSupport[StatusTarefa] with Settings {
 
   }
 
+  def findListaStatus(implicit session: DBSession = AutoSession) = withSQL {
+    select(st.idStatusTarefa, st.nomeStatusTarefa).from(StatusTarefa as st).where.isNull(st.deletedAt)
+  }.map(rs => (rs.int(1), rs.string(2))).list().apply()
+
   def save(st: StatusTarefa)(implicit session: DBSession = AutoSession): StatusTarefa = {
     withSQL {
       update(StatusTarefa).set(

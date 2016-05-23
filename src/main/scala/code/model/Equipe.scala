@@ -42,21 +42,23 @@ object Equipe extends SQLSyntaxSupport[Equipe] with Settings {
   private val u = Usuario.u
 
   def findAll()(implicit session: DBSession = autoSession) =
-    sql"""select e.id_equipe, e.nome_equipe, u2.nome as nomeUsuario, count(u.id_usuario) as quantUsuario
+    sql"""select e.id_equipe, e.nome_equipe, u2.nome, count(u.id_usuario) as quantUsuario
           from equipe e
           left join usuario u on e.id_equipe  = u.id_equipe
           left join usuario u2 on e.id_lider = u2.id_usuario
+          group by e.id_equipe, e.nome_equipe, u2.nome
       """
-  .map { rs => (rs.int("id_equipe"), rs.string("nome_equipe"), rs.stringOpt("nomeUsuario"), rs.int("quantUsuario"))
+  .map { rs => (rs.int("id_equipe"), rs.string("nome_equipe"), rs.stringOpt(3), rs.int("quantUsuario"))
   }.list().apply()
 
   def findEquipeQuantUsuario(idEquipe: Long)(implicit session: DBSession = autoSession) =
-    sql"""select e.id_equipe, e.nome_equipe, u2.nome as nomeUsuario, count(u.id_usuario) as quantUsuario
+    sql"""select e.id_equipe, e.nome_equipe, u2.nome, count(u.id_usuario) as quantUsuario
           from equipe e
           left join usuario u on e.id_equipe  = u.id_equipe
           left join usuario u2 on e.id_lider = u2.id_usuario
           where e.id_equipe = ${idEquipe}
-      """.map { rs => (rs.int("id_equipe"), rs.string("nome_equipe"), rs.stringOpt("nomeUsuario"), rs.int("quantUsuario"))
+          group by e.id_equipe, e.nome_equipe, u2.nome
+      """.map { rs => (rs.int("id_equipe"), rs.string("nome_equipe"), rs.stringOpt("nome"), rs.int("quantUsuario"))
     }.single().apply()
 
   def findEquipeById(idEquipe: Long)(implicit sesession: DBSession = AutoSession): Option[Equipe] = withSQL {

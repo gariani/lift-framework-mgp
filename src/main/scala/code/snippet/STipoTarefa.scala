@@ -101,7 +101,7 @@ class STipoTarefa extends StatefulSnippet with Logger {
         tipoTarefaRV.set(Some(tt))
 
         _ajaxRenderRow(tt, true, false) &
-        SetHtml("mensageSucesso", mensagemSucesso(Mensagem.DADOS_SALVOS_SUCESSO)) &
+          SetHtml("mensageSucesso", mensagemSucesso(Mensagem.DADOS_SALVOS_SUCESSO)) &
           cancelarNovoTipoTarefa
       }
       catch {
@@ -239,8 +239,12 @@ class STipoTarefa extends StatefulSnippet with Logger {
       _ajaxDelete(tt, guid)
     }
     catch {
-      case e: Exception => {erroExcluirProjeto("Erro ao excluir tipo de tarefa: Existe projetos relacionados.") }
-      case _: Throwable => {erroExcluirProjeto("Erro ao excluir tipo de tarefa: Existe projetos relacionados. Mensagem original: ") }
+      case e: Exception => {
+        erroExcluirProjeto("Erro ao excluir tipo de tarefa: Existe projetos relacionados.")
+      }
+      case _: Throwable => {
+        erroExcluirProjeto("Erro ao excluir tipo de tarefa: Existe projetos relacionados. Mensagem original: ")
+      }
     }
   }
 

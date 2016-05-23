@@ -1,20 +1,23 @@
 package code.snippet
 
+import java.sql.Time
 import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
 import java.util.logging.SimpleFormatter
 import javax.mail.Session
 
 import code.lib.FormDialog
 import code.lib.Util._
 import code.lib.session.SessionState
-import code.model.{TipoTarefa, Usuario, Tarefa, Cliente}
+import code.model._
 import net.liftmodules.validate.Validators._
 import net.liftmodules.validate.global._
 import net.liftmodules.widgets.bootstrap.{Bs3InfoDialogLg, Bs3InfoDialog, Bs3ConfirmDialogLg, Bs3ConfirmDialog}
 import net.liftweb.common.{Box, Empty, Full, Logger}
 import net.liftweb.http.Html5ElemAttr.Placeholder
-import net.liftweb.http.js.JE.JsRaw
-import net.liftweb.http.js.JsCmds.{Run, Alert, SetHtml}
+import net.liftweb.http.js.JE._
+import net.liftweb.http.js.JsCmds.{Script, Run, Alert, SetHtml}
+import net.liftweb.http.js.jquery.{JqJE, JqJsCmds}
 import net.liftweb.http.js.jquery.JqJsCmds.{DisplayMessage, ModalDialog}
 import net.liftweb.http.js.{JE, JsCmd, JsCmds}
 import net.liftweb.http.{RequestVar, S, StatefulSnippet, SHtml}
@@ -22,6 +25,7 @@ import net.liftweb.util
 import net.liftweb.util.CssSelectorParser.Elem
 import net.liftweb.util.Helpers
 import org.joda.time.DateTime
+import org.joda.time.format.{DateTimeFormat, ISODateTimeFormat}
 import util.Helpers._
 
 import scala.xml.{UnprefixedAttribute, Null, Text, NodeSeq}
@@ -44,7 +48,9 @@ class STarefa extends StatefulSnippet with Logger {
   private var idTipoTarefa: Long = 0
   private var idStatusTarefa: String = ""
   //private var esforco: Option[DateTime] = None
+  private var statusTarefa: String = ""
   private var esforco: String = ""
+  private var datap: String = ""
 
   def dispatch = {
     case "render" => render
@@ -90,13 +96,8 @@ class STarefa extends StatefulSnippet with Logger {
       "#descricao" #> SHtml.ajaxTextarea(descricao, (d) => descricao = d, "class" -> "form-control", "placeholder" -> "descreva a tarefa...")
   }
 
-  /*def editarDetalheTarefa = {
-
-  }*/
-
   private def salvarNovaTarefa(fechar: JsCmd): JsCmd = {
     if (nomeTarefa.isEmpty) {
-      //SetHtml("mensagem", mensagemErro(Mensagem.MIN))
       S.error("teste")
     }
     else if (idUsuarioResponsavel.toString.isEmpty) {
@@ -118,6 +119,7 @@ class STarefa extends StatefulSnippet with Logger {
             nomeTarefa,
             Some(descricao),
             Some(idTipoTarefa),
+            None,
             None,
             None,
             None,
@@ -148,31 +150,149 @@ class STarefa extends StatefulSnippet with Logger {
   //private def pegarTemplate:
 
   def mostrarTarefa(nodeSeq: NodeSeq): NodeSeq = {
-    S.appendJs(dataDesejada)
+    funcao
+
+    gerarListaStatus
+
     var temp: NodeSeq = NodeSeq.Empty
     temp = S.runTemplate("sistema" :: "tarefa" :: "tarefa-hidden" :: "_item" :: Nil).openOr(<div>
-      {"Cannot find template"}
+      {"Template não encontrado"}
     </div>)
-    var tarefas = Tarefa.findAll()
+
+    var tarefas = Tarefa.findAllDetalhe()
     val cssSel =
       "#items" #> tarefas.map(t => {
-        val guid = associatedGuid(t.idTarefa).get
+        val guid = associatedGuid(t._1).get
+
+        val dtDesejada = formatarData(t._10)
+
+        val dtEntrega = formatarData(t._11)
+
+        val nmCliente = t._17 match {
+          case Some(c) => c
+          case None => ""
+        }
+
+        val nmProjeto = t._16 match {
+          case Some(p) => p
+          case None => ""
+        }
+
+        statusTarefa = t._14 match {
+          case Some(s) => s
+          case None => ""
+        }
+
+        val estimativa = t._8 match {
+          case Some(e) => e
+          case None => ""
+        }
+
+        val nomeTarefa = t._12
+
         "#items [id]" #> (guid) &
-          "#nomeTarefa" #> SHtml.link("#", () => JsCmds.Noop, Text(t.nomeTarefa)) &
-          "#dataDesejada" #> SHtml.ajaxText("", (s) => JsCmds.Noop, "type" -> "date") &
-          "#esforcoEstimado" #> SHtml.ajaxText("", (s) => JsCmds.Noop, "type" -> "text", "style" -> "width=10px") &
-          "#dtEntrega" #> SHtml.ajaxText("", (s) => Alert(s), "type" -> "date") &
-          "#status" #> SHtml.ajaxEditable(Text("Status :" + retornarEstimativa(t.esforco)),
-            SHtml.text(retornarEstimativa(t.esforco), esforco = _),
-            () => JsCmds.Noop)
+          "#nomeTarefa" #> SHtml.a(Text(nomeTarefa), JsCmds.Noop, ("data-pk" -> t._1.toString)) &
+          "#cliente_projeto" #> SHtml.a(Text(nmCliente + " -> " + nmProjeto), JsCmds.Noop, ("data-pk" -> t._1.toString)) &
+          ".dtDesejada" #> SHtml.a(Text(dtDesejada), JsCmds.Noop, ("data-pk" -> t._1.toString)) &
+          ".esforcoEstimado" #> SHtml.a(Text(estimativa), JsCmds.Noop, ("data-pk" -> t._1.toString)) &
+          ".dtEntrega" #> SHtml.a(Text(dtEntrega), JsCmds.Noop, ("data-pk" -> t._1.toString)) &
+          ".staus" #> SHtml.a(Text(statusTarefa), JsCmds.Noop, ("data-pk" -> t._1.toString))
       })
     cssSel.apply(temp)
   }
 
-  val dataDesejada =
-    Run("$('#dataDesejada').datepicker({dateFormat:'yy-MM-dd'});" +
-      "$('#dtEntrega').datepicker({dateFormat:'yy-MM-dd'});" +
-      "$('#esforcoEstimado').datetimepicker({format: 'HH:mm'});")
+  def formatarData(data: Option[org.joda.time.DateTime]) = {
+
+    val dt = data match {
+      case Some(d) => d
+      case None => ""
+    }
+
+    var outputFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm")
+    var inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+
+    var inputText = dt.toString
+    var date = inputFormat.parse(inputText)
+    var outputText = outputFormat.format(date)
+    outputText
+  }
+
+  def funcao = {
+    S.appendJs(Seq(JsRaw(
+      """
+        |$.fn.editable.defaults.mode = 'popup';
+        |$('.dtDesejada').editable({
+        | combodate: {
+        |   minYear: 2016,
+        |   maxYear: 2018
+        |   },
+        | type: 'combodate',
+        | format: 'YYYY-MM-DD HH:mm',
+        | viewformat: 'DD/MM/YYYY HH:mm',
+        | template: 'DD / MM / YYYY     HH : mm',
+        | emptytext: 'Não informado',
+        | url: '/sistema/api/tarefa/dtDesejada',
+        | title: 'Data desejada'
+        |});
+        | """.stripMargin).cmd,
+      JsRaw(
+        """
+          |$('.esforcoEstimado')
+          |.on('shown', function() { $(this).data('editable').input.$input.mask('999:99');})
+          |.editable({
+          | type: 'text',
+          | title: 'Esforço',
+          | emptytext: 'Não estimado',
+          | tpl: "<input type='text' style='width: 100px'>",
+          | url: '/sistema/api/tarefa/esforcoEstimado'
+          |});
+          | """.stripMargin).cmd,
+      JsRaw(
+        """
+          |$(".dtEntrega").editable({
+          | combodate: {
+          |   minYear: 2016,
+          |   maxYear: 2018
+          |   },
+          | type: 'combodate',
+          | format: 'DD/MM/YYYY HH:mm',
+          | template: 'DD / MM / YYYY     HH : mm',
+          | emptytext: 'Não informado',
+          | url: '/sistema/api/tarefa/dtEntrega',
+          | title: 'Data de entrega'
+      });""".stripMargin).cmd,
+      JsRaw(
+        """
+          |$(".status").editable({
+          | type: 'select',
+          | emptytext: 'Sem status',
+          | url: '/sistema/api/tarefa/statusTarefa',
+          | title: 'Status da tafera',
+          | source: %s
+      });""".format(gerarListaStatus).stripMargin).cmd))
+  }
+
+  private def gerarListaStatus = {
+    var total: String = "[ %s ]"
+    var valor: String = "{value: %d, text: '%s'}"
+    val listaStatusTarefa = StatusTarefa.findListaStatus.map { case (i, s) => valor.format(i, s) }.mkString("[", ",", "]")
+    listaStatusTarefa
+  }
+
+  /*
+  * [
+        {value: 1, text: 'Active'},
+        {value: 2, text: 'Blocked'},
+        {value: 3, text: 'Deleted'}
+     ]
+  * */
+
+  private def retornarStatusTarefa(status: Option[String]) = {
+    status match {
+      case Some(s) => s
+      case None => "Não informado"
+    }
+  }
 
   private def associatedGuid(l: Long): Option[String] = {
     val map = guidToIdRVUsuario.is;

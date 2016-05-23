@@ -1,6 +1,7 @@
 package bootstrap.liftweb
 
 import code.lib.session.SessionState
+import code.snippet.Teste
 import net.liftmodules.validate.Validate
 import net.liftmodules.validate.options.Bs3Options
 import net.liftmodules.{FoBo}
@@ -55,6 +56,8 @@ class Boot extends Loggable {
     FoBo.InitParam.ToolKit = FoBo.FontAwesome430
     FoBo.init()
 
+    LiftRules.dispatch.append(Teste)
+
     LiftRules.setSiteMap(Site.siteMap)
 
     LiftRules.noticesToJsCmd
@@ -74,6 +77,7 @@ object Site {
   val tarefas = Menu.i("Tarefa") / "sistema" / "tarefa" / "tarefa"
   val perfil = Menu(Loc("perfil", Link(List("sistema", "usuario", "perfil", "perfil"), true, "/sistema/usuario/perfil/perfil"), Text("Perfil")))
   val teste = Menu.i("Teste") / "sistema" / "teste"
+  //val teste2 = Menu.i("Teste") / "sistema" / "teste2"
   var admin = Menu("Administrador") / "sistema" / "administrador" submenus(
     Menu.i("Usuários") / "sistema" / "usuario" / "configuracao" / "configuracao_usuario" submenus (
       Menu.i("Cadastrar usuários") / "sistema" / "usuario" / "configuracao" / "cadastrar_usuario" >> Hidden
@@ -96,7 +100,8 @@ object Site {
     tarefas, // If( () => SessionState.estaLogado, RedirectResponse("/")),
     perfil, //>> If( () => SessionState.estaLogado, RedirectResponse("/")),
     projeto, // >> If( () => SessionState.estaLogado, RedirectResponse("/")),
-    admin, //>> If( () => SessionState.estaLogado, RedirectResponse("/"))
-    teste
+    admin //>> If( () => SessionState.estaLogado, RedirectResponse("/"))
+    //,teste
+    //teste2
   )
 }

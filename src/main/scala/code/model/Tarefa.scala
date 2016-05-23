@@ -4,7 +4,9 @@ package code.model
 import java.sql.Time
 
 import code.lib.Settings
+import net.liftweb.common.{Full, Box}
 import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
 import scalikejdbc._
 
 /**
@@ -18,9 +20,10 @@ case class Tarefa(idTarefa: Long,
                   descricao: Option[String],
                   idTipoTarefa: Option[Long],
                   idStatusTarefa: Option[Long],
-                  esforco: Option[Time],
+                  estimativa: Option[String],
                   dtInicioTarefa: Option[DateTime],
                   dtFinalTarefa: Option[DateTime],
+                  dtEntregaTarefa: Option[DateTime],
                   idCreatedBy: Long,
                   createdAt: DateTime,
                   deletedAt: Option[DateTime]) {
@@ -38,8 +41,8 @@ object Tarefa extends SQLSyntaxSupport[Tarefa] with Settings {
 
   override val tableName = "tarefa"
 
-  override val columns = Seq("id_tarefa", "id_projeto", "id_usuario_responsavel", "nome_tarefa", "descricao", "id_tipo_tarefa", "id_status_tarefa", "esforco",
-    "dt_inicio_tarefa", "dt_final_tarefa", "id_created_by", "created_at", "deleted_at")
+  override val columns = Seq("id_tarefa", "id_projeto", "id_usuario_responsavel", "nome_tarefa", "descricao", "id_tipo_tarefa", "id_status_tarefa", "estimativa",
+    "dt_inicio_tarefa", "dt_final_tarefa", "dt_entrega_tarefa", "id_created_by", "created_at", "deleted_at")
 
   def apply(t: SyntaxProvider[Tarefa])(rs: WrappedResultSet): Tarefa = apply(t.resultName)(rs)
 
@@ -51,9 +54,10 @@ object Tarefa extends SQLSyntaxSupport[Tarefa] with Settings {
     descricao = rs.stringOpt(t.descricao),
     idTipoTarefa = rs.longOpt(t.idTipoTarefa),
     idStatusTarefa = rs.longOpt(t.idStatusTarefa),
-    esforco = rs.timeOpt(t.esforco),
+    estimativa = rs.stringOpt(t.estimativa),
     dtInicioTarefa = rs.jodaDateTimeOpt(t.dtInicioTarefa),
     dtFinalTarefa = rs.jodaDateTimeOpt(t.dtFinalTarefa),
+    dtEntregaTarefa = rs.jodaDateTimeOpt(t.dtEntregaTarefa),
     idCreatedBy = rs.long(t.idCreatedBy),
     createdAt = rs.jodaDateTime(t.createdAt),
     deletedAt = rs.jodaDateTimeOpt(t.deletedAt)
@@ -80,37 +84,41 @@ object Tarefa extends SQLSyntaxSupport[Tarefa] with Settings {
        t.id_created_by,
        t.descricao,
        t.id_tipo_tarefa,
-       t.esforco,
+       t.estimativa,
        t.dt_inicio_tarefa,
        t.dt_final_tarefa,
+       t.dt_entrega_tarefa,
        t.nome_tarefa,
        t.created_at,
        s.nome_status_tarefa,
        u.nome as nome_usuario,
-       p.nome_projeto
+       p.nome_projeto,
+       c.nome_cliente
        from tarefa t
        left join tipo_tarefa tt on t.id_tipo_tarefa = tt.id_tipo_tarefa
        left join status_tarefa s on t.id_status_tarefa = s.id_status_tarefa
        left join usuario u on t.id_usuario_responsavel = u.id_usuario
        left join projeto p on p.id_projeto = t.id_projeto
-       left join cliente c on c.id_cliente = p.id_projeto
-       where t.deleted_at is not null
+       left join cliente c on c.id_cliente = p.id_cliente
+       where t.deleted_at is null
       """
       .map { rs => (rs.long("id_tarefa"),
-        rs.stringOpt("id_projeto"),
+        rs.longOpt("id_projeto"),
         rs.longOpt("id_status_tarefa"),
         rs.longOpt("id_usuario_responsavel"),
         rs.longOpt("id_created_by"),
         rs.stringOpt("descricao"),
         rs.stringOpt("id_tipo_tarefa"),
-        rs.timeOpt("esforco"),
+        rs.stringOpt("estimativa"),
         rs.jodaDateTimeOpt("dt_inicio_tarefa"),
         rs.jodaDateTimeOpt("dt_final_tarefa"),
-        rs.stringOpt("nome_tarefa"),
+        rs.jodaDateTimeOpt("dt_entrega_tarefa"),
+        rs.string("nome_tarefa"),
         rs.stringOpt("created_at"),
         rs.stringOpt("nome_status_tarefa"),
         rs.stringOpt("nome_usuario"),
-        rs.stringOpt("nome_projeto"))
+        rs.stringOpt("nome_projeto"),
+        rs.stringOpt("nome_cliente"))
       }.list().apply()
 
   def create(idProjeto: Option[Long],
@@ -119,9 +127,10 @@ object Tarefa extends SQLSyntaxSupport[Tarefa] with Settings {
              descricao: Option[String],
              idTipoTarefa: Option[Long],
              idStatusTarefa: Option[Long],
-             esforco: Option[Time],
+             estimativa: Option[String],
              dtInicioTarefa: Option[DateTime],
              dtFinalTarefa: Option[DateTime],
+             dtEntregaTarefa: Option[DateTime],
              idCreatedBy: Long,
              createdAt: DateTime)
             (implicit session: DBSession = AutoSession): Tarefa = {
@@ -134,9 +143,10 @@ object Tarefa extends SQLSyntaxSupport[Tarefa] with Settings {
         column.descricao -> descricao,
         column.idTipoTarefa -> idTipoTarefa,
         column.idStatusTarefa -> idStatusTarefa,
-        column.esforco -> esforco,
+        column.estimativa -> estimativa,
         column.dtInicioTarefa -> dtInicioTarefa,
         column.dtFinalTarefa -> dtFinalTarefa,
+        column.dtEntregaTarefa -> dtEntregaTarefa,
         column.idCreatedBy -> idCreatedBy,
         column.createdAt -> createdAt
       )
@@ -150,14 +160,87 @@ object Tarefa extends SQLSyntaxSupport[Tarefa] with Settings {
       descricao = descricao,
       idTipoTarefa = idTipoTarefa,
       idStatusTarefa = idStatusTarefa,
-      esforco = esforco,
+      estimativa = estimativa,
       dtInicioTarefa = dtInicioTarefa,
       dtFinalTarefa = dtFinalTarefa,
+      dtEntregaTarefa = dtEntregaTarefa,
       idCreatedBy = idCreatedBy,
       createdAt = createdAt,
       None
     )
   }
+
+  def saveDescricaoTarefa(name: Box[String], primary: Box[String], value: Box[String]) = {
+    var id = primary match {
+      case Full(p) => p.toLong
+    }
+    var descricao = value match {
+      case Full(v) => v
+    }
+    val tup: Seq[((SQLSyntax, String))] = Seq(column.descricao -> descricao)
+    saveTarefa(id, tup)
+  }
+
+  def salvarDataDesejada(name: Box[String], primary: Box[String], value: Box[String]) = {
+    var id = primary match {
+      case Full(p) => p.toLong
+    }
+    var dtFinalTarefa = value match {
+      case Full(v) => v
+    }
+
+    var uiDateFormat = DateTimeFormat.forPattern("dd/MM/yyyy HH:mm");
+    var dtFinal = uiDateFormat.parseDateTime(dtFinalTarefa)
+
+    val tup: Seq[((SQLSyntax, DateTime))] = Seq(column.dtFinalTarefa -> dtFinal)
+    saveDataTarefa(id, tup)
+  }
+
+  def salvarDataEntrega(name: Box[String], primary: Box[String], value: Box[String]) = {
+    var id = primary match {
+      case Full(p) => p.toLong
+    }
+    var dtEntregaTarefa = value match {
+      case Full(v) => v
+    }
+
+    var uiDateFormat = DateTimeFormat.forPattern("dd/MM/yyyy HH:mm");
+    var dtEntrega = uiDateFormat.parseDateTime(dtEntregaTarefa)
+
+    val tup: Seq[((SQLSyntax, DateTime))] = Seq(column.dtEntregaTarefa -> dtEntrega)
+    saveDataTarefa(id, tup)
+  }
+
+  def salvarEstimativa(name: Box[String], primary: Box[String], value: Box[String]) = {
+    var id = primary match {
+      case Full(p) => p.toLong
+    }
+    var estimativa = value match {
+      case Full(v) => v
+    }
+    val tup: Seq[((SQLSyntax, String))] = Seq(column.estimativa -> estimativa)
+    saveTarefa(id, tup)
+  }
+
+  def salvarStatus(name: Box[String], primary: Box[String], value: Box[String]) = {
+    var id = primary match {
+      case Full(p) => p.toLong
+    }
+    var id_status_tarefa = value match {
+      case Full(v) => v
+    }
+    val tup: Seq[((SQLSyntax, String))] = Seq(column.idStatusTarefa -> id_status_tarefa)
+    saveTarefa(id, tup)
+  }
+
+  def saveDataTarefa(id: Long, tup: Seq[((SQLSyntax, DateTime))])(implicit session: DBSession = AutoSession) = withSQL {
+    update(Tarefa).set(tup: _*).where.eq(column.c("id_tarefa"), id)
+  }.update.apply()
+
+  def saveTarefa(id: Long, tup: Seq[((SQLSyntax, String))])(implicit session: DBSession = AutoSession) = withSQL {
+    update(Tarefa).set(tup: _*).where.eq(column.c("id_tarefa"), id)
+  }.update.apply()
+
 
   def save(t: Tarefa)(implicit session: DBSession = AutoSession): Tarefa = {
     withSQL {
@@ -167,7 +250,7 @@ object Tarefa extends SQLSyntaxSupport[Tarefa] with Settings {
         Tarefa.column.idUsuarioResponsavel -> t.idUsuarioResponsavel,
         Tarefa.column.nomeTarefa -> t.nomeTarefa,
         Tarefa.column.descricao -> t.descricao,
-        Tarefa.column.esforco -> t.esforco,
+        Tarefa.column.estimativa -> t.estimativa,
         Tarefa.column.idStatusTarefa -> t.idStatusTarefa,
         Tarefa.column.dtInicioTarefa -> t.dtInicioTarefa,
         Tarefa.column.dtFinalTarefa -> t.dtFinalTarefa,
