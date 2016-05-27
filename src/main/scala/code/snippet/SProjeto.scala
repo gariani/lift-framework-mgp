@@ -17,7 +17,7 @@ import scala.xml.{Text, NodeSeq}
   * Created by daniel on 27/03/16.
   */
 
-object guidIdClienteProjeto extends SessionVar[Option[Long]](None)
+object guidIdClienteProjeto extends SessionVar[Option[Projeto]](None)
 
 class SProjeto extends StatefulSnippet {
 
@@ -59,16 +59,16 @@ class SProjeto extends StatefulSnippet {
           ".projetos" #> {
             "#projetos [id]" #> (guid) &
             ".list-group-item *" #> (c.projetos.map(p => {
-                SHtml.a(Text(p.nomeProjeto), informarIdProjeto(p.idProjeto))
+                SHtml.a(Text(p.nomeProjeto), informarIdProjeto(p))
             }))
           }
       })
     cssSel.apply(temp)
   }
 
-  private def informarIdProjeto(idProjeto: Long) = {
-    guidIdClienteProjeto.set(Some(idProjeto))
-    JsCmds.RedirectTo("/sistema/")
+  private def informarIdProjeto(projeto: Projeto) = {
+    guidIdClienteProjeto.set(Some(projeto))
+    JsCmds.RedirectTo("/sistema/projeto/projeto_individual")
   }
 
   def retornarIdNodo(guid: String) = {

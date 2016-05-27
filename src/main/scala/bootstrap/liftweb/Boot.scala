@@ -73,7 +73,9 @@ class Boot extends Loggable {
 object Site {
 
   val login = Menu("Login") / "index"
-  val projeto = Menu("Projeto") / "sistema" / "projeto" / "projeto"
+  val projetos = Menu("Projetos") / "sistema" / "projeto" / "projetos" submenus (
+      Menu.i("Projeto") / "sistema" / "projeto" / "projeto"
+    )
   val tarefas = Menu.i("Tarefa") / "sistema" / "tarefa" / "tarefa"
   val perfil = Menu(Loc("perfil", Link(List("sistema", "usuario", "perfil", "perfil"), true, "/sistema/usuario/perfil/perfil"), Text("Perfil")))
   val teste = Menu.i("Teste") / "sistema" / "teste"
@@ -99,7 +101,7 @@ object Site {
     login,
     tarefas, // If( () => SessionState.estaLogado, RedirectResponse("/")),
     perfil, //>> If( () => SessionState.estaLogado, RedirectResponse("/")),
-    projeto, // >> If( () => SessionState.estaLogado, RedirectResponse("/")),
+    projetos, // >> If( () => SessionState.estaLogado, RedirectResponse("/")),
     admin //>> If( () => SessionState.estaLogado, RedirectResponse("/"))
     //,teste
     //teste2
