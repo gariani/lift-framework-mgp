@@ -24,6 +24,9 @@ object Cliente extends SQLSyntaxSupport[Cliente] with Settings {
 
   override val columns = Seq("id_cliente", "nome_cliente", "created_at", "deleted_at")
 
+  def opt(p: SyntaxProvider[Cliente])(rs: WrappedResultSet) =
+    rs.longOpt(p.resultName.idCliente).map(_ => Cliente(p.resultName)(rs))
+
   def apply(c: SyntaxProvider[Cliente])(rs: WrappedResultSet): Cliente = apply(c.resultName)(rs)
 
   def apply(c: ResultName[Cliente])(rs: WrappedResultSet): Cliente = new Cliente(
@@ -61,8 +64,8 @@ object Cliente extends SQLSyntaxSupport[Cliente] with Settings {
     }
       .one(Cliente(c))
       .toMany(Projeto.opt(p)).map { (cliente, projetos) => cliente.copy(projetos = projetos) }
-      .list.apply()
-  }
+
+  }.list.apply()
 
   def findClienteByNome(nomeCliente: String)(implicit sesession: DBSession = AutoSession): Option[Int] = withSQL {
     select(count(c.idCliente)).from(Cliente as c)

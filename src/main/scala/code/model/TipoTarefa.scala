@@ -32,6 +32,9 @@ object TipoTarefa extends SQLSyntaxSupport[TipoTarefa] with Settings {
 
   override val columns = Seq("id_tipo_tarefa", "nome_tipo_tarefa", "estimativa", "fora_uso", "created_at", "deleted_at")
 
+  def opt(tt: SyntaxProvider[TipoTarefa])(rs: WrappedResultSet) =
+    rs.longOpt(tt.idTipoTarefa).map(_ => TipoTarefa(tt.resultName)(rs))
+
   def apply(tt: SyntaxProvider[TipoTarefa])(rs: WrappedResultSet): TipoTarefa = apply(tt.resultName)(rs)
   def apply(tt: ResultName[TipoTarefa])(rs: WrappedResultSet): TipoTarefa = new TipoTarefa(
     idTipoTarefa = rs.get(tt.idTipoTarefa),

@@ -34,6 +34,9 @@ object Usuario extends SQLSyntaxSupport[Usuario] with Settings {
 
   override val columns = Seq("id_usuario", "id_equipe", "email", "nome", "cargo", "observacao", "telefone", "senha", "inicio_empresa", "nascimento", "sexo", "estado_civil", "created_at", "deleted_at")
 
+  def opt(p: SyntaxProvider[Usuario])(rs: WrappedResultSet) =
+    rs.longOpt(p.idUsuario).map(_ => Usuario(p)(rs))
+
   def apply(u: SyntaxProvider[Usuario])(rs: WrappedResultSet): Usuario = apply(u.resultName)(rs)
 
   def apply(u: ResultName[Usuario])(rs: WrappedResultSet): Usuario = new Usuario(

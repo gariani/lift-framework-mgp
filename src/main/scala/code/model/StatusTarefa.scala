@@ -21,7 +21,6 @@ case class StatusTarefa(idStatusTarefa: Long,
   def destroy()(implicit session: DBSession = StatusTarefa.autoSession): Unit = StatusTarefa.destroy(idStatusTarefa)(session)
 
   private val (st) = (StatusTarefa.st)
-
 }
 
 object StatusTarefa extends SQLSyntaxSupport[StatusTarefa] with Settings {
@@ -29,6 +28,9 @@ object StatusTarefa extends SQLSyntaxSupport[StatusTarefa] with Settings {
   override val tableName = "status_tarefa"
 
   override val columns = Seq("id_status_tarefa", "nome_status_tarefa", "created_at", "deleted_at")
+
+  def opt(st: SyntaxProvider[StatusTarefa])(rs: WrappedResultSet) =
+    rs.longOpt(st.idStatusTarefa).map(_ => StatusTarefa(st)(rs))
 
   def apply(st: SyntaxProvider[StatusTarefa])(rs: WrappedResultSet): StatusTarefa = apply(st.resultName)(rs)
 

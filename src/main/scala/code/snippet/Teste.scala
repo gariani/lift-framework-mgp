@@ -65,12 +65,15 @@ object Teste extends RestHelper {
     Full(JsonResponse(parse("""{"error" : "teste"}""")))
   }
 
+  def getStatusTarefa = {
+    JString("Static")
+  }
 
   serve ( "sistema" / "api" / "tarefa" prefix {
     case Post("esforcoEstimado"  :: Nil, req) => salvarEstimativa(req)
-    case Post("dtDesejada" :: nil, req) => salvarDataDesejada(req)
-    case Post("dtEntrega" :: nil, req) => salvarDataEntrega(req)
-    case Post("statusTarefa" :: nil, req) => salvarStatus(req)
+    case Post("dtDesejada" :: Nil, req) => salvarDataDesejada(req)
+    case Post("dtEntrega" :: Nil, req) => salvarDataEntrega(req)
+    case Post("statusTarefa" :: Nil, req) => salvarStatus(req)
   })
 
 

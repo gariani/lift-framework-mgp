@@ -56,7 +56,9 @@ class STarefa extends StatefulSnippet with Logger {
     case "render" => render
     case "novaTarefa" => novaTarefa
     case "adicionarNovaTarefa" => adicionarNovaTarefa
-    case "mostrarTarefa" => mostrarTarefa
+    case "mostrarMinhasTarefas" => mostrarMinhasTarefas
+    case "mostrarCrieiTarefas" => mostrarCrieiTarefas
+    //case "mostrarSigoTarefas" => mostrarSigoTarefas
   }
 
   def adicionarNovaTarefa(node: NodeSeq): NodeSeq = {
@@ -147,58 +149,105 @@ class STarefa extends StatefulSnippet with Logger {
     lista ++ Cliente.findAllClienteLista().map { case (i, c) => (i.toString, c) }
   }
 
-  //private def pegarTemplate:
+  def retornarString(campo: Option[String]): String = {
+    campo match {
+      case Some(c) => c
+      case None => ""
+    }
+  }
 
-  def mostrarTarefa(nodeSeq: NodeSeq): NodeSeq = {
-    funcao
-
-    gerarListaStatus
-
+  private def retornarTemplateItemTareafa = {
     var temp: NodeSeq = NodeSeq.Empty
     temp = S.runTemplate("sistema" :: "tarefa" :: "tarefa-hidden" :: "_item" :: Nil).openOr(<div>
       {"Template não encontrado"}
     </div>)
 
-    var tarefas = Tarefa.findAllDetalhe()
+    temp
+  }
+
+  def mostrarMinhasTarefas(node: NodeSeq): NodeSeq = {
+    funcaoXEditable
+    var temp = retornarTemplateItemTareafa
+    var tarefas = Tarefa.findMeuDetalhe(SessionState.getLogin)
+    println(tarefas)
     val cssSel =
       "#items" #> tarefas.map(t => {
         val guid = associatedGuid(t._1).get
-
+        val idStatusTarefa = retornarIdStatusTarefa(t._3)
+        val estimativa = retornarString(t._8)
         val dtDesejada = formatarData(t._10)
-
         val dtEntrega = formatarData(t._11)
-
-        val nmCliente = t._17 match {
-          case Some(c) => c
-          case None => ""
-        }
-
-        val nmProjeto = t._16 match {
-          case Some(p) => p
-          case None => ""
-        }
-
-        statusTarefa = t._14 match {
-          case Some(s) => s
-          case None => ""
-        }
-
-        val estimativa = t._8 match {
-          case Some(e) => e
-          case None => ""
-        }
-
         val nomeTarefa = t._12
-
+        val nmCliente = retornarString(t._17)
+        val nmProjeto = retornarString(t._16)
+        val statusTarefa = retornarString(t._14)
         "#items [id]" #> (guid) &
           "#nomeTarefa" #> SHtml.a(Text(nomeTarefa), JsCmds.Noop, ("data-pk" -> t._1.toString)) &
           "#cliente_projeto" #> SHtml.a(Text(nmCliente + " -> " + nmProjeto), JsCmds.Noop, ("data-pk" -> t._1.toString)) &
           ".dtDesejada" #> SHtml.a(Text(dtDesejada), JsCmds.Noop, ("data-pk" -> t._1.toString)) &
           ".esforcoEstimado" #> SHtml.a(Text(estimativa), JsCmds.Noop, ("data-pk" -> t._1.toString)) &
           ".dtEntrega" #> SHtml.a(Text(dtEntrega), JsCmds.Noop, ("data-pk" -> t._1.toString)) &
-          ".staus" #> SHtml.a(Text(statusTarefa), JsCmds.Noop, ("data-pk" -> t._1.toString))
+          ".status" #> SHtml.a(Text(statusTarefa), JsCmds.Noop, ("data-pk" -> t._1.toString), ("value" -> idStatusTarefa))
       })
     cssSel.apply(temp)
+  }
+
+  def mostrarCrieiTarefas(node: NodeSeq): NodeSeq = {
+    var temp = retornarTemplateItemTareafa
+    var tarefas = Tarefa.findCrieiDetalhe(SessionState.getLogin)
+    val cssSel =
+      "#items" #> tarefas.map(t => {
+        val guid = associatedGuid(t._1).get
+        val idStatusTarefa = retornarIdStatusTarefa(t._3)
+        val estimativa = retornarString(t._8)
+        val dtDesejada = formatarData(t._10)
+        val dtEntrega = formatarData(t._11)
+        val nomeTarefa = t._12
+        val nmCliente = retornarString(t._17)
+        val nmProjeto = retornarString(t._16)
+        val statusTarefa = retornarString(t._14)
+        "#items [id]" #> (guid) &
+          "#nomeTarefa" #> SHtml.a(Text(nomeTarefa), JsCmds.Noop, ("data-pk" -> t._1.toString)) &
+          "#cliente_projeto" #> SHtml.a(Text(nmCliente + " -> " + nmProjeto), JsCmds.Noop, ("data-pk" -> t._1.toString)) &
+          ".dtDesejada" #> SHtml.a(Text(dtDesejada), JsCmds.Noop, ("data-pk" -> t._1.toString)) &
+          ".esforcoEstimado" #> SHtml.a(Text(estimativa), JsCmds.Noop, ("data-pk" -> t._1.toString)) &
+          ".dtEntrega" #> SHtml.a(Text(dtEntrega), JsCmds.Noop, ("data-pk" -> t._1.toString)) &
+          ".status" #> SHtml.a(Text(statusTarefa), JsCmds.Noop, ("data-pk" -> t._1.toString), ("value" -> idStatusTarefa))
+      })
+    cssSel.apply(temp)
+  }
+
+  /*def mostrarSigoTarefas(nodeSeq: NodeSeq): NodeSeq = {
+    funcaoXEditable
+    var temp = retornarTemplateItemTareafa
+    var tarefas = Tarefa.findAllDetalhe()
+    val cssSel =
+      "#items" #> tarefas.map(t => {
+        val guid = associatedGuid(t._1).get
+        val idStatusTarefa = retornarIdStatusTarefa(t._3)
+        val estimativa = retornarString(t._8)
+        val dtDesejada = formatarData(t._10)
+        val dtEntrega = formatarData(t._11)
+        val nomeTarefa = t._12
+        val nmCliente = retornarString(t._17)
+        val nmProjeto = retornarString(t._16)
+        val statusTarefa = retornarString(t._14)
+        "#items [id]" #> (guid) &
+          "#nomeTarefa" #> SHtml.a(Text(nomeTarefa), JsCmds.Noop, ("data-pk" -> t._1.toString)) &
+          "#cliente_projeto" #> SHtml.a(Text(nmCliente + " -> " + nmProjeto), JsCmds.Noop, ("data-pk" -> t._1.toString)) &
+          ".dtDesejada" #> SHtml.a(Text(dtDesejada), JsCmds.Noop, ("data-pk" -> t._1.toString)) &
+          ".esforcoEstimado" #> SHtml.a(Text(estimativa), JsCmds.Noop, ("data-pk" -> t._1.toString)) &
+          ".dtEntrega" #> SHtml.a(Text(dtEntrega), JsCmds.Noop, ("data-pk" -> t._1.toString)) &
+          ".status" #> SHtml.a(Text(statusTarefa), JsCmds.Noop, ("data-pk" -> t._1.toString), ("value" -> idStatusTarefa))
+      })
+    cssSel.apply(temp)
+  }*/
+
+  def retornarIdStatusTarefa(id: Option[Long]): String = {
+    id match {
+      case Some(l) => l.toString
+      case None => 0.toString
+    }
   }
 
   def formatarData(data: Option[org.joda.time.DateTime]) = {
@@ -217,7 +266,7 @@ class STarefa extends StatefulSnippet with Logger {
     outputText
   }
 
-  def funcao = {
+  def funcaoXEditable = {
     S.appendJs(Seq(JsRaw(
       """
         |$.fn.editable.defaults.mode = 'popup';
@@ -227,8 +276,7 @@ class STarefa extends StatefulSnippet with Logger {
         |   maxYear: 2018
         |   },
         | type: 'combodate',
-        | format: 'YYYY-MM-DD HH:mm',
-        | viewformat: 'DD/MM/YYYY HH:mm',
+        | format: 'DD/MM/YYYY HH:mm',
         | template: 'DD / MM / YYYY     HH : mm',
         | emptytext: 'Não informado',
         | url: '/sistema/api/tarefa/dtDesejada',
@@ -274,18 +322,10 @@ class STarefa extends StatefulSnippet with Logger {
 
   private def gerarListaStatus = {
     var total: String = "[ %s ]"
-    var valor: String = "{value: %d, text: '%s'}"
+    var valor: String = "{\"value\": \"%d\", \"text\": \"%s\"}"
     val listaStatusTarefa = StatusTarefa.findListaStatus.map { case (i, s) => valor.format(i, s) }.mkString("[", ",", "]")
     listaStatusTarefa
   }
-
-  /*
-  * [
-        {value: 1, text: 'Active'},
-        {value: 2, text: 'Blocked'},
-        {value: 3, text: 'Deleted'}
-     ]
-  * */
 
   private def retornarStatusTarefa(status: Option[String]) = {
     status match {
@@ -295,12 +335,12 @@ class STarefa extends StatefulSnippet with Logger {
   }
 
   private def associatedGuid(l: Long): Option[String] = {
-    val map = guidToIdRVUsuario.is;
+    val map = guidToIdRVTarefa.is;
     map.find(e => l == e._2) match {
       case Some(e) => Some(e._1)
       case None =>
         val guid = nextFuncName
-        guidToIdRVUsuario.set(map + (guid -> l))
+        guidToIdRVTarefa.set(map + (guid -> l))
         Some(guid)
     }
   }

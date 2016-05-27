@@ -33,7 +33,7 @@ case class Tarefa(idTarefa: Long,
 
   def destroy()(implicit session: DBSession = Tarefa.autoSession): Unit = Tarefa.destroy(idTarefa)(session)
 
-  private val (t) = (Tarefa.t)
+  private val (t, st, tt, u) = (Tarefa.t, StatusTarefa.st, TipoTarefa.tt, Usuario.u)
 
 }
 
@@ -44,9 +44,24 @@ object Tarefa extends SQLSyntaxSupport[Tarefa] with Settings {
   override val columns = Seq("id_tarefa", "id_projeto", "id_usuario_responsavel", "nome_tarefa", "descricao", "id_tipo_tarefa", "id_status_tarefa", "estimativa",
     "dt_inicio_tarefa", "dt_final_tarefa", "dt_entrega_tarefa", "id_created_by", "created_at", "deleted_at")
 
-  def apply(t: SyntaxProvider[Tarefa])(rs: WrappedResultSet): Tarefa = apply(t.resultName)(rs)
+  def apply(t: SyntaxProvider[Tarefa])(rs: WrappedResultSet): Tarefa = apply(t)(rs)
 
-  def apply(t: ResultName[Tarefa])(rs: WrappedResultSet): Tarefa = new Tarefa(
+  /*def apply(t: ResultName[Tarefa], tt: ResultName[TipoTarefa], st: ResultName[StatusTarefa], p: ResultName[Projeto], c: ResultName[Cliente], u: ResultName[Usuario])
+           (rs: WrappedResultSet): Tarefa = {
+    apply(t)(rs).copy(tipoTarefa = rs.longOpt(t.idTipoTarefa).map(_ => TipoTarefa(tt)(rs)), statusTarefa = rs.longOpt(t.idStatusTarefa).map(_ => StatusTarefa(st)(rs)),
+      projeto = rs.longOpt(t.idProjeto).map(_ => Projeto(p)(rs)), cliente = rs.longOpt(t.idCliente).map(_ => Cliente(c)(rs)),
+      usuario = rs.longOpt(t.idUsuario).map(_ => Usuario(u)(rs)))
+
+  }*/
+
+  /*
+   def apply(m: ResultName[GroupMember], g: ResultName[Group])(rs: WrappedResultSet) =  {
+    apply(m)(rs).copy(group = rs.longOpt(g.id).map(_ => Group(g)(rs)))
+  }
+   */
+
+  def apply(t: ResultName[Tarefa], tt: ResultName[TipoTarefa], st: ResultName[StatusTarefa], p: ResultName[Projeto],
+            c: ResultName[Cliente], u: ResultName[Usuario])(rs: WrappedResultSet): Tarefa = new Tarefa(
     idTarefa = rs.long(t.idTarefa),
     idProjeto = rs.longOpt(t.idProjeto),
     idUsuarioResponsavel = rs.long(t.idUsuarioResponsavel),
@@ -63,7 +78,8 @@ object Tarefa extends SQLSyntaxSupport[Tarefa] with Settings {
     deletedAt = rs.jodaDateTimeOpt(t.deletedAt)
   )
 
-  val t = Tarefa.syntax("t")
+  val (t, st, tt, u, p, c) = (Tarefa.syntax("t"), StatusTarefa.syntax("st"), TipoTarefa.syntax("tt"),
+    Usuario.syntax("u"), Projeto.syntax("p"), Cliente.syntax("c"))
 
   def findByIdTarefa(idTarefa: Long)(implicit session: DBSession = AutoSession): Option[Tarefa] = {
     withSQL {
@@ -75,7 +91,25 @@ object Tarefa extends SQLSyntaxSupport[Tarefa] with Settings {
     select.from(Tarefa as t).orderBy(t.idTarefa)
   }.map(Tarefa(t)).list().apply()
 
-  def findAllDetalhe()(implicit session: DBSession = AutoSession) =
+  /*def findAllTarefaStatus()(implicit session: DBSession = AutoSession) = withSQL {
+    select.from(Tarefa as t)
+      .leftJoin(StatusTarefa as st).on(t.idStatusTarefa, st.idStatusTarefa)
+      .leftJoin(TipoTarefa as tt).on(t.idTipoTarefa, tt.idTipoTarefa)
+      .leftJoin(Usuario as u).on(t.idUsuarioResponsavel, u.idUsuario)
+      .leftJoin(Projeto as p).on(t.idProjeto, p.idProjeto)
+      .leftJoin(Cliente as c).on(p.idCliente, c.idCliente)
+  }.one(Tarefa(t))
+    .toManies(
+      rs => StatusTarefa.opt(st)(rs),
+      rs => TipoTarefa.opt(tt)(rs),
+      rs => Usuario.opt(u)(rs),
+      rs => Projeto.opt(p)(rs),
+      rs => Cliente.opt(c)(rs))
+    .map { (tarefa, status, tipoTarefa, usuario, projeto, cliente) =>
+      tarefa.copy(status = status, tipoTarefa = tipoTarefa, usuario = usuario, projeto = projeto, cliente = cliente)
+    }.list().apply()*/
+
+  def findMeuDetalhe(email: String)(implicit session: DBSession = AutoSession) =
     sql"""select
        t.id_tarefa,
        t.id_projeto,
@@ -98,9 +132,9 @@ object Tarefa extends SQLSyntaxSupport[Tarefa] with Settings {
        left join tipo_tarefa tt on t.id_tipo_tarefa = tt.id_tipo_tarefa
        left join status_tarefa s on t.id_status_tarefa = s.id_status_tarefa
        left join usuario u on t.id_usuario_responsavel = u.id_usuario
-       left join projeto p on p.id_projeto = t.id_projeto
+       left join projeto p on t.id_projeto = p.id_projeto
        left join cliente c on c.id_cliente = p.id_cliente
-       where t.deleted_at is null
+       where t.deleted_at is null and t.id_usuario_responsavel = (select u2.id_usuario from usuario as u2 where u2.email = ${email})
       """
       .map { rs => (rs.long("id_tarefa"),
         rs.longOpt("id_projeto"),
@@ -120,6 +154,74 @@ object Tarefa extends SQLSyntaxSupport[Tarefa] with Settings {
         rs.stringOpt("nome_projeto"),
         rs.stringOpt("nome_cliente"))
       }.list().apply()
+
+  def findCrieiDetalhe(email: String)(implicit session: DBSession = AutoSession) =
+    sql"""select
+       t.id_tarefa,
+       t.id_projeto,
+       t.id_status_tarefa,
+       t.id_usuario_responsavel,
+       t.id_created_by,
+       t.descricao,
+       t.id_tipo_tarefa,
+       t.estimativa,
+       t.dt_inicio_tarefa,
+       t.dt_final_tarefa,
+       t.dt_entrega_tarefa,
+       t.nome_tarefa,
+       t.created_at,
+       s.nome_status_tarefa,
+       u.nome as nome_usuario,
+       p.nome_projeto,
+       c.nome_cliente
+       from tarefa t
+       left join tipo_tarefa tt on t.id_tipo_tarefa = tt.id_tipo_tarefa
+       left join status_tarefa s on t.id_status_tarefa = s.id_status_tarefa
+       left join usuario u on t.id_usuario_responsavel = u.id_usuario
+       left join projeto p on t.id_projeto = p.id_projeto
+       left join cliente c on c.id_cliente = p.id_cliente
+       where t.deleted_at is null and
+       t.id_created_by = (select u2.id_usuario from usuario as u2 where u2.email = ${email})
+      """
+      .map { rs => (rs.long("id_tarefa"),
+        rs.longOpt("id_projeto"),
+        rs.longOpt("id_status_tarefa"),
+        rs.longOpt("id_usuario_responsavel"),
+        rs.longOpt("id_created_by"),
+        rs.stringOpt("descricao"),
+        rs.stringOpt("id_tipo_tarefa"),
+        rs.stringOpt("estimativa"),
+        rs.jodaDateTimeOpt("dt_inicio_tarefa"),
+        rs.jodaDateTimeOpt("dt_final_tarefa"),
+        rs.jodaDateTimeOpt("dt_entrega_tarefa"),
+        rs.string("nome_tarefa"),
+        rs.stringOpt("created_at"),
+        rs.stringOpt("nome_status_tarefa"),
+        rs.stringOpt("nome_usuario"),
+        rs.stringOpt("nome_projeto"),
+        rs.stringOpt("nome_cliente"))
+      }.list().apply()
+
+  /*def findAllDetalheTeste()(implicit session: DBSession = AutoSession) =
+    sql"""
+          select
+          ${t.result.*},
+          ${tt.result.*},
+          ${st.result.*},
+          ${u.result.*},
+          ${p.result.*},
+          ${c.result.*}
+          from ${Tarefa.as(t)}
+          left join ${TipoTarefa.as(tt)} on ${t.idTipoTarefa} = ${tt.idTipoTarefa}
+          left join ${StatusTarefa.as(st)} on ${t.idStatusTarefa} = ${st.idStatusTarefa}
+          left join ${Usuario.as(u)} on ${t.idUsuarioResponsavel} = ${u.idUsuario}
+          left join ${Projeto.as(p)} on ${t.idProjeto} = ${p.idProjeto}
+          left join ${Cliente.as(c)} on ${c.idCliente} = ${p.idCliente}
+          where ${t.result.deletedAt} is null
+          """
+      .map(Tarefa(t.resultName, st.resultName, u.resultName, p.resultName, c.resultName))
+      .list().apply()*/
+
 
   def create(idProjeto: Option[Long],
              idUsuarioResponsavel: Long,
