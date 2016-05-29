@@ -1,14 +1,26 @@
-<div>
-    <div class="lift:EditarCliente.formularioNovoProjeto">
-        <div id="mensagemProjeto"></div>
-        <div class="form-group">
-            <form class="lift:form.ajax" method="post">
-                <fieldset>
-                    <label> * Nome</label><br/>
-                    <input type="text" id="nomeNovoProjeto" class="form-control" autofocus/><br/>
-                </fieldset>
-            </form>
-            <label id="nomeClienteProjeto"></label>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="lift:SProjeto.formularioNovoProjeto">
+                <div class="form-group">
+                    <form class="lift:form.ajax" method="post">
+                        <fieldset>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <label> * Nome do Projeto</label><br/>
+                                    <input type="text" id="nomeNovoProjeto" style="width: 400px" class="form-control"
+                                           autofocus/><br/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <span id="nomeClienteProjeto"></span>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 </div>

@@ -1,0 +1,46 @@
+<div>
+    <head>
+        <script>
+            $(document).ready(function(){
+                $('[data-toggle="tooltip"]').tooltip();
+            });
+        </script>
+    </head>
+    <div id="equipes" class="equipe">
+        <div class="row">
+            <div class="panel-group">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <span id="nomeEquipe"></span>
+                        </h4>
+                    </div>
+                    <div id="equipe" class="equipe panel-collapse collapse">
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <div class="row">
+                                    <div class="col-md-2"><strong>Nome</strong></div>
+                                    <div class="col-md-2"><strong>Trabalhando em</strong></div>
+                                    <div class="col-md-2"><strong>ENT.</strong></div>
+                                    <div class="col-md-2"><strong>DISP.</strong></div>
+                                    <div class="col-md-2"><i class="fa fa-arrow-circle-down" data-toggle="tooltip" title="Tarefas abertas e na fila para esta pessoa"></i></div>
+                                    <div class="col-md-2"><i class="fa fa-arrow-circle-up" data-toggle="tooltip" title="Tarefas abertas para outro colega"></i></div>
+                                </div>
+                            </li>
+                            <li class="listaEquipe list-group-item">
+                                <div class="row">
+                                    <div class="col-md-2"><span id="nmUsuario"></span></div>
+                                    <div class="col-md-2"><span id="trabalhando"></span></strong></div>
+                                    <div class="col-md-2"><span id="entregue"></span></strong></div>
+                                    <div class="col-md-2"><span id="disponivel"></span></strong></div>
+                                    <div class="col-md-2"><span id="quantResponsavel"></span></div>
+                                    <div class="col-md-2"><span id="quantCriado"></span></div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

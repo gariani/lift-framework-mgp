@@ -69,9 +69,16 @@ class EditarEquipe extends StatefulSnippet with Logger {
     }
 
     "#nomeEquipe" #> SHtml.ajaxText(nomeEquipe, nomeEquipe = _) &
-      "#nomeLider" #> SHtml.ajaxText(nomeUsuario, nomeUsuario = _) &
+      "#nomeLider" #> SHtml.ajaxSelect(retornarMembrosEquipe, Full(nomeUsuario), (s) => idLider = Some(s.toLong) ) &
       "#cancelar" #> link("/sistema/equipe/equipe", () => JsCmds.Noop, Text("Voltar")) &
       "type=submit" #> SHtml.ajaxOnSubmit(() => salvarEquipe)
+  }
+
+  def retornarMembrosEquipe = {
+    val itemVazio = Map("-1" -> "").toList.map{case (i, u) => (i, u)}
+    val usuarios = Usuario.findByEquipe(idEquipe)
+    val listaUsuario = usuarios.map( u => (u.idUsuario.toString, u.nome))
+    itemVazio ++ listaUsuario
   }
 
   def listaUsuario(in: NodeSeq): NodeSeq = {
@@ -110,7 +117,7 @@ class EditarEquipe extends StatefulSnippet with Logger {
     guidToIdRVEquipeUsuario.set(guidToIdRVEquipeUsuario.is - guid)
     Usuario.updateEquipe(p.idUsuario, None);
     ReplaceOptions("adicionarNovoUsuario", montaListaUsuariosLivres, Empty) &
-    JsCmds.Replace(guid, NodeSeq.Empty)
+      JsCmds.Replace(guid, NodeSeq.Empty)
   }
 
   private def cellSelector(p: String): String = {
@@ -208,7 +215,7 @@ class EditarEquipe extends StatefulSnippet with Logger {
       val usuario = Usuario.findById(idUsuario)
       equipeRVUsuario.set(usuario)
       ReplaceOptions("adicionarNovoUsuario", montaListaUsuariosLivres, Empty) &
-      _ajaxRenderRow(true, false)
+        _ajaxRenderRow(true, false)
     }
     else {
       JsCmds.Noop

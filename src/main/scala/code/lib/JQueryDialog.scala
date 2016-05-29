@@ -43,12 +43,14 @@ class JQueryDialog(html: NodeSeq, title: String) extends JsCmd {
   // Default options
   protected val cssClass: String = "dialog_box"
   protected val minWidth: String = "800"
-  protected val width: String = "800"
+  protected val width: String = "'auto'"
+  protected val height: String = "'auto'"
 
   protected def elementId: String = "dialog_box"
   protected def options: List[String] = "title:%s".format(title.encJs) ::
     "minWidth:%s".format(minWidth) ::
-    "width:%s".format(width) :: Nil
+    "width:%s".format(width) ::
+    "height:%s".format(height) :: Nil
 
   lazy val js = "jQuery(" + _formatString("<div id='%s' class='%s'></div>".format(elementId, cssClass)) + ")" +
     ".html(" + _formatHtml(html) + ")" +

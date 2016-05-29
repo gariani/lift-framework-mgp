@@ -1,10 +1,113 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-
-</body>
-</html>
+<div>
+    <head>
+        <style>
+            .top-buffer {
+                margin-top: 110px;
+            }
+        </style>
+    </head>
+    <div class="lift:SProjeto.mostrarProjetoSelecionado">
+        <div id="projeto">
+            <div id="wrapper">
+                <div id="page-wrapper">
+                    <div class="container-fuild">
+                        <div class="row">
+                            <div class="pagination-centered text-center">
+                                <h3 class="page-header"><span id="nomeCliente"></span></h3>
+                            </div>
+                            <div id="detalhesDoProjeto">
+                                    <div class="pagination-centered text-center">
+                                        <div class="lift:SProjeto.editarNomeProjeto"></div>
+                                    </div>
+                                    <br/>
+                                    <br/>
+                                    <div class="pagination-centered text-center">
+                                        <h5><span id="descricaoProjeto"></span>
+                                            <div class="lift:SProjeto.editarDescricaoProjeto"></div>
+                                        </h5>
+                                    </div>
+                                </div>
+                                <div class="row top-buffer"></div>
+                                <div class="row">
+                                    <div id="dadosProjeto">
+                                        <div class="col-md-4">
+                                            <h5><span id="envolvidos"></span><strong>ENVOLVIDOS</strong></h5>
+                                        </div>
+                                        <div class="col-md-4"></div>
+                                        <div class="col-md-2">
+                                            <h5><strong><span>INÍCIO</span></strong></h5>
+                                            <h4><strong><span id="dataPrimeiraTarefa"></span></strong></h4>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <h5><strong><span>FIM EST.</span></strong></h5>
+                                            <h4><strong><span id="dataUltimaTarefa"></span></strong></h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <span id="tarefas"><strong>TAREFAS</strong></span>
+                                        <div class="lift:SProjeto.progressoTarefa"></div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <span id="tempo"><strong>TEMPO</strong></span>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="lift:SProjeto.progressoHoras"></div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h1><strong>Tarefas</strong></h1>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <span class="lift:STarefa.adicionarNovaTarefaProjeto"></span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div id="content">
+                                            <ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
+                                                <li class="nafila"><a href="#nafila" data-toggle="tab">NA FILA</a></li>
+                                                <li><a href="#emdesenvolvimento" data-toggle="tab">EM
+                                                    DESENVOLVIMENTO</a></li>
+                                                <li><a href="#entregues" data-toggle="tab">ENTREGUES</a></li>
+                                            </ul>
+                                            <div id="my-tab-content" class="tab-content">
+                                                <div class="tab-pane active" id="nafila">
+                                                    <div class="row">
+                                                        <div class="col-md-12"><br/>
+                                                            <span class="">Teste0</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="tab-pane" id="emdesenvolvimento">
+                                                    <div class="row">
+                                                        <div class="col-md-12"><br/>
+                                                            <span class="">Teste1</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="tab-pane" id="entregues">
+                                                    <div class="row">
+                                                        <div class="col-md-12"><br/>
+                                                            <span class="">Teste2</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

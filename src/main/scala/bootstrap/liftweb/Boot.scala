@@ -74,7 +74,7 @@ object Site {
 
   val login = Menu("Login") / "index"
   val projetos = Menu("Projetos") / "sistema" / "projeto" / "projetos" submenus (
-      Menu.i("Projeto") / "sistema" / "projeto" / "projeto"
+    Menu.i("Projeto") / "sistema" / "projeto" / "projeto"
     )
   val tarefas = Menu.i("Tarefa") / "sistema" / "tarefa" / "tarefa"
   val perfil = Menu(Loc("perfil", Link(List("sistema", "usuario", "perfil", "perfil"), true, "/sistema/usuario/perfil/perfil"), Text("Perfil")))
@@ -87,7 +87,8 @@ object Site {
     Menu.i("Cliente->Projeto") / "sistema" / "cliente" / "cliente" submenus (
       Menu.i("Editar Cliente") / "sistema" / "cliente" / "editar" >> Hidden
       ),
-    Menu.i("Equipes") / "sistema" / "equipe" / "equipe" submenus (
+    Menu.i("Equipes") / "sistema" / "equipe" / "equipe" submenus(
+      Menu.i("Equipe Detalhe") / "sistema" / "equipe" / "detalhe_equipe",
       Menu.i("Editar Equipe") / "sistema" / "equipe" / "editar" >> Hidden
       ),
     Menu.i("Tipos de Tarefas") / "sistema" / "tarefa" / "tipo_tarefa" / "tipo_tarefa" submenus (

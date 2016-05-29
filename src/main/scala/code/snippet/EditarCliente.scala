@@ -110,7 +110,12 @@ class EditarCliente extends StatefulSnippet with Logger {
 
   private def notificarEditarProjeto(p: Projeto, guid: String) = {
     nomeProjeto = p.nomeProjeto
-    descricaoProjeto = p.descricaoProjeto
+
+    descricaoProjeto = p.descricaoProjeto match {
+      case Some(d) => d
+      case None => ""
+    }
+
     idProjeto = p.idProjeto
     val node = S.runTemplate("sistema" :: "projeto" :: "projeto-hidden" :: "_modal_projeto" :: Nil)
     node match {
@@ -129,7 +134,14 @@ class EditarCliente extends StatefulSnippet with Logger {
 
   private def criarNovoProjeto = {
     if (validarProjeto) {
-      val p = Projeto.create(Some(idCliente), None, nomeProjeto, "", None, None, DateTime.now, None)
+      val p = Projeto.create(Some(idCliente),
+                              None,
+                              nomeProjeto,
+                              None,
+                              None,
+                              None,
+                              DateTime.now)
+
       clienteRVProjeto.set(Some(p))
       _ajaxRenderRow(p, true, false) &
         SetHtml("mensagemEditarProjeto", mensagemSucesso(Mensagem.DADOS_SALVOS_SUCESSO))
@@ -249,7 +261,7 @@ class EditarCliente extends StatefulSnippet with Logger {
         Some(idCliente),
         None,
         nomeProjeto,
-        descricaoProjeto,
+        Some(descricaoProjeto),
         None,
         None,
         DateTime.now,

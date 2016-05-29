@@ -30,7 +30,7 @@ class Login extends StatefulSnippet {
       isValidoLogin(email, senha) match {
         case true => {
           SessionState.gravarSessao(email)
-          S.redirectTo("/sistema/projeto/projeto")
+          S.redirectTo("/sistema/projeto/projetos")
         }
         case _ => {
           S.error("dados", <div class="alert alert-danger">Email ou senha inválidos!

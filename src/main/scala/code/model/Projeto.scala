@@ -8,7 +8,7 @@ case class Projeto(idProjeto: Long,
                    idCliente: Option[Long],
                    idEquipe: Option[Long],
                    nomeProjeto: String,
-                   descricaoProjeto: String,
+                   descricaoProjeto: Option[String],
                    dtInicioProjeto: Option[DateTime],
                    dtFinalProjeto: Option[DateTime],
                    createdAt: DateTime,
@@ -39,7 +39,7 @@ object Projeto extends SQLSyntaxSupport[Projeto] with Settings {
     idCliente = rs.longOpt(p.idCliente),
     idEquipe = rs.longOpt(p.idEquipe),
     nomeProjeto = rs.get(p.nomeProjeto),
-    descricaoProjeto = rs.get(p.descricaoProjeto),
+    descricaoProjeto = rs.stringOpt(p.descricaoProjeto),
     dtInicioProjeto = rs.jodaDateTimeOpt(p.dtInicioProjeto),
     dtFinalProjeto = rs.jodaDateTimeOpt(p.dtFinalProjeto),
     createdAt = rs.jodaDateTime(p.createdAt),
@@ -52,12 +52,17 @@ object Projeto extends SQLSyntaxSupport[Projeto] with Settings {
     select.from(Projeto as p).where.isNull(p.deletedAt)
   }.map(Projeto(p)).list().apply()
 
+  def findAllProjetoCliente()(implicit session: DBSession = autoSession) = withSQL {
+    select(p.idProjeto, p.nomeProjeto).from(Projeto as p).where.isNull(p.deletedAt)
+  }.map { rs => (rs.int(1), rs.string(2)) }.list().apply()
+
+
   def findProjetoById(idProjeto: Long)(implicit sesession: DBSession = AutoSession): Option[Projeto] = withSQL {
     select.from(Projeto as p).where.eq(p.idProjeto, idProjeto)
   }.map(Projeto(p)).single().apply()
 
-  def create(idCliente: Option[Long], idEquipe: Option[Long], nomeProjeto: String, descricaoProjeto: String,
-             dtInicioProjeto: Option[DateTime], dtFinalProjeto: Option[DateTime], createdAt: DateTime, deletedAt: Option[DateTime])
+  def create(idCliente: Option[Long], idEquipe: Option[Long], nomeProjeto: String, descricaoProjeto: Option[String],
+             dtInicioProjeto: Option[DateTime], dtFinalProjeto: Option[DateTime], createdAt: DateTime)
             (implicit session: DBSession = AutoSession): Projeto = {
 
     val id = withSQL {
@@ -81,7 +86,7 @@ object Projeto extends SQLSyntaxSupport[Projeto] with Settings {
       dtInicioProjeto = dtInicioProjeto,
       dtFinalProjeto = dtFinalProjeto,
       createdAt = createdAt,
-      deletedAt = deletedAt
+      deletedAt = None
     )
   }
 
@@ -99,8 +104,28 @@ object Projeto extends SQLSyntaxSupport[Projeto] with Settings {
     p
   }
 
+  def alterarNomeProjetoDescricao(idProjeto: Long, nmProjeto: String, descricao: String)(implicit session: DBSession = autoSession) = {
+    withSQL {
+      update(Projeto).set(
+        Projeto.column.idProjeto -> idProjeto,
+        Projeto.column.nomeProjeto -> nmProjeto,
+        Projeto.column.descricaoProjeto -> descricao
+      ).where.eq(Projeto.column.idProjeto, idProjeto)
+    }.update().apply()
+  }
+
+  def retornarDataInicioFimProjeto(idCliente: Long, idProjeto: Long)(implicit session: DBSession = AutoSession) = {
+    sql"""
+      select count(t.id_tarefa), min(t.dt_inicio_tarefa), max(t.dt_final_tarefa)
+      from tarefa t
+      join projeto p on t.id_projeto = p.id_projeto
+      join cliente c on p.id_cliente = c.id_cliente
+      where c.id_cliente = ${idCliente} and p.id_projeto = ${idProjeto}
+      """.map(rs => (rs.int(1), rs.jodaDateTimeOpt(2), rs.jodaDateTimeOpt(3))).single().apply()
+  }
+
   def criarMinimoProjeto(p: Projeto)
-                         (implicit session: DBSession = AutoSession): Projeto = {
+                        (implicit session: DBSession = AutoSession): Projeto = {
     withSQL {
       update(Projeto).set(
         Projeto.column.nomeProjeto -> p.nomeProjeto,

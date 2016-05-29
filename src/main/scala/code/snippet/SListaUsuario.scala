@@ -70,6 +70,14 @@ class SListaUsuario extends StatefulSnippet with Logger {
     }
   }
 
+  private def validarEmailCadastrado(email: String) = {
+    val usuario = Usuario.findByEmail(email)
+    usuario match {
+      case Some(u) => true
+      case None => false
+    }
+  }
+
   private def adicionarUsuario: JsCmd = {
     if (validarEmail(email)) {
       SetHtml("mensagem", mensagemErro(Mensagem.EMAIL_INVALIDO))
@@ -80,6 +88,9 @@ class SListaUsuario extends StatefulSnippet with Logger {
     else if (validarSenha(senha)) {
       SetHtml("mensagem", mensagemErro(Mensagem.TAM_SENHA.format(6)))
     }
+      else if (validarEmailCadastrado(email)) {
+      SetHtml("mensagem", mensagemErro(Mensagem.EMAIL_JA_USADO))
+    }
     else {
       //Email.sendEMail("danielgrafael@gmail.com", "danielgrafael@gmail.com", "", "teste", <div></div>)
       val u = Usuario.create(
@@ -89,7 +100,7 @@ class SListaUsuario extends StatefulSnippet with Logger {
         None,
         None,
         None,
-        senha,
+        gerarSHa(senha),
         None,
         None,
         None,

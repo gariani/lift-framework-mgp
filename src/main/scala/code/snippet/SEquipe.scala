@@ -1,7 +1,7 @@
 package code.snippet
 
 import code.lib.Util._
-import code.model.Equipe
+import code.model.{Usuario, Equipe}
 import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException
 import net.liftmodules.widgets.bootstrap._
 import net.liftweb.common.{Logger, Empty, Full}
@@ -42,6 +42,8 @@ class SEquipe extends StatefulSnippet with Logger {
     case "lista" => lista
     case "render" => adicionaNovoEquipe
     case "addNovoEquipe" => addNovoEquipe
+    case "detalheEquipes" => detalheEquipes
+    case "listaDetalheEquipes" => listaDetalheEquipes
   }
 
   def addNovoEquipe = {
@@ -177,8 +179,12 @@ class SEquipe extends StatefulSnippet with Logger {
       _ajaxDelete(idEquipe, guid)
     }
     catch {
-      case e: Exception => {erroExcluirEquipe("Erro ao excluir equipe: Existe projetos relacionados.") }
-      case _: Throwable => {erroExcluirEquipe("Erro ao excluir equipe: Existe projetos relacionados. Mensagem original: ") }
+      case e: Exception => {
+        erroExcluirEquipe("Erro ao excluir equipe: Existe projetos relacionados.")
+      }
+      case _: Throwable => {
+        erroExcluirEquipe("Erro ao excluir equipe: Existe projetos relacionados. Mensagem original: ")
+      }
     }
   }
 
@@ -206,6 +212,50 @@ class SEquipe extends StatefulSnippet with Logger {
       }
     }
     op.get
+  }
+
+  def detalheEquipes = {
+    "#novaEquipe" #> SHtml.ajaxButton(Text("Nova Equipe"), () => JsCmds._Noop, ("class" -> "btn btn-default"))
+  }
+
+  def listaDetalheEquipes(nodeSeq: NodeSeq): NodeSeq = {
+    val temp = retornarTemplate("_lista_equipes")
+    val equipe = Equipe.findAllEquipes()
+    val cssSel = "#equipes" #> equipe.map { e =>
+      val guid = associatedGuid(e.idEquipe).get
+      val usuarios = Equipe.findEquipeUsuarioPorEquipe(e.idEquipe)
+      "#nomeEquipe" #> SHtml.a(Text(e.nomeEquipe), JsCmds.Noop, ("data-toggle" -> "collapse"), ("href" -> retornarGuid(guid))) &
+        "#equipe" #> {
+          "#equipe [id]" #> (guid) &
+            ".listaEquipe *" #> usuarios.map { u =>
+              "#nmUsuario" #> SHtml.a(() => JsCmds.Noop, Text(u._3)) &
+                "#trabalhando" #> Text("") &
+                "#disponivel" #> Text("") &
+                "#quantResponsavel" #> Text(quantTarefas(u._4)) &
+                "#quantCriado" #> Text(quantTarefas(u._5))
+            }
+        }
+    }
+    cssSel.apply(temp)
+  }
+
+  private def quantTarefas(quant: Option[Int]) = {
+    quant match {
+      case Some(q) => q.toString
+      case None => 0.toString
+    }
+  }
+
+  private def retornarGuid(guid: String): String = {
+    "#" + guid
+  }
+
+  private def retornarTemplate(nomeTemplate: String) = {
+    var temp: NodeSeq = NodeSeq.Empty
+    temp = S.runTemplate("sistema" :: "equipe" :: "equipe-hidden" :: nomeTemplate :: Nil).openOr(<div>
+      {"Template não encontrado"}
+    </div>)
+    temp
   }
 
   private val formCadastroEquipe: NodeSeq =

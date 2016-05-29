@@ -1,0 +1,162 @@
+<div>
+    <div class="lift:STarefa.complementoTarefa">
+        <head>
+            <script>
+                $('.dtDesejada').editable({
+                    combodate: {
+                        minYear: 2016,
+                        maxYear: 2018
+                    },
+                    type: 'combodate',
+                    format: 'DD/MM/YYYY HH:mm',
+                    template: 'DD / MM / YYYY     HH : mm',
+                    emptytext: 'Não informado',
+                    url: '/sistema/api/tarefa/dtDesejada',
+                    title: 'Data desejada'
+                });
+            </script>
+        </head>
+        <div id="conteudo">
+            <div class="container">
+                <div class="row">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h4><strong><span id="nomeTarefa">Nome Tarefa</span></strong></h4>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <span class="dadoTarefa"></span>
+                        <div class="col-md-12">
+                            <span id="dadoTarefa" style="color: #c9cccf">#Id Tarefa</span>
+                        </div>
+                    </div>
+                    <br/>
+                    <div class="row">
+                        <div class="col-md-5">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <button id="iniciarTarefa" class="btn btn-default"><i id="aux"
+                                                                                          class="fa fa-play fa-fw"></i>Iniciar
+                                    </button>
+                                </div>
+                                <div class="col-md-3">
+                                    <button id="entregar" class="btn btn-default">Entregar</button>
+                                </div>
+                                <div class="col-md-2 pull-left">
+                                    <h6><span>Status</span></h6>
+                                    <span id="status">Status</span>
+                                </div>
+                                <div class="col-md-5"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-5"></div>
+                    </div>
+                    <br/>
+                    <div class="row" style="background-color:#ededed;">
+                        <div class="col-md-5">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6><label>Responsável: </label></h6>
+                                </div>
+                                <div class="col-md-6 pull-right">
+                                    <h6><span id="responsavel">Responsável</span></h6>
+                                </div>
+                            </div>
+                            <br/>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6><label>Tipo de Tarefa:</label></h6>
+                                </div>
+                                <div class="col-md-6 pull-right">
+                                    <h6><span id="tipoTarefa">Tipo de Tarefa</span></h6>
+                                </div>
+                            </div>
+                            <br/>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6><label>Cliente->Projeto: </label></h6>
+                                </div>
+                                <div class="col-md-6 pull-right">
+                                    <h6><span id="cliente_projeto">Cliente -> Projeto</span></h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-7">
+                            <div class="text-right pull-1">
+                                <div class="col-md-4">
+                                    <h6><span><strong>ESFORÇO</strong></span></h6>
+                                    <h4><strong><a href="#" class="esforcoEstimado" id="esforcoEstimadoModal"
+                                                   name="esforcoEstimado"></a></strong></h4>
+                                    <div class="pull-right progress" style="width: 150px; height: 3px">
+                                        <div class="progress-bar progress-bar-success mypopover" id="progressoEsforco"
+                                             role="progressbar" style="width:100%">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <h6><strong>INÍCIO</strong></h6>
+                                    <h4><strong><a href="#" class=".dataInicio" id="dataInicio">DATAAAA</a></strong>
+                                    </h4>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <h6><strong>ENTREGA</strong></h6>
+                                            <h4><strong><a href="#" class=".dtEntrega" id="dataEntrega"></a></strong>
+                                            </h4>
+                                            <h4><span><strong><span class="label label-success"><span
+                                                    id="diasRestantes"></span></span></strong>
+                                               </span></h4>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <h5><strong>DATA DESEJADA</strong></h5>
+                                            <h5><strong><a href="#" class=".dtDesejada" id="dataDesejada">DATA
+                                                DESEJADA</a></strong></h5>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br/>
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>Descricao</label>
+                        <span id="descricao">descricao</span>
+                    </div>
+                </div>
+                <br/>
+                <div class="row">
+                    <ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
+                        <li class="paramim"><a href="#comentario" data-toggle="tab">Comentário</a></li>
+                        <li><a href="#checklist" data-toggle="tab">Checklist</a></li>
+                    </ul>
+                    <div id="my-tab-content" class="tab-content">
+                        <div class="tab-pane active" id="comentario">
+                            <div class="row">
+                                <div class="col-md-12"><br/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="checklist">
+                            <div class="row">
+                                <div class="col-md-12"><br/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+            </div>
+        </div>
+    </div>
+</div>

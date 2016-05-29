@@ -46,10 +46,11 @@ object Equipe extends SQLSyntaxSupport[Equipe] with Settings {
           from equipe e
           left join usuario u on e.id_equipe  = u.id_equipe
           left join usuario u2 on e.id_lider = u2.id_usuario
+          where e.deleted_at is null and u.deleted_at is null and u2.deleted_at is null
           group by e.id_equipe, e.nome_equipe, u2.nome
       """
-  .map { rs => (rs.int("id_equipe"), rs.string("nome_equipe"), rs.stringOpt(3), rs.int("quantUsuario"))
-  }.list().apply()
+      .map { rs => (rs.int("id_equipe"), rs.string("nome_equipe"), rs.stringOpt(3), rs.int("quantUsuario"))
+      }.list().apply()
 
   def findEquipeQuantUsuario(idEquipe: Long)(implicit session: DBSession = autoSession) =
     sql"""select e.id_equipe, e.nome_equipe, u2.nome, count(u.id_usuario) as quantUsuario
@@ -60,6 +61,25 @@ object Equipe extends SQLSyntaxSupport[Equipe] with Settings {
           group by e.id_equipe, e.nome_equipe, u2.nome
       """.map { rs => (rs.int("id_equipe"), rs.string("nome_equipe"), rs.stringOpt("nome"), rs.int("quantUsuario"))
     }.single().apply()
+
+  def findEquipeUsuarioPorEquipe(idEquipe: Long)(implicit session: DBSession = autoSession) =
+    sql"""
+       SELECT
+         e.id_equipe,
+         e.nome_equipe,
+         u.nome,
+         (select count(t.id_tarefa) from tarefa t where u.id_usuario = t.id_created_by) as quantCriadoPor,
+         (select count(t.id_tarefa) from tarefa t where u.id_usuario = t.id_usuario_responsavel) as quantReposp
+       FROM equipe e
+         LEFT JOIN usuario u ON e.id_equipe = u.id_equipe
+       WHERE e.id_equipe = ${idEquipe} and u.deleted_at is null
+       GROUP BY e.id_equipe, e.nome_equipe, u.nome
+      """.map { rs => (rs.int(1), rs.string(2), rs.string(3), rs.intOpt(4), rs.intOpt(5))
+    }.list().apply()
+
+  def findAllEquipes(implicit sesession: DBSession = AutoSession): List[Equipe] = withSQL {
+    select.from(Equipe as e).where.isNull(e.deletedAt)
+  }.map(Equipe(e)).list().apply()
 
   def findEquipeById(idEquipe: Long)(implicit sesession: DBSession = AutoSession): Option[Equipe] = withSQL {
     select.from(Equipe as e).where.eq(e.idEquipe, idEquipe)

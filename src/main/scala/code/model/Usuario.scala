@@ -90,7 +90,7 @@ object Usuario extends SQLSyntaxSupport[Usuario] with Settings {
   }.map{ rs => (rs.int(1), rs.string(2)) }.list().apply()
 
   def findAllUsuariosLivresPorEquipe(implicit session: DBSession = AutoSession): List[(Int, String)] = withSQL {
-    select(u.idUsuario, u.nome).from(Usuario as u).where.isNull(u.deletedAt).and.isNull(u.idEquipe)
+    select(u.idUsuario, u.nome).from(Usuario as u).where.isNull(u.deletedAt).and.isNotNull(u.idEquipe)
   }.map{ rs => (rs.int(1), rs.string(2)) }.list().apply()
 
   def findByEquipe(idEquipe: Long)(implicit session: DBSession = AutoSession): List[Usuario] = withSQL {

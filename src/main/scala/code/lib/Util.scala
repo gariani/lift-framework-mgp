@@ -45,7 +45,10 @@ object Util {
       case Some(s) => Some(s.sha256.toString)
       case None => None
     }
+  }
 
+  def gerarSHa(sha: String): String = {
+    sha.sha256.toString
   }
 
   def formataNum(i: Int): String = {

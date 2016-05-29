@@ -21,6 +21,7 @@ case class Tarefa(idTarefa: Long,
                   idTipoTarefa: Option[Long],
                   idStatusTarefa: Option[Long],
                   estimativa: Option[String],
+                  emDesenvolvimento: Boolean,
                   dtInicioTarefa: Option[DateTime],
                   dtFinalTarefa: Option[DateTime],
                   dtEntregaTarefa: Option[DateTime],
@@ -41,8 +42,10 @@ object Tarefa extends SQLSyntaxSupport[Tarefa] with Settings {
 
   override val tableName = "tarefa"
 
-  override val columns = Seq("id_tarefa", "id_projeto", "id_usuario_responsavel", "nome_tarefa", "descricao", "id_tipo_tarefa", "id_status_tarefa", "estimativa",
-    "dt_inicio_tarefa", "dt_final_tarefa", "dt_entrega_tarefa", "id_created_by", "created_at", "deleted_at")
+  override val columns = Seq("id_tarefa", "id_projeto", "id_usuario_responsavel", "nome_tarefa", "descricao",
+    "id_tipo_tarefa", "id_status_tarefa", "estimativa", "em_desenvolvimento",
+    "dt_inicio_tarefa", "dt_final_tarefa", "dt_entrega_tarefa",
+    "id_created_by", "created_at", "deleted_at")
 
   def apply(t: SyntaxProvider[Tarefa])(rs: WrappedResultSet): Tarefa = apply(t)(rs)
 
@@ -70,6 +73,7 @@ object Tarefa extends SQLSyntaxSupport[Tarefa] with Settings {
     idTipoTarefa = rs.longOpt(t.idTipoTarefa),
     idStatusTarefa = rs.longOpt(t.idStatusTarefa),
     estimativa = rs.stringOpt(t.estimativa),
+    emDesenvolvimento = rs.boolean(t.emDesenvolvimento),
     dtInicioTarefa = rs.jodaDateTimeOpt(t.dtInicioTarefa),
     dtFinalTarefa = rs.jodaDateTimeOpt(t.dtFinalTarefa),
     dtEntregaTarefa = rs.jodaDateTimeOpt(t.dtEntregaTarefa),
@@ -202,6 +206,58 @@ object Tarefa extends SQLSyntaxSupport[Tarefa] with Settings {
         rs.stringOpt("nome_cliente"))
       }.list().apply()
 
+  def findTarefaDetalhe(idTarefa: Long)(implicit session: DBSession = AutoSession) =
+    sql"""select
+       t.id_tarefa,
+       t.id_projeto,
+       t.id_status_tarefa,
+       t.id_usuario_responsavel,
+       t.id_created_by,
+       t.descricao,
+       t.id_tipo_tarefa,
+       t.estimativa,
+       t.dt_inicio_tarefa,
+       t.dt_final_tarefa,
+       t.dt_entrega_tarefa,
+       t.nome_tarefa,
+       t.created_at,
+       tt.nome_tipo_tarefa,
+       s.nome_status_tarefa,
+       u.nome as nome_responsavel,
+       u2.nome as nome_criador,
+       p.nome_projeto,
+       c.nome_cliente
+       from tarefa t
+       left join tipo_tarefa tt on t.id_tipo_tarefa = tt.id_tipo_tarefa
+       left join status_tarefa s on t.id_status_tarefa = s.id_status_tarefa
+       left join usuario u on t.id_usuario_responsavel = u.id_usuario
+       left join usuario u2 on t.id_created_by= u2.id_usuario
+       left join projeto p on t.id_projeto = p.id_projeto
+       left join cliente c on c.id_cliente = p.id_cliente
+       where t.deleted_at is null and
+       t.id_tarefa = ${idTarefa}
+      """
+      .map { rs => (rs.long("id_tarefa"),
+        rs.longOpt("id_projeto"),
+        rs.longOpt("id_status_tarefa"),
+        rs.longOpt("id_usuario_responsavel"),
+        rs.longOpt("id_created_by"),
+        rs.stringOpt("descricao"),
+        rs.stringOpt("id_tipo_tarefa"),
+        rs.stringOpt("estimativa"),
+        rs.jodaDateTimeOpt("dt_inicio_tarefa"),
+        rs.jodaDateTimeOpt("dt_final_tarefa"),
+        rs.jodaDateTimeOpt("dt_entrega_tarefa"),
+        rs.string("nome_tarefa"),
+        rs.jodaDateTimeOpt("created_at"),
+        rs.stringOpt("nome_tipo_tarefa"),
+        rs.stringOpt("nome_status_tarefa"),
+        rs.stringOpt("nome_responsavel"),
+        rs.stringOpt("nome_criador"),
+        rs.stringOpt("nome_projeto"),
+        rs.stringOpt("nome_cliente"))
+      }.single().apply()
+
   /*def findAllDetalheTeste()(implicit session: DBSession = AutoSession) =
     sql"""
           select
@@ -230,6 +286,7 @@ object Tarefa extends SQLSyntaxSupport[Tarefa] with Settings {
              idTipoTarefa: Option[Long],
              idStatusTarefa: Option[Long],
              estimativa: Option[String],
+             emDesenvolvimento: Boolean,
              dtInicioTarefa: Option[DateTime],
              dtFinalTarefa: Option[DateTime],
              dtEntregaTarefa: Option[DateTime],
@@ -246,6 +303,7 @@ object Tarefa extends SQLSyntaxSupport[Tarefa] with Settings {
         column.idTipoTarefa -> idTipoTarefa,
         column.idStatusTarefa -> idStatusTarefa,
         column.estimativa -> estimativa,
+        column.emDesenvolvimento -> emDesenvolvimento,
         column.dtInicioTarefa -> dtInicioTarefa,
         column.dtFinalTarefa -> dtFinalTarefa,
         column.dtEntregaTarefa -> dtEntregaTarefa,
@@ -263,6 +321,7 @@ object Tarefa extends SQLSyntaxSupport[Tarefa] with Settings {
       idTipoTarefa = idTipoTarefa,
       idStatusTarefa = idStatusTarefa,
       estimativa = estimativa,
+      emDesenvolvimento = emDesenvolvimento,
       dtInicioTarefa = dtInicioTarefa,
       dtFinalTarefa = dtFinalTarefa,
       dtEntregaTarefa = dtEntregaTarefa,
@@ -333,6 +392,49 @@ object Tarefa extends SQLSyntaxSupport[Tarefa] with Settings {
     }
     val tup: Seq[((SQLSyntax, String))] = Seq(column.idStatusTarefa -> id_status_tarefa)
     saveTarefa(id, tup)
+  }
+
+  def retornarTarefasEntregues(idCliente: Long, idProjeto: Long)(implicit session: DBSession = AutoSession) = {
+    sql"""
+       select count(t.id_tarefa)
+       from projeto p
+         left join tarefa t on t.id_projeto = p.id_projeto and t.dt_entrega_tarefa is not null
+         left join cliente c on p.id_cliente = c.id_cliente
+       where c.id_cliente = ${idCliente} and p.id_projeto = ${idProjeto}
+      """.map(rs => (rs.double(1))).single().apply()
+  }
+
+  def retornarTarefasNaoEntregues(idCliente: Long, idProjeto: Long)(implicit session: DBSession = AutoSession) = {
+    sql"""
+       select count(t.id_tarefa)
+       from projeto p
+         left join tarefa t on t.id_projeto = p.id_projeto and t.dt_entrega_tarefa is null
+         left join cliente c on p.id_cliente = c.id_cliente
+      where c.id_cliente = ${idCliente} and p.id_projeto = ${idProjeto}
+      """.map(rs => (rs.double(1))).single().apply()
+  }
+
+  def retornarTarefasEmDesenlvimento(idCliente: Long, idProjeto: Long)(implicit session: DBSession = AutoSession) = {
+    sql"""
+       select count(t.id_tarefa)
+       from projeto p
+         left join tarefa t on t.id_projeto = p.id_projeto
+          and t.em_desenvolvimento = true
+          and t.dt_entrega_tarefa is NULL
+          and t.dt_final_tarefa is NULL
+        left join cliente c on p.id_cliente = c.id_cliente
+      where c.id_cliente = ${idCliente} and p.id_projeto = ${idProjeto}
+      """.map(rs => (rs.double(1))).single().apply()
+  }
+
+  def retornarTotalTarefas(idCliente: Long, idProjeto: Long)(implicit session: DBSession = AutoSession) = {
+    sql"""
+      select count(t.id_tarefa)
+      from projeto p
+      left join tarefa t on t.id_projeto = p.id_projeto
+      left join cliente c on p.id_cliente = c.id_cliente
+      where c.id_cliente = ${idCliente} and p.id_projeto = ${idProjeto}
+      """.map(rs => (rs.int(1))).single().apply()
   }
 
   def saveDataTarefa(id: Long, tup: Seq[((SQLSyntax, DateTime))])(implicit session: DBSession = AutoSession) = withSQL {

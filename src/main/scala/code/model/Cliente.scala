@@ -1,6 +1,7 @@
 package code.model
 
 import code.lib.Settings
+import jdk.nashorn.internal.runtime.JSType
 import org.joda.time.DateTime
 import scalikejdbc._
 import sqls.count
@@ -43,10 +44,10 @@ object Cliente extends SQLSyntaxSupport[Cliente] with Settings {
   def findAllClienteLista()(implicit session: DBSession = AutoSession) = {
     withSQL {
       select(c.idCliente, c.nomeCliente).from(Cliente as c).where.isNull(c.deletedAt)
-    }.map{ rs => (rs.int(1), rs.string(2))}.list().apply()
+    }.map { rs => (rs.int(1), rs.string(2)) }.list().apply()
   }
 
-  def findClienteById(idCliente: Long)(implicit sesession: DBSession = AutoSession): Option[Cliente]=
+  def findClienteById(idCliente: Long)(implicit sesession: DBSession = AutoSession): Option[Cliente] =
     withSQL {
       select.from(Cliente as c)
         .leftJoin(Projeto as p)
@@ -66,6 +67,15 @@ object Cliente extends SQLSyntaxSupport[Cliente] with Settings {
       .toMany(Projeto.opt(p)).map { (cliente, projetos) => cliente.copy(projetos = projetos) }
 
   }.list.apply()
+
+  def findPrimeiraUltimaTarefa(idCliente: Long)(implicit session: DBSession = AutoSession) =
+    sql"""
+        select min(t.dt_inicio_tarefa), max(t.dt_final_tarefa)
+        from tarefa t
+        join projeto p on t.id_projeto = p.id_projeto
+        join cliente c on p.id_cliente = c.id_cliente
+        where c.id_cliente = ${idCliente}
+      """.map { rs => (rs.longOpt(1), rs.longOpt(2)) }.list().apply()
 
   def findClienteByNome(nomeCliente: String)(implicit sesession: DBSession = AutoSession): Option[Int] = withSQL {
     select(count(c.idCliente)).from(Cliente as c)

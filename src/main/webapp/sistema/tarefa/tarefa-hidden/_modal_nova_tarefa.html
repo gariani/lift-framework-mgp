@@ -3,7 +3,8 @@
         <head>
             <script type="text/javascript" src="/js/ckeditor/ckeditor.js"></script>
             <script type="text/javascript" src="/js/ckeditor/sample.js"></script>
-            <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.15.0/jquery.validate.js" type="text/javascript"></script>
+            <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.15.0/jquery.validate.js"
+                    type="text/javascript"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.15.0/additional-methods.min.js"
                     type="text/javascript"></script>
 
@@ -17,67 +18,71 @@
             </style>
 
         </head>
-
-        <form class="lift:STarefa.novaTarefa?form=post;eager_eval=true" role="form" method="post">
-            <fieldset>
-                <div class="lift:msgs?showAll=true"></div>
-                <div class="row">
-                    <div class="col-md-12 form-group">
-                        <span id="nomeTarefa"></span>
-                    </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <form class="lift:STarefa.novaTarefa?form=post;eager_eval=true" role="form" method="post">
+                        <fieldset>
+                            <div class="row">
+                                <div class="col-md-12 form-group">
+                                    <span id="nomeTarefa"></span>
+                                </div>
+                            </div>
+                            <br/>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label><h5>* Responsável: </h5></label>
+                                </div>
+                                <div class="col-md-9">
+                                    <span id="responsavel"></span>
+                                </div>
+                            </div>
+                            <br/>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label><h5>* Tipo de Tarefa: </h5></label>
+                                </div>
+                                <div class="col-md-9">
+                                    <span id="tipoTarefa"></span>
+                                </div>
+                            </div>
+                            <br/>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label><h5>* Cliente->Projeto: </h5></label>
+                                </div>
+                                <div class="col-md-9">
+                                    <span id="cliente_projeto"></span>
+                                </div>
+                            </div>
+                            <br/>
+                            <div>
+                                <div class="col-md-3">
+                                    <label><h5>Descrição:</h5></label>
+                                </div>
+                                <div class="col-md-9">
+                                    <span id="descricao"></span>
+                                </div>
+                                <!--<script type="text/javascript">
+                                //<![CDATA[
+                                var instance = CKEDITOR.instances['descricao'];
+                                if (instance) {
+                                    instance.destroy(true);
+                                }
+                                CKEDITOR.replace('bodyText');
+                                //]]>
+                                </script>-->
+                                <br/>
+                                <div class="row">
+                                    <span id="anexarArquivo"></span>
+                                    <span id="incluirSeguidor"></span>
+                                    <span id="checklist"></span>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </form>
                 </div>
-                <br/>
-                <div class="row">
-                    <div class="col-md-3">
-                        <label><h5>* Responsável: </h5></label>
-                    </div>
-                    <div class="col-md-9">
-                        <span id="responsavel"></span>
-                    </div>
-                </div>
-                <br/>
-                <div class="row">
-                    <div class="col-md-3">
-                        <label><h5>* Tipo de Tarefa: </h5></label>
-                    </div>
-                    <div class="col-md-9">
-                        <span id="tipoTarefa"></span>
-                    </div>
-                </div>
-                <br/>
-                <div class="row">
-                    <div class="col-md-3">
-                        <label><h5>* Cliente->Projeto: </h5></label>
-                    </div>
-                    <div class="col-md-9">
-                        <span id="cliente_projeto"></span>
-                    </div>
-                </div>
-                <br/>
-                <div>
-                    <div class="col-md-3">
-                        <label><h5>Descrição:</h5></label>
-                    </div>
-                    <div class="col-md-9">
-                        <span id="descricao"></span>
-                    </div>
-                    <!--<script type="text/javascript">
-                    //<![CDATA[
-                    var instance = CKEDITOR.instances['descricao'];
-                    if (instance) {
-                        instance.destroy(true);
-                    }
-                    CKEDITOR.replace('bodyText');
-                    //]]>
-                    </script>-->
-                    <br/>
-                    <div class="row">
-                        <span id="anexarArquivo"></span>
-                        <span id="incluirSeguidor"></span>
-                        <span id="checklist"></span>
-                    </div>
-                </div>
-            </fieldset>
-        </form>
+            </div>
+        </div>
     </div>
 </div>

@@ -37,7 +37,7 @@ class FormDialog(modal: Boolean, title: String) {
 
   def button(title: String): NodeSeq = {
     SHtml.ajaxButton(title,
-      () => createDialog(_bindTemplate(getFormContent)))
+      () => createDialog(_bindTemplate(getFormContent)), "class" -> "btn btn-default")
   }
 
   def a(title: String, opt: String): NodeSeq = {
