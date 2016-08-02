@@ -1,2 +1,24 @@
+engines:
+  rubocop:
+    enabled: true
+  brakeman:
+    enabled: true
+  eslint:
+    enabled: true
+  csslint:
+    enabled: true
+  duplication:
+    enabled: true
+    config:
+      languages:
+      - scala
+ratings:
+  paths:
+  - app/**
+  - lib/**
+  - "**.scala"
 exclude_paths:
+- spec/**/*
 - "**.js"
+- "**.xml"
+- "**.css"
