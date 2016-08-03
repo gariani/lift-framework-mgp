@@ -4,7 +4,7 @@ version := "0.0.4"
 
 organization := "net.liftweb"
 
-scalaVersion := "2.11.7"
+scalaVersion := "2.11.8"
 
 resolvers ++= Seq("snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
   "releases" at "https://oss.sonatype.org/content/repositories/releases",
@@ -22,6 +22,8 @@ unmanagedResourceDirectories in Test <+= (baseDirectory) {
 //ivyScala := ivyScala.value map { _.copy(overrideScalaVersion = true) }
 
 scalacOptions ++= Seq("-deprecation", "-unchecked")
+
+enablePlugins(JavaAppPackaging)
 
 libraryDependencies ++= {
   val liftVersion = "2.6.3"
