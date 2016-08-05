@@ -1,3 +1,5 @@
+import com.typesafe.sbt.packager.archetypes.JavaAppPackaging
+
 name := "MGP"
 
 version := "0.0.4"
@@ -32,7 +34,7 @@ libraryDependencies ++= {
     "net.liftweb" %% "lift-webkit" % liftVersion % "compile",
     "net.liftmodules" %% "omniauth_2.6" % "0.17" % "compile",
     "com.dropbox.core" % "dropbox-core-sdk" % "1.7.6" % "compile",
-    "mysql" % "mysql-connector-java" % "5.1.38",
+    "postgresql" % "postgresql" % "9.1-901.jdbc4",
     "org.slf4j" % "slf4j-api" % "1.7.5" % "compile",
     "org.slf4j" % "slf4j-simple" % "1.7.5" % "compile",
     "net.liftweb" %% "lift-webkit" % liftVersion % "compile",
@@ -51,5 +53,6 @@ libraryDependencies ++= {
     "com.netaporter" %% "scala-uri" % "0.4.14"
   )
 }
+
 
 scalacOptions in Test ++= Seq("-Yrangepos")
