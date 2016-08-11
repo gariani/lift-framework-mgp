@@ -1,13 +1,11 @@
 package code.snippet
 
 import code.lib.Util._
-import code.model.{Usuario, Equipe}
-import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException
+import code.model.{Equipe}
 import net.liftmodules.widgets.bootstrap._
 import net.liftweb.common.{Logger, Empty, Full}
 import net.liftweb.http.js.JsCmds.SetHtml
 import net.liftweb.http.{SHtml, StatefulSnippet}
-import net.liftweb.util
 import net.liftweb.http.js.jquery.JqJsCmds
 import net.liftweb.http.js.jquery.JqJsCmds.{Unblock, ModalDialog}
 import net.liftweb.http.js.{JsCmds, JsCmd}

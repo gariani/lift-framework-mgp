@@ -8,9 +8,9 @@ import scalikejdbc._
 
 object DataSourceHi {
 
-  private var url: String = "jdbc:mysql://localhost:3306/mgp"
-  private var user: String = "root"
-  private var password: String = "root"
+  private val url: String = "jdbc:mysql://localhost:3306/mgp"
+  private val user: String = "root"
+  private val password: String = "root"
 
   private[this] lazy val instance: DataSource = {
     val ds = new HikariConfig()
