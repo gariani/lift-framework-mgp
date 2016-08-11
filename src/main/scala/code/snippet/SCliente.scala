@@ -3,13 +3,12 @@ package code.snippet
 import java.sql.SQLIntegrityConstraintViolationException
 
 import code.lib.Util._
-import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException
 import net.liftmodules.widgets.bootstrap._
 import net.liftweb.common.{Logger, Empty, Full}
 import net.liftweb.http.js.JsCmds.SetHtml
 import net.liftweb.http.{SHtml, StatefulSnippet}
 import net.liftweb.util
-import code.model.{Cliente}
+import code.model.Cliente
 import net.liftweb.http.js.jquery.JqJsCmds
 import net.liftweb.http.js.jquery.JqJsCmds.{Unblock, ModalDialog}
 import net.liftweb.http.js.{JsCmds, JsCmd}
@@ -32,11 +31,11 @@ object clienteExcluir extends SessionVar[List[(Cliente, String)]](List())
 
 class SCliente extends StatefulSnippet {
 
-  private val TEMPLATE_LIST_ID = "lista-cliente";
+  private val TEMPLATE_LIST_ID = "lista-cliente"
   private var nome: String = ""
   private var projetos: String = ""
   private var cliente: List[Cliente] = List()
-  private var count: Long = 0;
+  private var count: Long = 0
   private var nomeCliente: String = ""
 
   def dispatch = {
