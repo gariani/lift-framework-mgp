@@ -4,7 +4,6 @@ import javax.sql.DataSource
 import com.zaxxer.hikari.HikariDataSource
 import com.zaxxer.hikari._
 import scalikejdbc.{DataSourceConnectionPool, ConnectionPool}
-import scalikejdbc._
 
 object DataSourceHi {
 
